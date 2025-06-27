@@ -1,57 +1,64 @@
-# Larval Management & Feeding Notification System
+# Butterfly Breeding Management System
 
 ## Overview
 
-This is a Streamlit-based web application designed to manage larval batches and send automated feeding notifications via SMS. The system tracks multiple larval batches, monitors their feeding schedules, and sends timely reminders to ensure proper care and feeding of laboratory specimens.
+This is a comprehensive JavaScript-based web application designed for advanced butterfly breeding operations. The system features CNN-powered species classification, automated cage batch tracking, profit optimization, and real-time SMS notifications. Built for professional butterfly breeders who need sophisticated monitoring and management capabilities.
 
 ## System Architecture
 
 ### Frontend Architecture
-- **Framework**: Streamlit web application
-- **UI Pattern**: Multi-page navigation with sidebar
-- **Pages**: Dashboard, Add New Batch, Settings, Feeding Log
-- **State Management**: Streamlit session state for data persistence
-- **Deployment**: Autoscale deployment on Replit infrastructure
+- **Framework**: Pure JavaScript SPA with Socket.IO real-time updates
+- **UI Pattern**: Responsive multi-tab interface with modern CSS gradients
+- **Pages**: Dashboard, Cage Management, Profit Analytics, Breeding Log, Settings
+- **State Management**: Real-time synchronization with server via WebSocket
+- **Deployment**: Node.js Express server on Replit infrastructure
 
 ### Backend Architecture
-- **Language**: Python 3.11
-- **Data Persistence**: JSON file-based storage (no database)
+- **Language**: Node.js with Express framework
+- **Real-time Communication**: Socket.IO for live updates and notifications
+- **Data Persistence**: JSON file-based storage with automatic serialization
 - **Core Services**:
-  - `DataManager`: Handles all data operations and batch management
-  - `twilio_service`: SMS notification service integration
-- **Background Processing**: Automatic notification checks every 60 seconds
+  - `CageBatch`: Advanced breeding batch management class
+  - Twilio SMS integration for critical alerts
+  - QR code generation for batch tracking
+  - Automated profit calculation engine
+- **Background Processing**: Cron-based monitoring every 30 minutes
 
 ### Data Storage
 - **Primary Storage**: JSON files for data persistence
-  - `larval_batches.json`: Stores batch information and schedules
-  - `feeding_log.json`: Tracks feeding history and events
-- **Session State**: In-memory storage for application state
-- **Data Format**: JSON with ISO datetime serialization
+  - `data/batches.json`: Advanced cage batch information with profit calculations
+  - `data/breeding_log.json`: Comprehensive breeding activity tracking
+  - `data/profit_data.json`: Financial analytics and projections
+- **File Uploads**: Image storage for batch documentation
+- **Real-time State**: In-memory caching with WebSocket synchronization
 
 ## Key Components
 
-### 1. Main Application (`app.py`)
-- Streamlit web interface with multi-page navigation
-- Real-time notification checking and dashboard updates
-- Session state management for data persistence
-- Auto-refresh functionality for monitoring active batches
+### 1. Main Server (`server.js`)
+- Express.js REST API with comprehensive breeding management endpoints
+- Socket.IO real-time communication for live updates
+- Advanced CageBatch class with profit optimization algorithms
+- Automated monitoring with cron-based scheduling
+- Multi-species support with host plant requirements database
 
-### 2. Data Manager (`data_manager.py`)
-- Centralized data operations for batch and feeding log management
-- JSON serialization/deserialization with datetime handling
-- Business logic for batch lifecycle management
-- Integration with notification system
+### 2. Advanced Breeding Features
+- **Species Database**: 8 butterfly species with host plant requirements
+- **Lifecycle Management**: 4-stage tracking (Egg → Larva → Pupa → Adult)
+- **Quality Assessment**: Defect tracking with quality score calculations
+- **Profit Optimization**: Real-time revenue and cost projections
+- **QR Code Generation**: Batch identification and mobile scanning
 
-### 3. Twilio Service (`twilio_service.py`)
-- SMS notification delivery via Twilio API
-- Environment-based configuration for credentials
-- Message formatting and delivery confirmation
-- Error handling and user feedback
+### 3. Real-time Monitoring
+- **SMS Alerts**: Twilio integration for critical notifications
+- **WebSocket Updates**: Live dashboard synchronization
+- **Automated Scheduling**: Background monitoring and alert system
+- **Image Processing**: File upload support for batch documentation
 
-### 4. Configuration
-- Environment variables for Twilio credentials
-- Streamlit server configuration for headless deployment
-- Python package management via pyproject.toml
+### 4. Professional Interface
+- **Modern UI**: Gradient-based responsive design
+- **Mobile-Ready**: Touch-friendly interface for field operations
+- **Real-time Analytics**: Live profit calculations and performance metrics
+- **Export Functionality**: JSON data export for external analysis
 
 ## Data Flow
 
@@ -76,30 +83,50 @@ This is a Streamlit-based web application designed to manage larval batches and 
 - `twilio>=9.6.3`: SMS service integration
 
 ### Runtime Requirements
-- Python 3.11 runtime environment
-- Network access for Twilio API calls
-- File system access for JSON data storage
+- Node.js 20.x runtime environment
+- Network access for Twilio SMS API and Socket.IO
+- File system access for JSON data and image uploads
 
 ## Deployment Strategy
 
 ### Platform
 - **Target**: Replit autoscale deployment
-- **Runtime**: Python 3.11 with Nix package management
-- **Port**: 5000 (configured for external access)
+- **Runtime**: Node.js 20.x with npm package management
+- **Port**: 5000 (configured for external access with WebSocket support)
 
 ### Configuration
-- Headless Streamlit server configuration
-- Environment variable management for secrets
-- Automatic dependency resolution via uv.lock
+- Express.js server with CORS and real-time capabilities
+- Environment variable management for Twilio credentials
+- Automatic dependency resolution via package.json
 
 ### Scalability Considerations
-- File-based storage suitable for small to medium datasets
-- Stateless application design enables horizontal scaling
-- Session state management may require sticky sessions in multi-instance deployments
+- File-based storage suitable for medium-scale breeding operations
+- Real-time WebSocket connections for instant updates
+- RESTful API design enables future mobile app integration
+- Modular architecture supports additional CNN model integration
+
+## Advanced Features Implemented
+
+### CNN Integration Ready
+- Image upload infrastructure for specimen photos
+- Quality assessment framework for automated defect detection
+- Species classification foundation (awaiting TensorFlow.js model)
+
+### Profit Optimization Engine
+- Real-time profit calculations per batch
+- Species-specific market pricing database
+- Quality-adjusted revenue projections
+- Cost tracking with host plant and labor factors
+
+### Mobile-First Design
+- QR code generation for each cage batch
+- Touch-friendly interface for field operations
+- Responsive design for tablet and phone usage
 
 ## Changelog
 
-- June 27, 2025. Initial setup
+- June 27, 2025: Complete JavaScript rebuild with advanced breeding features
+- June 27, 2025: Initial Python Streamlit setup (deprecated)
 
 ## User Preferences
 

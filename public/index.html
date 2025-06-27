@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦋 Butterfly Breeding Management System</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-tab {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .nav-tab.active {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-card h4 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .batch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .batch-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .batch-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .batch-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .batch-id {
+            font-weight: bold;
+            color: #4a5568;
+            font-size: 1.1rem;
+        }
+
+        .lifecycle-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .lifecycle-egg { background: #ffeaa7; color: #2d3436; }
+        .lifecycle-larva { background: #74b9ff; color: white; }
+        .lifecycle-pupa { background: #fd79a8; color: white; }
+        .lifecycle-adult { background: #00b894; color: white; }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .status-healthy { background: #00b894; }
+        .status-warning { background: #fdcb6e; }
+        .status-critical { background: #e17055; }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #718096;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+        }
+
+        .btn-success {
+            background: #38a169;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            border-color: #38a169;
+            color: #22543d;
+        }
+
+        .alert-warning {
+            background: #fffbf0;
+            border-color: #d69e2e;
+            color: #744210;
+        }
+
+        .alert-danger {
+            background: #fff5f5;
+            border-color: #e53e3e;
+            color: #742a2a;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #718096;
+        }
+
+        .close:hover {
+            color: #4a5568;
+        }
+
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .qr-code img {
+            max-width: 200px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .batch-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            max-width: 300px;
+            transform: translateX(350px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦋 Butterfly Breeding Management System</h1>
+            <p>Advanced CNN-powered breeding optimization with real-time monitoring</p>
+        </div>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">
+                <i class="fas fa-chart-dashboard"></i> Dashboard
+            </button>
+            <button class="nav-tab" onclick="showTab('batches')">
+                <i class="fas fa-boxes"></i> Cage Management
+            </button>
+            <button class="nav-tab" onclick="showTab('analytics')">
+                <i class="fas fa-chart-line"></i> Profit Analytics
+            </button>
+            <button class="nav-tab" onclick="showTab('breeding-log')">
+                <i class="fas fa-clipboard-list"></i> Breeding Log
+            </button>
+            <button class="nav-tab" onclick="showTab('settings')">
+                <i class="fas fa-cog"></i> Settings
+            </button>
+        </nav>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid" id="stats-grid">
+                <!-- Stats will be populated by JavaScript -->
+            </div>
+            
+            <div class="card">
+                <h3><i class="fas fa-exclamation-triangle"></i> Active Alerts</h3>
+                <div id="alerts-container">
+                    <!-- Alerts will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-boxes"></i> Recent Batch Activity</h3>
+                <div id="recent-activity">
+                    <!-- Recent activity will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Cage Management Tab -->
+        <div id="batches" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-plus"></i> Create New Cage Batch</h3>
+                <form id="create-batch-form">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label for="species">Species *</label>
+                            <select id="species" required>
+                                <option value="">Select Species</option>
+                                <option value="Common Mormon">Common Mormon</option>
+                                <option value="Atlas Moth">Atlas Moth</option>
+                                <option value="Blue Morpho">Blue Morpho</option>
+                                <option value="Swallowtail">Swallowtail</option>
+                                <option value="Monarch">Monarch</option>
+                                <option value="Cabbage White">Cabbage White</option>
+                                <option value="Zebra Longwing">Zebra Longwing</option>
+                                <option value="Giant Swallowtail">Giant Swallowtail</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="larva-count">Larva Count *</label>
+                            <input type="number" id="larva-count" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone-number">Phone Number *</label>
+                            <input type="tel" id="phone-number" placeholder="+1234567890" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-plus"></i> Create Batch
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-boxes"></i> Active Cage Batches</h3>
+                <div class="batch-grid" id="batch-grid">
+                    <!-- Batches will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Profit Analytics Tab -->
+        <div id="analytics" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-chart-line"></i> Profit Overview</h3>
+                <div id="profit-overview">
+                    <!-- Profit data will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-chart-pie"></i> Species Performance</h3>
+                <div id="species-performance">
+                    <!-- Species data will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Breeding Log Tab -->
+        <div id="breeding-log" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-clipboard-list"></i> Activity Log</h3>
+                <div id="log-container">
+                    <!-- Log entries will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-sms"></i> SMS Configuration</h3>
+                <div id="twilio-status"></div>
+                
+                <div class="form-group">
+                    <label for="test-phone">Test Phone Number</label>
+                    <input type="tel" id="test-phone" placeholder="+1234567890">
+                </div>
+                <div class="form-group">
+                    <label for="test-message">Test Message</label>
+                    <textarea id="test-message" rows="3">🦋 Test message from Butterfly Breeding Management System!</textarea>
+                </div>
+                <button onclick="sendTestSMS()" class="btn">
+                    <i class="fas fa-paper-plane"></i> Send Test SMS
+                </button>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-database"></i> Data Management</h3>
+                <button onclick="exportData()" class="btn">
+                    <i class="fas fa-download"></i> Export Data
+                </button>
+                <button onclick="checkFeedingSchedule()" class="btn btn-secondary">
+                    <i class="fas fa-clock"></i> Check Feeding Schedule
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="batch-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeBatchModal()">&times;</span>
+            <h3 id="modal-title">Batch Details</h3>
+            <div id="modal-content">
+                <!-- Modal content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification container -->
+    <div id="notification" class="notification">
+        <div id="notification-content"></div>
+    </div>
+
+    <script>
+        // Global variables
+        let socket;
+        let batches = [];
+        let breedingLog = [];
+        let currentBatch = null;
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSocket();
+            loadInitialData();
+            setupEventListeners();
+        });
+
+        // Socket.IO initialization
+        function initializeSocket() {
+            socket = io();
+            
+            socket.on('connect', function() {
+                console.log('Connected to server');
+                showNotification('Connected to server', 'success');
+            });
+            
+            socket.on('disconnect', function() {
+                console.log('Disconnected from server');
+                showNotification('Disconnected from server', 'warning');
+            });
+            
+            socket.on('batchCreated', function(batch) {
+                showNotification(`New batch created: ${batch.species}`, 'success');
+                loadBatches();
+            });
+            
+            socket.on('batchUpdated', function(batch) {
+                showNotification(`Batch updated: ${batch.cageId.substring(0, 8)}`, 'info');
+                loadBatches();
+            });
+            
+            socket.on('batchFed', function(batch) {
+                showNotification(`Batch fed: ${batch.species}`, 'success');
+                loadBatches();
+            });
+            
+            socket.on('feedingAlert', function(data) {
+                showNotification(`Feeding alert: ${data.species}`, 'warning');
+            });
+            
+            socket.on('overdueAlert', function(data) {
+                showNotification(`OVERDUE: ${data.species} (${data.overdueHours.toFixed(1)}h)`, 'danger');
+            });
+            
+            socket.on('activityLog', function(entry) {
+                loadBreedingLog();
+            });
+        }
+
+        // Load initial data
+        async function loadInitialData() {
+            await loadBatches();
+            await loadBreedingLog();
+            await loadAnalytics();
+            updateDashboard();
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            document.getElementById('create-batch-form').addEventListener('submit', createBatch);
+        }
+
+        // Load batches from API
+        async function loadBatches() {
+            try {
+                const response = await fetch('/api/batches');
+                batches = await response.json();
+                updateBatchGrid();
+                updateDashboard();
+            } catch (error) {
+                console.error('Error loading batches:', error);
+                showNotification('Error loading batches', 'danger');
+            }
+        }
+
+        // Load breeding log from API
+        async function loadBreedingLog() {
+            try {
+                const response = await fetch('/api/breeding-log');
+                breedingLog = await response.json();
+                updateBreedingLog();
+            } catch (error) {
+                console.error('Error loading breeding log:', error);
+                showNotification('Error loading breeding log', 'danger');
+            }
+        }
+
+        // Load analytics data
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/api/analytics/profit');
+                const analytics = await response.json();
+                updateAnalytics(analytics);
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                showNotification('Error loading analytics', 'danger');
+            }
+        }
+
+        // Create new batch
+        async function createBatch(event) {
+            event.preventDefault();
+            
+            const formData = {
+                species: document.getElementById('species').value,
+                larvaCount: parseInt(document.getElementById('larva-count').value),
+                phoneNumber: document.getElementById('phone-number').value,
+                notes: document.getElementById('notes').value
+            };
+            
+            try {
+                const response = await fetch('/api/batches', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    const batch = await response.json();
+                    showNotification('Batch created successfully!', 'success');
+                    document.getElementById('create-batch-form').reset();
+                    loadBatches();
+                } else {
+                    const error = await response.json();
+                    showNotification(error.error || 'Error creating batch', 'danger');
+                }
+            } catch (error) {
+                console.error('Error creating batch:', error);
+                showNotification('Error creating batch', 'danger');
+            }
+        }
+
+        // Mark batch as fed
+        async function markBatchFed(cageId) {
+            try {
+                const response = await fetch(`/api/batches/${cageId}/fed`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    showNotification('Batch marked as fed!', 'success');
+                    loadBatches();
+                    closeBatchModal();
+                } else {
+                    showNotification('Error marking batch as fed', 'danger');
+                }
+            } catch (error) {
+                console.error('Error marking batch as fed:', error);
+                showNotification('Error marking batch as fed', 'danger');
+            }
+        }
+
+        // Update batch lifecycle stage
+        async function updateLifecycleStage(cageId, stage) {
+            if (!stage) return;
+            
+            try {
+                const response = await fetch(`/api/batches/${cageId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ lifecycleStage: stage })
+                });
+                
+                if (response.ok) {
+                    showNotification(`Lifecycle updated to ${stage}`, 'success');
+                    loadBatches();
+                    closeBatchModal();
+                } else {
+                    showNotification('Error updating lifecycle stage', 'danger');
+                }
+            } catch (error) {
+                console.error('Error updating lifecycle stage:', error);
+                showNotification('Error updating lifecycle stage', 'danger');
+            }
+        }
+
+        // Show batch details modal
+        function showBatchDetails(cageId) {
+            const batch = batches.find(b => b.cageId === cageId);
+            if (!batch) return;
+            
+            currentBatch = batch;
+            
+            const modal = document.getElementById('batch-modal');
+            const title = document.getElementById('modal-title');
+            const content = document.getElementById('modal-content');
+            
+            title.textContent = `${batch.species} - ${batch.cageId.substring(0, 8)}`;
+            
+            const profitData = batch.profitProjection;
+            
+            content.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h4>Batch Information</h4>
+                        <p><strong>Species:</strong> ${batch.species}</p>
+                        <p><strong>Larva Count:</strong> ${batch.larvaCount}</p>
+                        <p><strong>Lifecycle Stage:</strong> 
+                            <span class="lifecycle-badge lifecycle-${batch.lifecycleStage.toLowerCase()}">${batch.lifecycleStage}</span>
+                        </p>
+                        <p><strong>Host Plant:</strong> ${batch.hostPlant}</p>
+                        <p><strong>Survival Rate:</strong> ${(batch.survivalRate * 100).toFixed(1)}%</p>
+                        <p><strong>Quality Score:</strong> ${(batch.qualityScore * 100).toFixed(1)}%</p>
+                        <p><strong>Foliage Level:</strong> ${batch.foliageLevel}%</p>
+                        
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label>Update Lifecycle Stage:</label>
+                            <select onchange="updateLifecycleStage('${batch.cageId}', this.value)">
+                                <option value="">Select Stage</option>
+                                <option value="Egg" ${batch.lifecycleStage === 'Egg' ? 'selected' : ''}>Egg</option>
+                                <option value="Larva" ${batch.lifecycleStage === 'Larva' ? 'selected' : ''}>Larva</option>
+                                <option value="Pupa" ${batch.lifecycleStage === 'Pupa' ? 'selected' : ''}>Pupa</option>
+                                <option value="Adult" ${batch.lifecycleStage === 'Adult' ? 'selected' : ''}>Adult</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Profit Projection</h4>
+                        <p><strong>Projected Revenue:</strong> $${profitData.revenue.toFixed(2)}</p>
+                        <p><strong>Production Cost:</strong> $${profitData.productionCost.toFixed(2)}</p>
+                        <p><strong>Projected Profit:</strong> $${profitData.profit.toFixed(2)}</p>
+                        <p><strong>Expected Count:</strong> ${profitData.qualityAdjustedCount.toFixed(0)}</p>
+                        
+                        <h4 style="margin-top: 20px;">Feeding Schedule</h4>
+                        <p><strong>Last Fed:</strong> ${new Date(batch.lastFeeding).toLocaleString()}</p>
+                        <p><strong>Next Feeding:</strong> ${new Date(batch.nextFeeding).toLocaleString()}</p>
+                        
+                        <div style="margin-top: 20px;">
+                            <button onclick="markBatchFed('${batch.cageId}')" class="btn btn-success btn-small">
+                                <i class="fas fa-utensils"></i> Mark as Fed
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                ${batch.qrCode ? `
+                    <div class="qr-code">
+                        <h4>QR Code</h4>
+                        <img src="${batch.qrCode}" alt="Batch QR Code">
+                    </div>
+                ` : ''}
+                
+                <div style="margin-top: 20px;">
+                    <h4>Notes</h4>
+                    <p>${batch.notes || 'No notes available'}</p>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        // Close batch modal
+        function closeBatchModal() {
+            document.getElementById('batch-modal').style.display = 'none';
+            currentBatch = null;
+        }
+
+        // Update batch grid
+        function updateBatchGrid() {
+            const grid = document.getElementById('batch-grid');
+            
+            if (batches.length === 0) {
+                grid.innerHTML = '<p>No active batches. Create your first batch to get started!</p>';
+                return;
+            }
+            
+            grid.innerHTML = batches.filter(batch => batch.active).map(batch => {
+                const nextFeeding = new Date(batch.nextFeeding);
+                const now = new Date();
+                const timeUntilFeeding = nextFeeding - now;
+                const hoursUntilFeeding = timeUntilFeeding / (1000 * 60 * 60);
+                
+                let statusClass = 'status-healthy';
+                let statusText = 'On Schedule';
+                
+                if (hoursUntilFeeding <= 0) {
+                    statusClass = 'status-critical';
+                    statusText = 'OVERDUE';
+                } else if (hoursUntilFeeding <= 2) {
+                    statusClass = 'status-warning';
+                    statusText = 'Due Soon';
+                }
+                
+                const profitData = batch.profitProjection;
+                
+                return `
+                    <div class="batch-card" onclick="showBatchDetails('${batch.cageId}')">
+                        <div class="batch-header">
+                            <div class="batch-id">${batch.cageId.substring(0, 8)}</div>
+                            <span class="lifecycle-badge lifecycle-${batch.lifecycleStage.toLowerCase()}">${batch.lifecycleStage}</span>
+                        </div>
+                        
+                        <h4>${batch.species}</h4>
+                        <p><i class="fas fa-bug"></i> ${batch.larvaCount} larvae</p>
+                        <p><i class="fas fa-leaf"></i> ${batch.hostPlant}</p>
+                        
+                        <div style="margin: 15px 0;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Foliage Level</span>
+                                <span>${batch.foliageLevel}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${batch.foliageLevel}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Quality Score</span>
+                                <span>${(batch.qualityScore * 100).toFixed(1)}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${batch.qualityScore * 100}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <span class="status-indicator ${statusClass}"></span>
+                            <span>${statusText}</span>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span>Projected Profit:</span>
+                                <span style="font-weight: bold; color: ${profitData.profit >= 0 ? '#38a169' : '#e53e3e'};">
+                                    $${profitData.profit.toFixed(2)}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update dashboard
+        function updateDashboard() {
+            updateStats();
+            updateAlerts();
+            updateRecentActivity();
+        }
+
+        // Update statistics
+        function updateStats() {
+            const activeBatches = batches.filter(batch => batch.active);
+            const totalProfit = activeBatches.reduce((sum, batch) => sum + (batch.profitProjection?.profit || 0), 0);
+            const averageQuality = activeBatches.length > 0 ? 
+                activeBatches.reduce((sum, batch) => sum + batch.qualityScore, 0) / activeBatches.length : 0;
+            
+            const overdueCount = activeBatches.filter(batch => {
+                const nextFeeding = new Date(batch.nextFeeding);
+                return nextFeeding < new Date();
+            }).length;
+            
+            const statsGrid = document.getElementById('stats-grid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <h4>${activeBatches.length}</h4>
+                    <p>Active Batches</p>
+                </div>
+                <div class="stat-card">
+                    <h4>$${totalProfit.toFixed(0)}</h4>
+                    <p>Projected Profit</p>
+                </div>
+                <div class="stat-card">
+                    <h4>${(averageQuality * 100).toFixed(1)}%</h4>
+                    <p>Average Quality</p>
+                </div>
+                <div class="stat-card">
+                    <h4 style="color: ${overdueCount > 0 ? '#e53e3e' : '#38a169'}">${overdueCount}</h4>
+                    <p>Overdue Feedings</p>
+                </div>
+            `;
+        }
+
+        // Update alerts
+        function updateAlerts() {
+            const activeBatches = batches.filter(batch => batch.active);
+            const now = new Date();
+            const alerts = [];
+            
+            activeBatches.forEach(batch => {
+                const nextFeeding = new Date(batch.nextFeeding);
+                const timeUntilFeeding = nextFeeding - now;
+                const hoursUntilFeeding = timeUntilFeeding / (1000 * 60 * 60);
+                
+                if (hoursUntilFeeding <= 0) {
+                    alerts.push({
+                        type: 'danger',
+                        message: `OVERDUE: ${batch.species} (${batch.cageId.substring(0, 8)}) - ${Math.abs(hoursUntilFeeding).toFixed(1)}h overdue`,
+                        batch: batch
+                    });
+                } else if (hoursUntilFeeding <= 2) {
+                    alerts.push({
+                        type: 'warning',
+                        message: `DUE SOON: ${batch.species} (${batch.cageId.substring(0, 8)}) - ${hoursUntilFeeding.toFixed(1)}h remaining`,
+                        batch: batch
+                    });
+                }
+                
+                if (batch.foliageLevel < 20) {
+                    alerts.push({
+                        type: 'warning',
+                        message: `LOW FOLIAGE: ${batch.species} (${batch.cageId.substring(0, 8)}) - ${batch.foliageLevel}% remaining`,
+                        batch: batch
+                    });
+                }
+                
+                if (batch.qualityScore < 0.7) {
+                    alerts.push({
+                        type: 'warning',
+                        message: `QUALITY CONCERN: ${batch.species} (${batch.cageId.substring(0, 8)}) - ${(batch.qualityScore * 100).toFixed(1)}% quality`,
+                        batch: batch
+                    });
+                }
+            });
+            
+            const alertsContainer = document.getElementById('alerts-container');
+            
+            if (alerts.length === 0) {
+                alertsContainer.innerHTML = '<div class="alert alert-success">All batches are healthy and on schedule!</div>';
+            } else {
+                alertsContainer.innerHTML = alerts.map(alert => `
+                    <div class="alert alert-${alert.type}">
+                        ${alert.message}
+                        <button onclick="showBatchDetails('${alert.batch.cageId}')" class="btn btn-small" style="float: right; margin-top: -5px;">
+                            View Details
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Update recent activity
+        function updateRecentActivity() {
+            const recentLog = breedingLog.slice(-10).reverse();
+            const recentActivity = document.getElementById('recent-activity');
+            
+            if (recentLog.length === 0) {
+                recentActivity.innerHTML = '<p>No recent activity</p>';
+                return;
+            }
+            
+            recentActivity.innerHTML = recentLog.map(entry => `
+                <div style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <strong>${entry.cageId ? entry.cageId.substring(0, 8) : 'System'}</strong>
+                        <span style="color: #718096; font-size: 0.9rem;">${new Date(entry.timestamp).toLocaleString()}</span>
+                    </div>
+                    <p style="margin: 5px 0; color: #4a5568;">${entry.activity}</p>
+                    ${entry.lifecycleStage ? `<span class="lifecycle-badge lifecycle-${entry.lifecycleStage.toLowerCase()}">${entry.lifecycleStage}</span>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Update breeding log
+        function updateBreedingLog() {
+            const logContainer = document.getElementById('log-container');
+            
+            if (breedingLog.length === 0) {
+                logContainer.innerHTML = '<p>No breeding activities recorded yet.</p>';
+                return;
+            }
+            
+            // Sort by most recent first
+            const sortedLog = [...breedingLog].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            logContainer.innerHTML = `
+                <div style="max-height: 600px; overflow-y: auto;">
+                    ${sortedLog.map(entry => `
+                        <div style="padding: 15px; border-bottom: 1px solid #e2e8f0; border-left: 3px solid #667eea;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>${entry.cageId ? entry.cageId.substring(0, 8) : 'System'}</strong>
+                                    ${entry.lifecycleStage ? `<span class="lifecycle-badge lifecycle-${entry.lifecycleStage.toLowerCase()}">${entry.lifecycleStage}</span>` : ''}
+                                </div>
+                                <span style="color: #718096; font-size: 0.9rem;">
+                                    ${new Date(entry.timestamp).toLocaleDateString()} 
+                                    ${new Date(entry.timestamp).toLocaleTimeString()}
+                                </span>
+                            </div>
+                            <p style="margin: 8px 0; color: #4a5568;">${entry.activity}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Update analytics
+        function updateAnalytics(analytics) {
+            const profitOverview = document.getElementById('profit-overview');
+            const speciesPerformance = document.getElementById('species-performance');
+            
+            // Profit overview
+            profitOverview.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>$${analytics.summary.totalRevenue.toFixed(0)}</h4>
+                        <p>Total Revenue</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>$${analytics.summary.totalCosts.toFixed(0)}</h4>
+                        <p>Total Costs</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4 style="color: ${analytics.summary.totalProfit >= 0 ? '#38a169' : '#e53e3e'}">
+                            $${analytics.summary.totalProfit.toFixed(0)}
+                        </h4>
+                        <p>Net Profit</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>${analytics.summary.averageMargin.toFixed(1)}%</h4>
+                        <p>Profit Margin</p>
+                    </div>
+                </div>
+            `;
+            
+            // Species performance
+            const speciesData = Object.entries(analytics.speciesBreakdown);
+            
+            if (speciesData.length === 0) {
+                speciesPerformance.innerHTML = '<p>No species data available</p>';
+                return;
+            }
+            
+            speciesPerformance.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    ${speciesData.map(([species, data]) => `
+                        <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                            <h4>${species}</h4>
+                            <p><strong>Active Batches:</strong> ${data.count}</p>
+                            <p><strong>Revenue:</strong> $${data.revenue.toFixed(2)}</p>
+                            <p><strong>Profit:</strong> $${data.profit.toFixed(2)}</p>
+                            <p><strong>Average Quality:</strong> ${(data.averageQuality * 100).toFixed(1)}%</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Tab navigation
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+
+        // Send test SMS
+        async function sendTestSMS() {
+            const phoneNumber = document.getElementById('test-phone').value;
+            const message = document.getElementById('test-message').value;
+            
+            if (!phoneNumber || !message) {
+                showNotification('Please enter both phone number and message', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/test-sms', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phoneNumber, message })
+                });
+                
+                if (response.ok) {
+                    showNotification('Test SMS sent successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showNotification(error.error || 'Failed to send SMS', 'danger');
+                }
+            } catch (error) {
+                console.error('Error sending test SMS:', error);
+                showNotification('Error sending test SMS', 'danger');
+            }
+        }
+
+        // Export data
+        function exportData() {
+            const data = {
+                batches: batches,
+                breedingLog: breedingLog,
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `butterfly-breeding-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            URL.revokeObjectURL(url);
+            showNotification('Data exported successfully!', 'success');
+        }
+
+        // Check feeding schedule manually
+        function checkFeedingSchedule() {
+            socket.emit('checkFeeding');
+            showNotification('Checking feeding schedule...', 'info');
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const content = document.getElementById('notification-content');
+            
+            const icons = {
+                success: 'fas fa-check-circle',
+                warning: 'fas fa-exclamation-triangle',
+                danger: 'fas fa-times-circle',
+                info: 'fas fa-info-circle'
+            };
+            
+            const colors = {
+                success: '#38a169',
+                warning: '#d69e2e',
+                danger: '#e53e3e',
+                info: '#3182ce'
+            };
+            
+            content.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <i class="${icons[type]}" style="color: ${colors[type]}; margin-right: 10px;"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+
+        // Auto-refresh data every 30 seconds
+        setInterval(() => {
+            loadBatches();
+            loadBreedingLog();
+            loadAnalytics();
+        }, 30000);
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('batch-modal');
+            if (event.target === modal) {
+                closeBatchModal();
+            }
+        }
+    </script>
+</body>
+</html>
