@@ -1,1 +1,37 @@
-[]
+[
+  {
+    "id": "7ea3d2c9-161e-4fec-8963-5dc160a11430",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-06-27T16:24:29.183Z",
+    "activity": "Batch created",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "4021a889-a742-42e2-8fb8-4683472cf9f7",
+    "cageId": "system",
+    "timestamp": "2025-06-27T16:48:45.237Z",
+    "activity": "New user registered: Winjer",
+    "lifecycleStage": null
+  },
+  {
+    "id": "76fc78fb-5df2-4105-80b0-65dbedc139d4",
+    "cageId": "system",
+    "timestamp": "2025-06-27T16:49:04.958Z",
+    "activity": "User Winjer logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "4e2c2b26-4989-44a2-95f9-16eb8f23b7d5",
+    "cageId": "system",
+    "timestamp": "2025-06-27T16:52:17.764Z",
+    "activity": "User Winjer logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "0cc2fed9-591b-4f95-b1c3-68ef05af4716",
+    "cageId": "system",
+    "timestamp": "2025-06-27T16:52:49.222Z",
+    "activity": "User Winjer logged in",
+    "lifecycleStage": null
+  }
+]

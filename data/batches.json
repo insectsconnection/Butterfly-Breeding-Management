@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "species": "Common Mormon",
+    "startDate": "2025-06-27T16:24:29.130Z",
+    "larvaCount": 36,
+    "phoneNumber": "9952917098",
+    "lifecycleStage": "Egg",
+    "hostPlant": "Citrus",
+    "dailyConsumption": 150,
+    "marketPrice": 25,
+    "survivalRate": 0.98,
+    "foliageLevel": 100,
+    "lastFeeding": "2025-06-27T16:24:29.130Z",
+    "nextFeeding": "2025-06-28T16:24:29.130Z",
+    "defects": [],
+    "qualityScore": 1,
+    "active": true,
+    "notes": "Healthy",
+    "images": []
+  }
+]

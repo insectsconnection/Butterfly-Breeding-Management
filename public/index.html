@@ -402,6 +402,15 @@
             <button class="nav-tab" onclick="showTab('batches')">
                 <i class="fas fa-boxes"></i> Cage Management
             </button>
+            <button class="nav-tab" onclick="showTab('classification')">
+                <i class="fas fa-brain"></i> AI Classification
+            </button>
+            <button class="nav-tab" onclick="showTab('marketplace')">
+                <i class="fas fa-shopping-cart"></i> Marketplace
+            </button>
+            <button class="nav-tab" onclick="showTab('tasks')">
+                <i class="fas fa-tasks"></i> Task Management
+            </button>
             <button class="nav-tab" onclick="showTab('analytics')">
                 <i class="fas fa-chart-line"></i> Profit Analytics
             </button>
@@ -410,6 +419,9 @@
             </button>
             <button class="nav-tab" onclick="showTab('settings')">
                 <i class="fas fa-cog"></i> Settings
+            </button>
+            <button class="nav-tab" onclick="logout()" style="margin-left: auto; background: #e53e3e;">
+                <i class="fas fa-sign-out-alt"></i> Logout
             </button>
         </nav>
 
@@ -444,14 +456,7 @@
                             <label for="species">Species *</label>
                             <select id="species" required>
                                 <option value="">Select Species</option>
-                                <option value="Common Mormon">Common Mormon</option>
-                                <option value="Atlas Moth">Atlas Moth</option>
-                                <option value="Blue Morpho">Blue Morpho</option>
-                                <option value="Swallowtail">Swallowtail</option>
-                                <option value="Monarch">Monarch</option>
-                                <option value="Cabbage White">Cabbage White</option>
-                                <option value="Zebra Longwing">Zebra Longwing</option>
-                                <option value="Giant Swallowtail">Giant Swallowtail</option>
+                                <!-- Species will be populated dynamically -->
                             </select>
                         </div>
                         <div class="form-group">
@@ -477,6 +482,136 @@
                 <h3><i class="fas fa-boxes"></i> Active Cage Batches</h3>
                 <div class="batch-grid" id="batch-grid">
                     <!-- Batches will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Classification Tab -->
+        <div id="classification" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-brain"></i> CNN Image Classification</h3>
+                <p>Upload images for AI-powered analysis of butterfly species, lifecycle stages, larval diseases, and pupae defects.</p>
+                
+                <div class="form-group">
+                    <label for="analysis-type">Analysis Type</label>
+                    <select id="analysis-type">
+                        <option value="all">Complete Analysis (All Models)</option>
+                        <option value="species">Species Identification</option>
+                        <option value="stage">Lifecycle Stage</option>
+                        <option value="disease">Larval Disease Detection</option>
+                        <option value="defects">Pupae Defect Analysis</option>
+                    </select>
+                </div>
+                
+                <div class="image-upload" onclick="document.getElementById('classification-image').click()">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #667eea; margin-bottom: 10px;"></i>
+                    <p>Click to upload image or drag and drop</p>
+                    <p style="font-size: 0.9rem; color: #718096;">Supported formats: JPG, PNG (max 10MB)</p>
+                    <input type="file" id="classification-image" accept="image/*" style="display: none;">
+                </div>
+                
+                <div id="classification-results" style="display: none;">
+                    <!-- Results will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3><i class="fas fa-info-circle"></i> Model Information</h3>
+                <div id="model-status">
+                    <!-- Model status will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Marketplace Tab -->
+        <div id="marketplace" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-shopping-cart"></i> Butterfly Marketplace</h3>
+                <p>Buy and sell butterfly specimens from verified breeders with secure GCash payments.</p>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div>
+                        <label for="marketplace-filter">Filter by Species:</label>
+                        <select id="marketplace-filter" onchange="filterMarketplace()">
+                            <option value="">All Species</option>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+                    <button onclick="loadMarketplace()" class="btn btn-secondary">
+                        <i class="fas fa-refresh"></i> Refresh Listings
+                    </button>
+                </div>
+                
+                <div id="marketplace-grid" class="batch-grid">
+                    <!-- Marketplace items will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3><i class="fas fa-receipt"></i> My Orders</h3>
+                <div style="margin-bottom: 20px;">
+                    <button onclick="loadUserOrders('buyer')" class="btn btn-small">Purchase Orders</button>
+                    <button onclick="loadUserOrders('seller')" class="btn btn-small">Sales Orders</button>
+                </div>
+                <div id="user-orders">
+                    <!-- User orders will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Management Tab -->
+        <div id="tasks" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-plus"></i> Create New Task</h3>
+                <form id="create-task-form">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label for="task-title">Task Title *</label>
+                            <input type="text" id="task-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-type">Task Type *</label>
+                            <select id="task-type" required>
+                                <option value="">Select Type</option>
+                                <option value="feeding">Feeding</option>
+                                <option value="pest_control">Pest Control</option>
+                                <option value="cage_cleaning">Cage Cleaning</option>
+                                <option value="health_check">Health Check</option>
+                                <option value="plant_replacement">Plant Replacement</option>
+                                <option value="temperature_check">Temperature Check</option>
+                                <option value="humidity_check">Humidity Check</option>
+                                <option value="breeding_record">Breeding Record</option>
+                                <option value="quality_assessment">Quality Assessment</option>
+                                <option value="harvest">Harvest</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-priority">Priority</label>
+                            <select id="task-priority">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-due-date">Due Date</label>
+                            <input type="datetime-local" id="task-due-date">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="task-description">Description</label>
+                            <textarea id="task-description" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-plus"></i> Create Task
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-tasks"></i> Task List</h3>
+                <div id="task-list">
+                    <!-- Tasks will be populated by JavaScript -->
                 </div>
             </div>
         </div>
@@ -550,6 +685,59 @@
         </div>
     </div>
 
+    <!-- Purchase Modal -->
+    <div id="purchase-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePurchaseModal()">&times;</span>
+            <h3>Purchase Butterfly Batch</h3>
+            <div id="purchase-content">
+                <!-- Purchase form will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePaymentModal()">&times;</span>
+            <h3>Complete Payment</h3>
+            <div id="payment-content">
+                <!-- Payment details will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- List for Sale Modal -->
+    <div id="sale-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSaleModal()">&times;</span>
+            <h3>List Batch for Sale</h3>
+            <div id="sale-content">
+                <form id="list-for-sale-form">
+                    <div class="form-group">
+                        <label for="sale-price">Price (PHP) *</label>
+                        <input type="number" id="sale-price" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sale-description">Description</label>
+                        <textarea id="sale-description" rows="3" placeholder="Describe the quality and characteristics of your butterflies..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="sale-location">Your Location</label>
+                        <input type="text" id="sale-location" placeholder="City, Province">
+                    </div>
+                    <div class="form-group">
+                        <label for="sale-available-date">Available Date</label>
+                        <input type="date" id="sale-available-date">
+                    </div>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-tag"></i> List for Sale
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification container -->
     <div id="notification" class="notification">
         <div id="notification-content"></div>
@@ -561,13 +749,113 @@
         let batches = [];
         let breedingLog = [];
         let currentBatch = null;
+        let currentUser = null;
+        let authToken = null;
+        let tasks = [];
+        let speciesData = [];
 
         // Initialize application
         document.addEventListener('DOMContentLoaded', function() {
-            initializeSocket();
-            loadInitialData();
-            setupEventListeners();
+            checkAuthentication();
         });
+
+        // Check authentication status
+        function checkAuthentication() {
+            authToken = localStorage.getItem('auth_token');
+            const userData = localStorage.getItem('user_data');
+            
+            if (!authToken || !userData) {
+                // Redirect to login page
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            try {
+                currentUser = JSON.parse(userData);
+                updateUserInterface();
+                initializeSocket();
+                loadInitialData();
+                setupEventListeners();
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                logout();
+            }
+        }
+
+        // Update UI based on user role
+        function updateUserInterface() {
+            const header = document.querySelector('.header h1');
+            header.textContent = `🦋 Welcome, ${currentUser.firstName} ${currentUser.lastName}`;
+            
+            const subtitle = document.querySelector('.header p');
+            subtitle.textContent = `Role: ${currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)} | Advanced CNN-powered breeding optimization`;
+            
+            // Hide tabs based on user permissions
+            hideTabsBasedOnRole();
+        }
+
+        // Hide tabs based on user role permissions
+        function hideTabsBasedOnRole() {
+            const permissions = getRolePermissions(currentUser.role);
+            
+            // Classification tab
+            if (!permissions.includes('classify_images') && !permissions.includes('*')) {
+                document.querySelector('[onclick="showTab(\'classification\')"]').style.display = 'none';
+            }
+            
+            // Task management tab
+            if (!permissions.includes('manage_tasks') && !permissions.includes('*')) {
+                document.querySelector('[onclick="showTab(\'tasks\')"]').style.display = 'none';
+            }
+            
+            // Analytics tab
+            if (!permissions.includes('view_analytics') && !permissions.includes('*')) {
+                document.querySelector('[onclick="showTab(\'analytics\')"]').style.display = 'none';
+            }
+        }
+
+        // Get role permissions
+        function getRolePermissions(role) {
+            const rolePermissions = {
+                admin: ['*'],
+                breeder: ['view_batches', 'create_batches', 'update_batches', 'view_analytics', 'manage_tasks', 'classify_images'],
+                enthusiast: ['view_batches', 'create_batches', 'classify_images'],
+                purchaser: ['view_batches', 'view_analytics'],
+                student: ['view_batches', 'classify_images'],
+                faculty: ['view_batches', 'create_batches', 'view_analytics', 'classify_images'],
+                other: ['view_batches']
+            };
+            return rolePermissions[role] || ['view_batches'];
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_data');
+            window.location.href = '/login.html';
+        }
+
+        // Make authenticated API calls
+        async function makeAuthenticatedRequest(url, options = {}) {
+            const headers = {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            const response = await fetch(url, {
+                ...options,
+                headers
+            });
+            
+            if (response.status === 401 || response.status === 403) {
+                // Token expired or invalid
+                logout();
+                return null;
+            }
+            
+            return response;
+        }
 
         // Socket.IO initialization
         function initializeSocket() {
@@ -613,36 +901,99 @@
 
         // Load initial data
         async function loadInitialData() {
+            await loadSpeciesData();
             await loadBatches();
             await loadBreedingLog();
             await loadAnalytics();
+            await loadTasks();
+            await loadModelStatus();
+            await loadMarketplace();
             updateDashboard();
         }
 
         // Event listeners
         function setupEventListeners() {
             document.getElementById('create-batch-form').addEventListener('submit', createBatch);
+            document.getElementById('create-task-form').addEventListener('submit', createTask);
+            document.getElementById('classification-image').addEventListener('change', handleImageUpload);
+            document.getElementById('list-for-sale-form').addEventListener('submit', listBatchForSale);
+        }
+
+        // Load species data
+        async function loadSpeciesData() {
+            try {
+                const response = await makeAuthenticatedRequest('/api/species');
+                if (response) {
+                    speciesData = await response.json();
+                    populateSpeciesDropdown();
+                }
+            } catch (error) {
+                console.error('Error loading species data:', error);
+            }
+        }
+
+        // Populate species dropdown
+        function populateSpeciesDropdown() {
+            const speciesSelect = document.getElementById('species');
+            speciesSelect.innerHTML = '<option value="">Select Species</option>';
+            
+            speciesData.forEach(species => {
+                const option = document.createElement('option');
+                option.value = species.name;
+                option.textContent = `${species.name} - $${species.marketPrice}`;
+                speciesSelect.appendChild(option);
+            });
         }
 
         // Load batches from API
         async function loadBatches() {
             try {
-                const response = await fetch('/api/batches');
-                batches = await response.json();
-                updateBatchGrid();
-                updateDashboard();
+                const response = await makeAuthenticatedRequest('/api/batches');
+                if (response) {
+                    batches = await response.json();
+                    updateBatchGrid();
+                    updateDashboard();
+                }
             } catch (error) {
                 console.error('Error loading batches:', error);
                 showNotification('Error loading batches', 'danger');
             }
         }
 
+        // Load tasks
+        async function loadTasks() {
+            try {
+                const response = await makeAuthenticatedRequest('/api/tasks');
+                if (response) {
+                    tasks = await response.json();
+                    updateTaskList();
+                }
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+            }
+        }
+
+        // Load model status
+        async function loadModelStatus() {
+            try {
+                const response = await makeAuthenticatedRequest('/api/cnn/status');
+                if (response) {
+                    const status = await response.json();
+                    updateModelStatus(status);
+                }
+            } catch (error) {
+                console.error('Error loading model status:', error);
+            }
+        }
+
         // Load breeding log from API
         async function loadBreedingLog() {
             try {
-                const response = await fetch('/api/breeding-log');
-                breedingLog = await response.json();
-                updateBreedingLog();
+                const response = await makeAuthenticatedRequest('/api/breeding-log');
+                if (response) {
+                    breedingLog = await response.json();
+                    updateBreedingLog();
+                }
             } catch (error) {
                 console.error('Error loading breeding log:', error);
                 showNotification('Error loading breeding log', 'danger');
@@ -652,9 +1003,11 @@
         // Load analytics data
         async function loadAnalytics() {
             try {
-                const response = await fetch('/api/analytics/profit');
-                const analytics = await response.json();
-                updateAnalytics(analytics);
+                const response = await makeAuthenticatedRequest('/api/analytics/profit');
+                if (response) {
+                    const analytics = await response.json();
+                    updateAnalytics(analytics);
+                }
             } catch (error) {
                 console.error('Error loading analytics:', error);
                 showNotification('Error loading analytics', 'danger');
@@ -673,26 +1026,340 @@
             };
             
             try {
-                const response = await fetch('/api/batches', {
+                const response = await makeAuthenticatedRequest('/api/batches', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                     body: JSON.stringify(formData)
                 });
                 
-                if (response.ok) {
+                if (response && response.ok) {
                     const batch = await response.json();
                     showNotification('Batch created successfully!', 'success');
                     document.getElementById('create-batch-form').reset();
                     loadBatches();
-                } else {
+                } else if (response) {
                     const error = await response.json();
                     showNotification(error.error || 'Error creating batch', 'danger');
                 }
             } catch (error) {
                 console.error('Error creating batch:', error);
                 showNotification('Error creating batch', 'danger');
+            }
+        }
+
+        // Create new task
+        async function createTask(event) {
+            event.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('task-title').value,
+                description: document.getElementById('task-description').value,
+                type: document.getElementById('task-type').value,
+                priority: document.getElementById('task-priority').value,
+                dueDate: document.getElementById('task-due-date').value
+            };
+            
+            try {
+                const response = await makeAuthenticatedRequest('/api/tasks', {
+                    method: 'POST',
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response && response.ok) {
+                    const task = await response.json();
+                    showNotification('Task created successfully!', 'success');
+                    document.getElementById('create-task-form').reset();
+                    loadTasks();
+                } else if (response) {
+                    const error = await response.json();
+                    showNotification(error.error || 'Error creating task', 'danger');
+                }
+            } catch (error) {
+                console.error('Error creating task:', error);
+                showNotification('Error creating task', 'danger');
+            }
+        }
+
+        // Handle image upload for CNN classification
+        async function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                showNotification('File size too large. Maximum 10MB allowed.', 'danger');
+                return;
+            }
+            
+            const analysisType = document.getElementById('analysis-type').value;
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('analysisType', analysisType);
+            
+            try {
+                showNotification('Analyzing image...', 'info');
+                
+                const response = await fetch('/api/cnn/classify', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayClassificationResults(data.results);
+                    showNotification('Image analysis completed!', 'success');
+                } else {
+                    const error = await response.json();
+                    showNotification(error.error || 'Classification failed', 'danger');
+                }
+            } catch (error) {
+                console.error('Error classifying image:', error);
+                showNotification('Network error during classification', 'danger');
+            }
+        }
+
+        // Display CNN classification results
+        function displayClassificationResults(results) {
+            const container = document.getElementById('classification-results');
+            container.style.display = 'block';
+            
+            let html = '<h4>Analysis Results</h4>';
+            
+            if (results.species) {
+                html += `
+                    <div style="margin: 20px 0; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h5><i class="fas fa-butterfly"></i> Species Classification</h5>
+                        <div style="display: grid; gap: 10px;">
+                            ${results.species.predictions.slice(0, 3).map((pred, index) => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: ${index === 0 ? '#f0fff4' : '#f7fafc'}; border-radius: 4px;">
+                                    <span><strong>${pred.species}</strong></span>
+                                    <span>${(pred.confidence * 100).toFixed(1)}%</span>
+                                    <span style="color: #38a169;">$${pred.marketPrice}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (results.stage) {
+                html += `
+                    <div style="margin: 20px 0; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h5><i class="fas fa-circle-notch"></i> Lifecycle Stage</h5>
+                        <div style="display: grid; gap: 10px;">
+                            ${results.stage.predictions.map((pred, index) => `
+                                <div style="display: flex; justify-content: space-between; padding: 8px; background: ${index === 0 ? '#f0fff4' : '#f7fafc'}; border-radius: 4px;">
+                                    <span><strong>${pred.stage}</strong></span>
+                                    <span>${(pred.confidence * 100).toFixed(1)}%</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (results.disease) {
+                html += `
+                    <div style="margin: 20px 0; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h5><i class="fas fa-virus"></i> Disease Detection</h5>
+                        <div style="display: grid; gap: 10px;">
+                            ${results.disease.predictions.slice(0, 3).map((pred, index) => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: ${pred.disease === 'Healthy' ? '#f0fff4' : '#fff5f5'}; border-radius: 4px;">
+                                    <span><strong>${pred.disease}</strong></span>
+                                    <span>${(pred.confidence * 100).toFixed(1)}%</span>
+                                    <span style="color: ${pred.disease === 'Healthy' ? '#38a169' : '#e53e3e'};">Impact: ${(pred.profitImpact * 100).toFixed(0)}%</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (results.defects) {
+                html += `
+                    <div style="margin: 20px 0; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h5><i class="fas fa-search"></i> Quality Assessment</h5>
+                        <div style="display: grid; gap: 10px;">
+                            ${results.defects.predictions.slice(0, 3).map((pred, index) => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: ${pred.defect === 'Healthy' ? '#f0fff4' : '#fff5f5'}; border-radius: 4px;">
+                                    <span><strong>${pred.defect}</strong></span>
+                                    <span>${(pred.confidence * 100).toFixed(1)}%</span>
+                                    <span style="color: ${pred.defect === 'Healthy' ? '#38a169' : '#e53e3e'};">Grade: ${pred.qualityGrade}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (results.summary) {
+                html += `
+                    <div style="margin: 20px 0; padding: 15px; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));">
+                        <h5><i class="fas fa-chart-line"></i> Overall Assessment</h5>
+                        <p><strong>Health Score:</strong> ${(results.summary.overallHealthScore * 100).toFixed(1)}%</p>
+                        <p><strong>Quality Grade:</strong> ${results.summary.qualityGrade}</p>
+                        
+                        ${results.summary.recommendedActions.length > 0 ? `
+                            <h6>Recommended Actions:</h6>
+                            <ul>
+                                ${results.summary.recommendedActions.map(action => `
+                                    <li style="color: ${action.priority === 'high' ? '#e53e3e' : action.priority === 'medium' ? '#d69e2e' : '#38a169'};">
+                                        <strong>${action.action}:</strong> ${action.description}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        ` : ''}
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Update model status display
+        function updateModelStatus(status) {
+            const container = document.getElementById('model-status');
+            
+            const html = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h6>Initialization Status</h6>
+                        <p style="color: ${status.initialized ? '#38a169' : '#e53e3e'};">
+                            ${status.initialized ? '✓ Initialized' : '✗ Not Initialized'}
+                        </p>
+                    </div>
+                    
+                    <div style="padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h6>Species Model</h6>
+                        <p style="color: ${status.models.BUTTERFLY_SPECIES ? '#38a169' : '#e53e3e'};">
+                            ${status.models.BUTTERFLY_SPECIES ? '✓ Ready' : '✗ Not Available'}
+                        </p>
+                    </div>
+                    
+                    <div style="padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h6>Lifecycle Model</h6>
+                        <p style="color: ${status.models.BUTTERFLY_STAGES ? '#38a169' : '#e53e3e'};">
+                            ${status.models.BUTTERFLY_STAGES ? '✓ Ready' : '✗ Not Available'}
+                        </p>
+                    </div>
+                    
+                    <div style="padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h6>Disease Model</h6>
+                        <p style="color: ${status.models.LARVAL_DISEASES ? '#38a169' : '#e53e3e'};">
+                            ${status.models.LARVAL_DISEASES ? '✓ Ready' : '✗ Not Available'}
+                        </p>
+                    </div>
+                    
+                    <div style="padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h6>Defects Model</h6>
+                        <p style="color: ${status.models.PUPAE_DEFECTS ? '#38a169' : '#e53e3e'};">
+                            ${status.models.PUPAE_DEFECTS ? '✓ Ready' : '✗ Not Available'}
+                        </p>
+                    </div>
+                    
+                    <div style="padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h6>Supported Species</h6>
+                        <p style="color: #4a5568;">${status.supportedSpecies} species</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px; padding: 10px; background: #f7fafc; border-radius: 8px; font-size: 0.9rem; color: #4a5568;">
+                    <strong>Note:</strong> The CNN models are currently using demonstration versions. 
+                    To use your actual trained models, upload the .h5 files to the models directory and restart the system.
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // Update task list
+        function updateTaskList() {
+            const container = document.getElementById('task-list');
+            
+            if (tasks.length === 0) {
+                container.innerHTML = '<p>No tasks assigned. Create a new task to get started.</p>';
+                return;
+            }
+            
+            const sortedTasks = tasks.sort((a, b) => {
+                const priorityOrder = { high: 3, medium: 2, low: 1 };
+                const statusOrder = { pending: 3, 'in-progress': 2, completed: 1 };
+                
+                if (a.status !== b.status) {
+                    return statusOrder[b.status] - statusOrder[a.status];
+                }
+                
+                return priorityOrder[b.priority] - priorityOrder[a.priority];
+            });
+            
+            container.innerHTML = sortedTasks.map(task => {
+                const priorityColor = {
+                    high: '#e53e3e',
+                    medium: '#d69e2e',
+                    low: '#38a169'
+                };
+                
+                const statusColor = {
+                    pending: '#d69e2e',
+                    'in-progress': '#3182ce',
+                    completed: '#38a169'
+                };
+                
+                return `
+                    <div style="padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; ${task.status === 'completed' ? 'opacity: 0.7;' : ''}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h6 style="margin: 0;">${task.title}</h6>
+                            <div>
+                                <span style="background: ${priorityColor[task.priority]}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-right: 5px;">
+                                    ${task.priority.toUpperCase()}
+                                </span>
+                                <span style="background: ${statusColor[task.status]}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">
+                                    ${task.status.replace('-', ' ').toUpperCase()}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <p style="margin: 5px 0; color: #4a5568;">${task.description || 'No description'}</p>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; color: #718096;">
+                            <span>Type: ${task.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                            <span>Due: ${new Date(task.dueDate).toLocaleDateString()}</span>
+                        </div>
+                        
+                        ${task.status !== 'completed' ? `
+                            <div style="margin-top: 10px;">
+                                <button onclick="updateTaskStatus('${task.id}', 'in-progress')" class="btn btn-small" style="margin-right: 5px;">
+                                    Start
+                                </button>
+                                <button onclick="updateTaskStatus('${task.id}', 'completed')" class="btn btn-success btn-small">
+                                    Complete
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update task status
+        async function updateTaskStatus(taskId, status) {
+            try {
+                const response = await makeAuthenticatedRequest(`/api/tasks/${taskId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ status })
+                });
+                
+                if (response && response.ok) {
+                    showNotification('Task updated successfully!', 'success');
+                    loadTasks();
+                } else if (response) {
+                    const error = await response.json();
+                    showNotification(error.error || 'Error updating task', 'danger');
+                }
+            } catch (error) {
+                console.error('Error updating task:', error);
+                showNotification('Error updating task', 'danger');
             }
         }
 
@@ -798,6 +1465,15 @@
                             <button onclick="markBatchFed('${batch.cageId}')" class="btn btn-success btn-small">
                                 <i class="fas fa-utensils"></i> Mark as Fed
                             </button>
+                            ${batch.forSale ? `
+                                <button onclick="removeBatchFromSale('${batch.cageId}')" class="btn btn-danger btn-small">
+                                    <i class="fas fa-times"></i> Remove from Sale
+                                </button>
+                            ` : `
+                                <button onclick="showListForSaleModal('${batch.cageId}')" class="btn btn-secondary btn-small">
+                                    <i class="fas fa-tag"></i> List for Sale
+                                </button>
+                            `}
                         </div>
                     </div>
                 </div>
@@ -1217,19 +1893,473 @@
             }, 5000);
         }
 
+        // Marketplace Functions
+
+        // Load marketplace items
+        async function loadMarketplace() {
+            try {
+                const response = await makeAuthenticatedRequest('/api/marketplace');
+                if (response) {
+                    marketplaceItems = await response.json();
+                    updateMarketplaceGrid();
+                    populateMarketplaceFilter();
+                }
+            } catch (error) {
+                console.error('Error loading marketplace:', error);
+            }
+        }
+
+        // Update marketplace grid
+        function updateMarketplaceGrid(filteredItems = null) {
+            const grid = document.getElementById('marketplace-grid');
+            const items = filteredItems || marketplaceItems || [];
+            
+            if (items.length === 0) {
+                grid.innerHTML = '<p>No items available for purchase at the moment.</p>';
+                return;
+            }
+            
+            grid.innerHTML = items.map(item => `
+                <div class="batch-card" style="cursor: pointer;">
+                    <div class="batch-header">
+                        <div class="batch-id">${item.species}</div>
+                        <span class="lifecycle-badge lifecycle-${item.lifecycleStage.toLowerCase()}">${item.lifecycleStage}</span>
+                    </div>
+                    
+                    <h4>₱${item.price.toFixed(2)}</h4>
+                    <p><i class="fas fa-bug"></i> ${item.larvaCount} specimens</p>
+                    <p><i class="fas fa-leaf"></i> ${item.hostPlant}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> ${item.sellerInfo.location}</p>
+                    
+                    <div style="margin: 15px 0;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Quality Score</span>
+                            <span>${(item.qualityScore * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${item.qualityScore * 100}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span>Seller Rating:</span>
+                            <div>
+                                ${Array.from({length: 5}, (_, i) => 
+                                    `<i class="fas fa-star" style="color: ${i < item.sellerInfo.rating ? '#ffd700' : '#e2e8f0'};"></i>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <button onclick="showPurchaseModal('${item.batchId}')" class="btn btn-success btn-small" style="width: 100%;">
+                            <i class="fas fa-shopping-cart"></i> Purchase
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Populate marketplace filter dropdown
+        function populateMarketplaceFilter() {
+            const filter = document.getElementById('marketplace-filter');
+            const species = [...new Set((marketplaceItems || []).map(item => item.species))];
+            
+            filter.innerHTML = '<option value="">All Species</option>' + 
+                species.map(s => `<option value="${s}">${s}</option>`).join('');
+        }
+
+        // Filter marketplace items
+        function filterMarketplace() {
+            const filter = document.getElementById('marketplace-filter').value;
+            const filteredItems = filter ? 
+                marketplaceItems.filter(item => item.species === filter) : 
+                marketplaceItems;
+            updateMarketplaceGrid(filteredItems);
+        }
+
+        // Show purchase modal
+        function showPurchaseModal(batchId) {
+            const item = marketplaceItems.find(i => i.batchId === batchId);
+            if (!item) return;
+            
+            const modal = document.getElementById('purchase-modal');
+            const content = document.getElementById('purchase-content');
+            
+            content.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h4>${item.species}</h4>
+                    <p><strong>Quantity:</strong> ${item.larvaCount} specimens</p>
+                    <p><strong>Price:</strong> ₱${item.price.toFixed(2)}</p>
+                    <p><strong>Quality Score:</strong> ${(item.qualityScore * 100).toFixed(1)}%</p>
+                    <p><strong>Seller:</strong> ${item.sellerInfo.location}</p>
+                </div>
+                
+                <form id="purchase-form">
+                    <div class="form-group">
+                        <label for="purchase-quantity">Quantity to Purchase *</label>
+                        <input type="number" id="purchase-quantity" min="1" max="${item.larvaCount}" value="1" required>
+                        <small>Price per item: ₱${item.pricePerItem.toFixed(2)}</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="shipping-address">Shipping Address *</label>
+                        <textarea id="shipping-address" rows="3" required placeholder="Complete address for delivery"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="purchase-notes">Notes (Optional)</label>
+                        <textarea id="purchase-notes" rows="2" placeholder="Special instructions or comments"></textarea>
+                    </div>
+                    
+                    <div style="padding: 15px; background: #f7fafc; border-radius: 8px; margin: 15px 0;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Subtotal:</span>
+                            <span id="purchase-subtotal">₱${item.pricePerItem.toFixed(2)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px;">
+                            <span>Total:</span>
+                            <span id="purchase-total">₱${item.pricePerItem.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    
+                    <button type="button" onclick="processPurchase('${batchId}')" class="btn">
+                        <i class="fas fa-credit-card"></i> Proceed to Payment
+                    </button>
+                </form>
+            `;
+            
+            // Update totals when quantity changes
+            document.getElementById('purchase-quantity').addEventListener('input', function() {
+                const quantity = parseInt(this.value) || 1;
+                const subtotal = quantity * item.pricePerItem;
+                document.getElementById('purchase-subtotal').textContent = `₱${subtotal.toFixed(2)}`;
+                document.getElementById('purchase-total').textContent = `₱${subtotal.toFixed(2)}`;
+            });
+            
+            modal.style.display = 'block';
+        }
+
+        // Process purchase
+        async function processPurchase(batchId) {
+            const quantity = parseInt(document.getElementById('purchase-quantity').value);
+            const shippingAddress = document.getElementById('shipping-address').value;
+            const notes = document.getElementById('purchase-notes').value;
+            
+            if (!quantity || !shippingAddress) {
+                showNotification('Please fill in all required fields', 'warning');
+                return;
+            }
+            
+            const item = marketplaceItems.find(i => i.batchId === batchId);
+            const totalPrice = quantity * item.pricePerItem;
+            
+            try {
+                showNotification('Creating order...', 'info');
+                
+                const orderData = {
+                    items: [{
+                        batchId: batchId,
+                        quantity: quantity,
+                        price: item.pricePerItem
+                    }],
+                    shippingAddress: shippingAddress,
+                    notes: notes
+                };
+                
+                const response = await makeAuthenticatedRequest('/api/orders', {
+                    method: 'POST',
+                    body: JSON.stringify(orderData)
+                });
+                
+                if (response && response.ok) {
+                    const order = await response.json();
+                    closePurchaseModal();
+                    showPaymentModal(order);
+                } else if (response) {
+                    const error = await response.json();
+                    showNotification(error.error || 'Failed to create order', 'danger');
+                }
+            } catch (error) {
+                console.error('Error creating order:', error);
+                showNotification('Error creating order', 'danger');
+            }
+        }
+
+        // Show payment modal with GCash option
+        function showPaymentModal(order) {
+            const modal = document.getElementById('payment-modal');
+            const content = document.getElementById('payment-content');
+            
+            content.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h4>Order: ${order.orderId}</h4>
+                    <p><strong>Total Amount:</strong> ₱${order.totalAmount.toFixed(2)}</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h5>Payment Method</h5>
+                    <div style="border: 2px solid #667eea; border-radius: 8px; padding: 15px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));">
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <i class="fas fa-mobile-alt" style="font-size: 2rem; color: #667eea; margin-right: 15px;"></i>
+                            <div>
+                                <h6>GCash Payment</h6>
+                                <p style="margin: 0; color: #718096;">Secure and convenient mobile payment</p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="customer-name">Full Name *</label>
+                            <input type="text" id="customer-name" value="${currentUser.firstName} ${currentUser.lastName}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="customer-email">Email *</label>
+                            <input type="email" id="customer-email" value="${currentUser.email}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="customer-phone">Phone Number *</label>
+                            <input type="tel" id="customer-phone" placeholder="+63 9XX XXX XXXX" required>
+                        </div>
+                        
+                        <button type="button" onclick="payWithGCash('${order.orderId}')" class="btn" style="width: 100%; margin-top: 15px;">
+                            <i class="fas fa-credit-card"></i> Pay with GCash
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="font-size: 0.9rem; color: #718096; text-align: center;">
+                    <p>🔒 Your payment is secured with industry-standard encryption</p>
+                    <p>You will be redirected to GCash to complete the payment</p>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        // Pay with GCash
+        async function payWithGCash(orderId) {
+            const customerName = document.getElementById('customer-name').value;
+            const customerEmail = document.getElementById('customer-email').value;
+            const customerPhone = document.getElementById('customer-phone').value;
+            
+            if (!customerName || !customerEmail || !customerPhone) {
+                showNotification('Please fill in all required fields', 'warning');
+                return;
+            }
+            
+            try {
+                showNotification('Initializing GCash payment...', 'info');
+                
+                const paymentData = {
+                    orderId: orderId,
+                    customerName: customerName,
+                    customerEmail: customerEmail,
+                    customerPhone: customerPhone
+                };
+                
+                const response = await makeAuthenticatedRequest('/api/payments/gcash', {
+                    method: 'POST',
+                    body: JSON.stringify(paymentData)
+                });
+                
+                if (response && response.ok) {
+                    const payment = await response.json();
+                    
+                    if (payment.paymentURL) {
+                        closePaymentModal();
+                        showNotification('Redirecting to GCash...', 'success');
+                        
+                        // In a real implementation, redirect to GCash
+                        // For demo, simulate payment completion
+                        setTimeout(() => {
+                            simulatePaymentCompletion(payment.paymentId);
+                        }, 3000);
+                        
+                        // window.open(payment.paymentURL, '_blank');
+                    } else {
+                        showNotification('Failed to create payment URL', 'danger');
+                    }
+                } else if (response) {
+                    const error = await response.json();
+                    showNotification(error.error || 'Payment initialization failed', 'danger');
+                }
+            } catch (error) {
+                console.error('Error creating GCash payment:', error);
+                showNotification('Payment initialization failed', 'danger');
+            }
+        }
+
+        // Simulate payment completion for demo
+        function simulatePaymentCompletion(paymentId) {
+            showNotification('Payment completed successfully!', 'success');
+            loadUserOrders('buyer');
+            loadMarketplace(); // Refresh marketplace
+        }
+
+        // Load user orders
+        async function loadUserOrders(role = 'buyer') {
+            try {
+                const response = await makeAuthenticatedRequest(`/api/orders?role=${role}`);
+                if (response) {
+                    const orders = await response.json();
+                    updateUserOrders(orders, role);
+                }
+            } catch (error) {
+                console.error('Error loading user orders:', error);
+            }
+        }
+
+        // Update user orders display
+        function updateUserOrders(orders, role) {
+            const container = document.getElementById('user-orders');
+            
+            if (orders.length === 0) {
+                container.innerHTML = `<p>No ${role === 'buyer' ? 'purchase' : 'sales'} orders found.</p>`;
+                return;
+            }
+            
+            container.innerHTML = orders.map(order => {
+                const statusColor = {
+                    pending: '#d69e2e',
+                    completed: '#38a169',
+                    cancelled: '#e53e3e'
+                };
+                
+                return `
+                    <div style="padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h6>Order ${order.orderId}</h6>
+                            <span style="background: ${statusColor[order.status]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">
+                                ${order.status.toUpperCase()}
+                            </span>
+                        </div>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <p><strong>Total:</strong> ₱${order.totalAmount.toFixed(2)}</p>
+                            <p><strong>Items:</strong> ${order.items.length} item(s)</p>
+                            <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
+                        </div>
+                        
+                        <div style="font-size: 0.9rem; color: #718096;">
+                            ${order.items.map(item => `
+                                <div>• ${item.species} (${item.quantity}x) - ₱${item.totalPrice.toFixed(2)}</div>
+                            `).join('')}
+                        </div>
+                        
+                        ${role === 'buyer' && order.status === 'pending' ? `
+                            <button onclick="cancelOrder('${order.orderId}')" class="btn btn-danger btn-small" style="margin-top: 10px;">
+                                Cancel Order
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // List batch for sale
+        async function listBatchForSale(event) {
+            event.preventDefault();
+            
+            if (!currentBatch) return;
+            
+            const formData = {
+                price: parseFloat(document.getElementById('sale-price').value),
+                description: document.getElementById('sale-description').value,
+                sellerLocation: document.getElementById('sale-location').value,
+                availableDate: document.getElementById('sale-available-date').value
+            };
+            
+            try {
+                const response = await makeAuthenticatedRequest(`/api/batches/${currentBatch.cageId}/list-for-sale`, {
+                    method: 'POST',
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response && response.ok) {
+                    showNotification('Batch listed for sale successfully!', 'success');
+                    closeSaleModal();
+                    loadBatches();
+                    loadMarketplace();
+                } else if (response) {
+                    const error = await response.json();
+                    showNotification(error.error || 'Failed to list batch', 'danger');
+                }
+            } catch (error) {
+                console.error('Error listing batch for sale:', error);
+                showNotification('Error listing batch for sale', 'danger');
+            }
+        }
+
+        // Modal functions
+        function closePurchaseModal() {
+            document.getElementById('purchase-modal').style.display = 'none';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').style.display = 'none';
+        }
+
+        function closeSaleModal() {
+            document.getElementById('sale-modal').style.display = 'none';
+            currentBatch = null;
+        }
+
+        function showListForSaleModal(cageId) {
+            const batch = batches.find(b => b.cageId === cageId);
+            if (!batch) return;
+            
+            currentBatch = batch;
+            
+            // Pre-populate form with suggested values
+            const suggestedPrice = batch.profitProjection?.revenue || 0;
+            document.getElementById('sale-price').value = suggestedPrice.toFixed(2);
+            document.getElementById('sale-available-date').value = new Date().toISOString().split('T')[0];
+            
+            document.getElementById('sale-modal').style.display = 'block';
+        }
+
+        // Remove batch from sale
+        async function removeBatchFromSale(cageId) {
+            try {
+                const response = await makeAuthenticatedRequest(`/api/batches/${cageId}/remove-from-sale`, {
+                    method: 'POST'
+                });
+                
+                if (response && response.ok) {
+                    showNotification('Batch removed from sale successfully!', 'success');
+                    loadBatches();
+                    loadMarketplace();
+                    closeBatchModal();
+                } else if (response) {
+                    const error = await response.json();
+                    showNotification(error.error || 'Failed to remove batch from sale', 'danger');
+                }
+            } catch (error) {
+                console.error('Error removing batch from sale:', error);
+                showNotification('Error removing batch from sale', 'danger');
+            }
+        }
+
         // Auto-refresh data every 30 seconds
         setInterval(() => {
             loadBatches();
             loadBreedingLog();
             loadAnalytics();
+            loadMarketplace();
         }, 30000);
 
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('batch-modal');
-            if (event.target === modal) {
-                closeBatchModal();
-            }
+            const modals = ['batch-modal', 'purchase-modal', 'payment-modal', 'sale-modal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
         }
     </script>
 </body>

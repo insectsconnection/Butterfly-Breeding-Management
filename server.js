@@ -11,6 +11,11 @@ const socketIo = require('socket.io');
 const fs = require('fs').promises;
 const path = require('path');
 
+// Import authentication and CNN modules
+const auth = require('./auth');
+const { cnnModelManager, CLASSIFICATION_LABELS, SPECIES_MARKET_PRICES, SPECIES_HOST_PLANTS } = require('./cnn-models');
+const { paymentProcessor, PAYMENT_STATUS, PAYMENT_METHODS } = require('./payment-system');
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -55,16 +60,21 @@ const BATCHES_FILE = path.join(DATA_DIR, 'batches.json');
 const BREEDING_LOG_FILE = path.join(DATA_DIR, 'breeding_log.json');
 const PROFIT_DATA_FILE = path.join(DATA_DIR, 'profit_data.json');
 
-// Host plant requirements database
-const HOST_PLANT_REQUIREMENTS = {
-  "Common Mormon": { plant: "Citrus", dailyConsumption: 150, marketPrice: 25.00 },
-  "Atlas Moth": { plant: "Cinnamon", dailyConsumption: 200, marketPrice: 35.00 },
-  "Blue Morpho": { plant: "Pea Family", dailyConsumption: 180, marketPrice: 45.00 },
-  "Swallowtail": { plant: "Parsley", dailyConsumption: 120, marketPrice: 20.00 },
-  "Monarch": { plant: "Milkweed", dailyConsumption: 140, marketPrice: 30.00 },
-  "Cabbage White": { plant: "Brassica", dailyConsumption: 100, marketPrice: 15.00 },
-  "Zebra Longwing": { plant: "Passion Vine", dailyConsumption: 160, marketPrice: 28.00 },
-  "Giant Swallowtail": { plant: "Citrus", dailyConsumption: 220, marketPrice: 40.00 }
+// Use the comprehensive species database from CNN models
+const HOST_PLANT_REQUIREMENTS = SPECIES_HOST_PLANTS;
+
+// Extended task types for comprehensive breeding management
+const TASK_TYPES = {
+  FEEDING: 'feeding',
+  PEST_CONTROL: 'pest_control',
+  CAGE_CLEANING: 'cage_cleaning',
+  HEALTH_CHECK: 'health_check',
+  PLANT_REPLACEMENT: 'plant_replacement',
+  TEMPERATURE_CHECK: 'temperature_check',
+  HUMIDITY_CHECK: 'humidity_check',
+  BREEDING_RECORD: 'breeding_record',
+  QUALITY_ASSESSMENT: 'quality_assessment',
+  HARVEST: 'harvest'
 };
 
 // Quality matrix for pupae valuation
@@ -343,10 +353,293 @@ Overdue by: ${overdueHours.toFixed(1)} hours`;
 // Schedule monitoring every 30 minutes
 cron.schedule('*/30 * * * *', checkFeedingSchedule);
 
-// API Routes
+// Authentication Routes
+
+// Login endpoint
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password required' });
+    }
+    
+    const user = await auth.authenticateUser(username, password);
+    const token = auth.generateToken(user);
+    
+    await logActivity('system', `User ${username} logged in`, null);
+    
+    res.json({
+      user: user,
+      token: token,
+      message: 'Login successful'
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(401).json({ error: error.message });
+  }
+});
+
+// Register endpoint
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const userData = req.body;
+    
+    // Validate required fields
+    if (!userData.username || !userData.email || !userData.password) {
+      return res.status(400).json({ error: 'Username, email, and password required' });
+    }
+    
+    const user = await auth.registerUser(userData);
+    
+    await logActivity('system', `New user registered: ${userData.username}`, null);
+    
+    res.status(201).json({
+      user: user,
+      message: 'Registration successful'
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Get current user profile
+app.get('/api/auth/profile', auth.authenticateToken, async (req, res) => {
+  try {
+    res.json({ user: req.user });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get profile' });
+  }
+});
+
+// Get all users (admin only)
+app.get('/api/auth/users', auth.authenticateToken, auth.requirePermission('*'), async (req, res) => {
+  try {
+    const users = await auth.getAllUsers();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get users' });
+  }
+});
+
+// Update user (admin or own profile)
+app.put('/api/auth/users/:userId', auth.authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const updates = req.body;
+    
+    // Users can only update their own profile unless they're admin
+    if (userId !== req.user.id && !auth.hasPermission(req.user.role, '*')) {
+      return res.status(403).json({ error: 'Can only update your own profile' });
+    }
+    
+    const updatedUser = await auth.updateUser(userId, updates);
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CNN Classification Routes
+
+// Get model status
+app.get('/api/cnn/status', auth.authenticateToken, async (req, res) => {
+  try {
+    const status = cnnModelManager.getModelStatus();
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get model status' });
+  }
+});
+
+// Classify image
+app.post('/api/cnn/classify', auth.authenticateToken, auth.requirePermission('classify_images'), upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided' });
+    }
+    
+    const { analysisType = 'all' } = req.body;
+    const imageBuffer = await fs.readFile(req.file.path);
+    
+    const results = await cnnModelManager.performFullAnalysis(imageBuffer, analysisType);
+    
+    // Log the classification activity
+    await logActivity(req.user.id, `Image classified: ${analysisType}`, null);
+    
+    // Clean up uploaded file
+    await fs.unlink(req.file.path);
+    
+    res.json({
+      results: results,
+      user: req.user.username,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Classification error:', error);
+    
+    // Clean up uploaded file if it exists
+    if (req.file) {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (cleanupError) {
+        console.error('Error cleaning up file:', cleanupError);
+      }
+    }
+    
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get species information
+app.get('/api/species', auth.authenticateToken, async (req, res) => {
+  try {
+    const speciesData = Object.keys(SPECIES_HOST_PLANTS).map(species => ({
+      name: species,
+      hostPlant: SPECIES_HOST_PLANTS[species],
+      marketPrice: SPECIES_MARKET_PRICES[species] || 25.00
+    }));
+    
+    res.json(speciesData);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get species data' });
+  }
+});
+
+// Task Management Routes
+
+// Get all tasks for user
+app.get('/api/tasks', auth.authenticateToken, async (req, res) => {
+  try {
+    // Load tasks from file or database
+    const tasksFile = path.join(DATA_DIR, 'tasks.json');
+    let tasks = [];
+    
+    try {
+      const data = await fs.readFile(tasksFile, 'utf8');
+      tasks = JSON.parse(data);
+    } catch (error) {
+      // File doesn't exist yet
+      tasks = [];
+    }
+    
+    // Filter tasks by user if not admin
+    if (!auth.hasPermission(req.user.role, '*')) {
+      tasks = tasks.filter(task => task.assignedTo === req.user.id);
+    }
+    
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load tasks' });
+  }
+});
+
+// Create new task
+app.post('/api/tasks', auth.authenticateToken, auth.requirePermission('manage_tasks'), async (req, res) => {
+  try {
+    const { title, description, type, priority, dueDate, assignedTo, cageId } = req.body;
+    
+    const newTask = {
+      id: uuidv4(),
+      title: title,
+      description: description,
+      type: type || TASK_TYPES.FEEDING,
+      priority: priority || 'medium',
+      status: 'pending',
+      createdBy: req.user.id,
+      assignedTo: assignedTo || req.user.id,
+      cageId: cageId,
+      dueDate: dueDate ? new Date(dueDate) : new Date(Date.now() + 24 * 60 * 60 * 1000),
+      createdAt: new Date(),
+      completedAt: null
+    };
+    
+    // Load existing tasks
+    const tasksFile = path.join(DATA_DIR, 'tasks.json');
+    let tasks = [];
+    
+    try {
+      const data = await fs.readFile(tasksFile, 'utf8');
+      tasks = JSON.parse(data);
+    } catch (error) {
+      tasks = [];
+    }
+    
+    tasks.push(newTask);
+    
+    // Save tasks
+    await fs.writeFile(tasksFile, JSON.stringify(tasks, null, 2));
+    
+    await logActivity(req.user.id, `Task created: ${title}`, null);
+    
+    // Emit to connected clients
+    io.emit('taskCreated', newTask);
+    
+    res.status(201).json(newTask);
+  } catch (error) {
+    console.error('Error creating task:', error);
+    res.status(500).json({ error: 'Failed to create task' });
+  }
+});
+
+// Update task status
+app.put('/api/tasks/:taskId', auth.authenticateToken, async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const updates = req.body;
+    
+    const tasksFile = path.join(DATA_DIR, 'tasks.json');
+    let tasks = [];
+    
+    try {
+      const data = await fs.readFile(tasksFile, 'utf8');
+      tasks = JSON.parse(data);
+    } catch (error) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    
+    const taskIndex = tasks.findIndex(t => t.id === taskId);
+    if (taskIndex === -1) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    
+    const task = tasks[taskIndex];
+    
+    // Check permissions - users can only update their own tasks unless admin
+    if (task.assignedTo !== req.user.id && !auth.hasPermission(req.user.role, '*')) {
+      return res.status(403).json({ error: 'Can only update your own tasks' });
+    }
+    
+    // Update task
+    Object.keys(updates).forEach(key => {
+      if (key !== 'id') {
+        task[key] = updates[key];
+      }
+    });
+    
+    if (updates.status === 'completed') {
+      task.completedAt = new Date();
+    }
+    
+    tasks[taskIndex] = task;
+    await fs.writeFile(tasksFile, JSON.stringify(tasks, null, 2));
+    
+    await logActivity(req.user.id, `Task updated: ${task.title}`, null);
+    
+    io.emit('taskUpdated', task);
+    
+    res.json(task);
+  } catch (error) {
+    console.error('Error updating task:', error);
+    res.status(500).json({ error: 'Failed to update task' });
+  }
+});
+
+// Batch Management Routes (Updated with Authentication)
 
 // Get all batches
-app.get('/api/batches', async (req, res) => {
+app.get('/api/batches', auth.authenticateToken, auth.requirePermission('view_batches'), async (req, res) => {
   try {
     const batches = await loadBatches();
     
@@ -369,7 +662,7 @@ app.get('/api/batches', async (req, res) => {
 });
 
 // Create new batch
-app.post('/api/batches', async (req, res) => {
+app.post('/api/batches', auth.authenticateToken, auth.requirePermission('create_batches'), async (req, res) => {
   try {
     const { species, larvaCount, phoneNumber, notes } = req.body;
     
@@ -633,6 +926,316 @@ app.post('/api/test-sms', async (req, res) => {
   }
 });
 
+// Payment and Marketplace Routes
+
+// Get marketplace listings (available batches for purchase)
+app.get('/api/marketplace', auth.authenticateToken, async (req, res) => {
+  try {
+    const batches = await loadBatches();
+    
+    // Filter for batches available for sale
+    const marketplaceItems = batches
+      .filter(batch => batch.active && batch.forSale)
+      .map(batch => {
+        const cageBatch = new CageBatch();
+        Object.assign(cageBatch, batch);
+        const profitData = cageBatch.calculateProfitProjection();
+        
+        return {
+          batchId: batch.cageId,
+          species: batch.species,
+          lifecycleStage: batch.lifecycleStage,
+          larvaCount: batch.larvaCount,
+          qualityScore: batch.qualityScore,
+          price: profitData.revenue,
+          pricePerItem: profitData.revenue / batch.larvaCount,
+          hostPlant: batch.hostPlant,
+          sellerInfo: {
+            sellerId: batch.createdBy || 'unknown',
+            location: batch.sellerLocation || 'Not specified',
+            rating: batch.sellerRating || 5.0
+          },
+          images: batch.images || [],
+          description: batch.notes,
+          availableDate: batch.availableDate || new Date().toISOString(),
+          createdAt: batch.startDate
+        };
+      });
+    
+    res.json(marketplaceItems);
+  } catch (error) {
+    console.error('Error loading marketplace:', error);
+    res.status(500).json({ error: 'Failed to load marketplace' });
+  }
+});
+
+// Create new order
+app.post('/api/orders', auth.authenticateToken, auth.requirePermission('view_batches'), async (req, res) => {
+  try {
+    const { items, shippingAddress, notes } = req.body;
+    
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'Items are required' });
+    }
+    
+    // Calculate total amount
+    let totalAmount = 0;
+    const orderItems = [];
+    
+    for (const item of items) {
+      const batch = await loadBatches().then(batches => 
+        batches.find(b => b.cageId === item.batchId)
+      );
+      
+      if (!batch || !batch.forSale) {
+        return res.status(400).json({ error: `Batch ${item.batchId} not available for sale` });
+      }
+      
+      const itemTotal = item.price * item.quantity;
+      totalAmount += itemTotal;
+      
+      orderItems.push({
+        batchId: item.batchId,
+        species: batch.species,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        totalPrice: itemTotal,
+        sellerId: batch.createdBy
+      });
+    }
+    
+    // Get seller information (assuming single seller for now)
+    const sellerId = orderItems[0].sellerId;
+    const seller = await auth.getAllUsers().then(users => 
+      users.find(u => u.id === sellerId)
+    );
+    
+    const orderData = {
+      buyerId: req.user.id,
+      buyerEmail: req.user.email,
+      buyerPhone: req.user.phone || '',
+      sellerId: sellerId,
+      sellerEmail: seller?.email || '',
+      sellerPhone: seller?.phone || '',
+      items: orderItems,
+      totalAmount: totalAmount,
+      shippingAddress: shippingAddress,
+      notes: notes
+    };
+    
+    const order = await paymentProcessor.createOrder(orderData);
+    
+    await logActivity(req.user.id, `Order created: ${order.orderId}`, null);
+    
+    res.status(201).json(order);
+  } catch (error) {
+    console.error('Error creating order:', error);
+    res.status(500).json({ error: error.message || 'Failed to create order' });
+  }
+});
+
+// Create GCash payment
+app.post('/api/payments/gcash', auth.authenticateToken, async (req, res) => {
+  try {
+    const { orderId, customerName, customerEmail, customerPhone } = req.body;
+    
+    if (!orderId) {
+      return res.status(400).json({ error: 'Order ID is required' });
+    }
+    
+    // Get order details
+    const orders = await paymentProcessor.loadOrders();
+    const order = orders.find(o => o.orderId === orderId);
+    
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    
+    if (order.buyerId !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    const paymentData = {
+      orderId: order.orderId,
+      buyerId: order.buyerId,
+      sellerId: order.sellerId,
+      amount: order.totalAmount,
+      description: `Butterfly Purchase - Order ${order.orderId}`,
+      customerName: customerName || `${req.user.firstName} ${req.user.lastName}`,
+      customerEmail: customerEmail || req.user.email,
+      customerPhone: customerPhone || req.user.phone || ''
+    };
+    
+    const payment = await paymentProcessor.createGCashPayment(paymentData);
+    
+    await logActivity(req.user.id, `GCash payment initiated: ${payment.paymentId}`, null);
+    
+    res.json(payment);
+  } catch (error) {
+    console.error('Error creating GCash payment:', error);
+    res.status(500).json({ error: error.message || 'Failed to create payment' });
+  }
+});
+
+// GCash payment callback (webhook)
+app.post('/api/payments/gcash/callback', async (req, res) => {
+  try {
+    const callbackData = req.body;
+    
+    const result = await paymentProcessor.handleGCashCallback(callbackData);
+    
+    if (result.success) {
+      // Emit payment update to connected clients
+      io.emit('paymentUpdated', {
+        paymentId: result.paymentId,
+        status: result.status
+      });
+      
+      res.json({ success: true, message: 'Callback processed successfully' });
+    } else {
+      res.status(400).json({ success: false, error: result.error });
+    }
+  } catch (error) {
+    console.error('Error processing GCash callback:', error);
+    res.status(500).json({ success: false, error: 'Failed to process callback' });
+  }
+});
+
+// Get payment status
+app.get('/api/payments/:paymentId', auth.authenticateToken, async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    
+    const paymentStatus = await paymentProcessor.getPaymentStatus(paymentId);
+    
+    res.json(paymentStatus);
+  } catch (error) {
+    console.error('Error getting payment status:', error);
+    res.status(500).json({ error: error.message || 'Failed to get payment status' });
+  }
+});
+
+// Get user orders
+app.get('/api/orders', auth.authenticateToken, async (req, res) => {
+  try {
+    const { role = 'buyer' } = req.query;
+    
+    const orders = await paymentProcessor.getUserOrders(req.user.id, role);
+    
+    res.json(orders);
+  } catch (error) {
+    console.error('Error getting user orders:', error);
+    res.status(500).json({ error: 'Failed to get orders' });
+  }
+});
+
+// Cancel payment
+app.post('/api/payments/:paymentId/cancel', auth.authenticateToken, async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    
+    const result = await paymentProcessor.cancelPayment(paymentId, req.user.id);
+    
+    await logActivity(req.user.id, `Payment cancelled: ${paymentId}`, null);
+    
+    res.json(result);
+  } catch (error) {
+    console.error('Error cancelling payment:', error);
+    res.status(500).json({ error: error.message || 'Failed to cancel payment' });
+  }
+});
+
+// Get payment analytics
+app.get('/api/analytics/payments', auth.authenticateToken, async (req, res) => {
+  try {
+    const { role } = req.query;
+    
+    let analytics;
+    if (auth.hasPermission(req.user.role, '*')) {
+      // Admin can see all analytics
+      analytics = await paymentProcessor.getPaymentAnalytics();
+    } else {
+      // Users see their own analytics
+      analytics = await paymentProcessor.getPaymentAnalytics(req.user.id, role);
+    }
+    
+    res.json(analytics);
+  } catch (error) {
+    console.error('Error getting payment analytics:', error);
+    res.status(500).json({ error: 'Failed to get payment analytics' });
+  }
+});
+
+// Mark batch as for sale
+app.post('/api/batches/:cageId/list-for-sale', auth.authenticateToken, auth.requirePermission('update_batches'), async (req, res) => {
+  try {
+    const { cageId } = req.params;
+    const { price, description, availableDate, sellerLocation } = req.body;
+    
+    const batches = await loadBatches();
+    const batchIndex = batches.findIndex(b => b.cageId === cageId);
+    
+    if (batchIndex === -1) {
+      return res.status(404).json({ error: 'Batch not found' });
+    }
+    
+    const batch = batches[batchIndex];
+    
+    // Update batch for marketplace
+    batch.forSale = true;
+    batch.salePrice = price;
+    batch.saleDescription = description;
+    batch.availableDate = availableDate || new Date().toISOString();
+    batch.sellerLocation = sellerLocation;
+    batch.sellerRating = 5.0; // Default rating
+    
+    batches[batchIndex] = batch;
+    await saveBatches(batches);
+    
+    await logActivity(req.user.id, `Batch listed for sale: ${cageId}`, batch.lifecycleStage);
+    
+    // Emit to connected clients
+    io.emit('batchListedForSale', batch);
+    
+    res.json({ message: 'Batch listed for sale successfully', batch });
+  } catch (error) {
+    console.error('Error listing batch for sale:', error);
+    res.status(500).json({ error: 'Failed to list batch for sale' });
+  }
+});
+
+// Remove batch from sale
+app.post('/api/batches/:cageId/remove-from-sale', auth.authenticateToken, auth.requirePermission('update_batches'), async (req, res) => {
+  try {
+    const { cageId } = req.params;
+    
+    const batches = await loadBatches();
+    const batchIndex = batches.findIndex(b => b.cageId === cageId);
+    
+    if (batchIndex === -1) {
+      return res.status(404).json({ error: 'Batch not found' });
+    }
+    
+    const batch = batches[batchIndex];
+    
+    // Remove from marketplace
+    batch.forSale = false;
+    delete batch.salePrice;
+    delete batch.saleDescription;
+    delete batch.availableDate;
+    
+    batches[batchIndex] = batch;
+    await saveBatches(batches);
+    
+    await logActivity(req.user.id, `Batch removed from sale: ${cageId}`, batch.lifecycleStage);
+    
+    res.json({ message: 'Batch removed from sale successfully' });
+  } catch (error) {
+    console.error('Error removing batch from sale:', error);
+    res.status(500).json({ error: 'Failed to remove batch from sale' });
+  }
+});
+
 // WebSocket connection handling
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
@@ -651,6 +1254,15 @@ io.on('connection', (socket) => {
 async function startServer() {
   await initializeDataDir();
   
+  // Initialize authentication system
+  await auth.initializeUsers();
+  
+  // Initialize CNN models
+  await cnnModelManager.initialize();
+  
+  // Initialize payment system
+  await paymentProcessor.initialize();
+  
   const PORT = process.env.PORT || 5000;
   
   server.listen(PORT, '0.0.0.0', () => {
@@ -663,6 +1275,10 @@ async function startServer() {
     } else {
       console.log('📱 SMS notifications enabled');
     }
+    
+    console.log('🔐 Authentication system ready');
+    console.log('🧠 CNN models initialized');
+    console.log('👤 Default admin login: username=admin, password=admin123');
   });
 }
 
