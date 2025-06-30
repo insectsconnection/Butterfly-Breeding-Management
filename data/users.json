@@ -9,7 +9,7 @@
     "lastName": "Administrator",
     "organization": "Butterfly Breeding Management",
     "createdAt": "2025-06-27T16:44:06.451Z",
-    "lastLogin": null,
+    "lastLogin": "2025-06-28T06:29:43.113Z",
     "isActive": true
   },
   {
@@ -22,7 +22,46 @@
     "lastName": "Montellano",
     "organization": "BioBoomBloom",
     "createdAt": "2025-06-27T16:48:45.231Z",
-    "lastLogin": "2025-06-27T16:52:49.220Z",
+    "lastLogin": "2025-06-30T02:17:24.353Z",
+    "isActive": true
+  },
+  {
+    "id": "user-1751087430090-mkm63nur8",
+    "username": "joan",
+    "email": "faballenajonah@gmail.com",
+    "password": "$2b$10$MzbVD717JDpsPeVt9K8pAuLqj0dyE4QPV0.fNq68BlqGCkxRmUXvC",
+    "role": "purchaser",
+    "firstName": "Jonah",
+    "lastName": "Faballena",
+    "organization": "Butterfly",
+    "createdAt": "2025-06-28T05:10:30.090Z",
+    "lastLogin": null,
+    "isActive": true
+  },
+  {
+    "id": "user-1751087593040-1njnyzdwr",
+    "username": "jonah",
+    "email": "jonahcatubig@gmail.com",
+    "password": "$2b$10$wwB9ASm/PpWQ6wJ/Er5MD.rlqqamRxAQZIHs26nHbKFCzcd.0ReCS",
+    "role": "purchaser",
+    "firstName": "Jonah",
+    "lastName": "Catubig",
+    "organization": "",
+    "createdAt": "2025-06-28T05:13:13.040Z",
+    "lastLogin": "2025-06-29T18:45:25.666Z",
+    "isActive": true
+  },
+  {
+    "id": "user-1751092420190-hibgyywru",
+    "username": "smartpicks",
+    "email": "connect.smartpicks@gmail.com",
+    "password": "$2b$10$X8yQjaJkKs5Ssf7ru4816uUus8w5wTXbPwHUkxUmzSJVIBB7zF4i6",
+    "role": "other",
+    "firstName": "Smart",
+    "lastName": "Picks",
+    "organization": "",
+    "createdAt": "2025-06-28T06:33:40.190Z",
+    "lastLogin": "2025-06-28T06:33:51.351Z",
     "isActive": true
   }
 ]

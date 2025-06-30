@@ -33,5 +33,852 @@
     "timestamp": "2025-06-27T16:52:49.222Z",
     "activity": "User Winjer logged in",
     "lifecycleStage": null
+  },
+  {
+    "id": "27110a0e-0eb4-4f68-b1f4-c374e9f2755f",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-27T16:57:27.341Z",
+    "activity": "Batch created",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "01c25ade-5495-4535-92b8-5c3bc1ed99bc",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T16:59:07.544Z",
+    "activity": "Image classified: defects",
+    "lifecycleStage": null
+  },
+  {
+    "id": "8ed8795b-02f8-4b73-b207-e832bd4471e4",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T17:02:54.295Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "eb319efd-02d4-41bf-a397-01b0b90a618e",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T17:09:08.917Z",
+    "activity": "Task created: Eggs Management ",
+    "lifecycleStage": null
+  },
+  {
+    "id": "8a8ab8ef-c05f-4c04-8c6b-17315c5cc3a7",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T17:18:59.881Z",
+    "activity": "Task created: Cagenet ",
+    "lifecycleStage": null
+  },
+  {
+    "id": "0fc31942-ceef-4b1e-bb54-78e52110d723",
+    "cageId": "system",
+    "timestamp": "2025-06-27T17:27:37.694Z",
+    "activity": "User Winjer logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "7042e8d1-c0a9-4b48-9f5c-1e30b5e36937",
+    "cageId": "system",
+    "timestamp": "2025-06-27T17:40:31.440Z",
+    "activity": "User Winjer logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "f189d429-d72c-4efa-bc09-bc99ddc0723d",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T17:41:36.253Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "652ae14f-ba9e-47b6-a62d-24fe586886fc",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T17:53:03.736Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "d6c2399b-7363-4296-a512-4118c9d75811",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T18:13:37.238Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "8f0a4e1a-24d9-41ab-aa0c-7eb9d807695f",
+    "cageId": "system",
+    "timestamp": "2025-06-27T18:14:58.811Z",
+    "activity": "User admin logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "6118909d-ec49-425d-bbd7-22024298956f",
+    "cageId": "admin-001",
+    "timestamp": "2025-06-27T18:17:36.551Z",
+    "activity": "Image classified: all",
+    "lifecycleStage": null
+  },
+  {
+    "id": "a46bae68-d5b6-4adf-99a8-d499b56a0bdf",
+    "cageId": "admin-001",
+    "timestamp": "2025-06-27T18:18:21.113Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "801eaf61-86ba-4d10-a9ed-813e67a1d9d4",
+    "cageId": "admin-001",
+    "timestamp": "2025-06-27T18:18:41.253Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "2cbd8745-5d4c-4447-b1a7-b8e19136f2bc",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T18:50:52.793Z",
+    "activity": "Image classified: defects",
+    "lifecycleStage": null
+  },
+  {
+    "id": "e94601cc-16ec-40a2-b368-629f6715d069",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T18:51:19.704Z",
+    "activity": "Image classified: defects",
+    "lifecycleStage": null
+  },
+  {
+    "id": "2c782cd3-76ab-4280-b331-473a697844a7",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T18:51:40.571Z",
+    "activity": "Image classified: defects",
+    "lifecycleStage": null
+  },
+  {
+    "id": "32f164b6-78db-47e9-a2d4-766f1e407fae",
+    "cageId": "system",
+    "timestamp": "2025-06-27T19:05:34.275Z",
+    "activity": "User admin logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "c5f81f81-5cc2-4f32-8029-0a2c4fc159a5",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T19:08:55.104Z",
+    "activity": "Image classified: disease",
+    "lifecycleStage": null
+  },
+  {
+    "id": "c864b235-886c-4066-b57b-7df38c8c7700",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T19:10:00.318Z",
+    "activity": "Image classified: disease",
+    "lifecycleStage": null
+  },
+  {
+    "id": "9cf80747-3cbe-4d72-9fb9-b92ac42575a0",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T19:13:11.093Z",
+    "activity": "Image classified: disease",
+    "lifecycleStage": null
+  },
+  {
+    "id": "da348d60-d49d-440a-a572-1bae36c0f083",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T19:15:20.413Z",
+    "activity": "Image classified: disease",
+    "lifecycleStage": null
+  },
+  {
+    "id": "da5cb865-202e-4cf5-a134-5d2217784216",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T19:16:12.864Z",
+    "activity": "Image classified: defects",
+    "lifecycleStage": null
+  },
+  {
+    "id": "45864d6c-e833-4f7a-a78f-224e3d6cc611",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T23:37:46.806Z",
+    "activity": "Task updated: Eggs Management ",
+    "lifecycleStage": null
+  },
+  {
+    "id": "7d33345e-4ebc-409d-8755-f7ef802e8ebf",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-27T23:39:06.889Z",
+    "activity": "Image classified: disease",
+    "lifecycleStage": null
+  },
+  {
+    "id": "8ca44894-5edb-46a3-855a-debd49d13a33",
+    "cageId": "system",
+    "timestamp": "2025-06-28T02:17:56.919Z",
+    "activity": "User admin logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "2130463c-2512-4e80-9829-c46df4e07813",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-06-28T03:48:26.054Z",
+    "activity": "Batch created",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "a8fa4429-320b-477a-8d29-5a7beb97638e",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-28T03:49:55.737Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "7efdc1a6-fccf-422a-8c16-29719a53d884",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-28T03:50:45.967Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "d9ca8629-d616-49ea-8cce-8bde99064800",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-28T03:59:16.289Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "43696879-4c7b-4afe-bb7c-1c1aa04497bf",
+    "cageId": "system",
+    "timestamp": "2025-06-28T04:06:53.466Z",
+    "activity": "User Winjer logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "3a4194cb-f372-478a-9c0d-bfb40e544398",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-06-28T04:52:43.407Z",
+    "activity": "Batch created",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "7ef05fb1-9e25-4d65-8946-607a870027ac",
+    "cageId": "system",
+    "timestamp": "2025-06-28T05:10:30.095Z",
+    "activity": "New user registered: joan",
+    "lifecycleStage": null
+  },
+  {
+    "id": "f7d1b08f-9f9b-4909-9ff6-191fe4509bce",
+    "cageId": "system",
+    "timestamp": "2025-06-28T05:13:13.042Z",
+    "activity": "New user registered: jonah",
+    "lifecycleStage": null
+  },
+  {
+    "id": "b7cd0beb-2ff3-451d-a8ed-bd469154fdb9",
+    "cageId": "system",
+    "timestamp": "2025-06-28T05:13:40.816Z",
+    "activity": "User jonah logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "1f39b8b1-ea1b-4452-bf44-9a1c302d6fe7",
+    "cageId": "system",
+    "timestamp": "2025-06-28T06:29:43.118Z",
+    "activity": "User admin logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "c13d2fd4-8e14-4d62-98de-18ac88cc8058",
+    "cageId": "system",
+    "timestamp": "2025-06-28T06:33:40.191Z",
+    "activity": "New user registered: smartpicks",
+    "lifecycleStage": null
+  },
+  {
+    "id": "ffa74d43-c37f-4a64-9350-4f514185dcbd",
+    "cageId": "system",
+    "timestamp": "2025-06-28T06:33:51.353Z",
+    "activity": "User smartpicks logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "f6a0a079-d6bc-4116-8c87-fcb65aaf3972",
+    "cageId": "system",
+    "timestamp": "2025-06-29T00:49:06.974Z",
+    "activity": "User jonah logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "d9805306-9cce-4105-913f-327dd6af7980",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-06-29T00:50:18.051Z",
+    "activity": "Batch fed",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "b9e7159c-d6f0-4274-8869-439b35615439",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T01:00:00.023Z",
+    "activity": "Feeding overdue by 8.0 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "a3f07602-16ef-4f0e-9dfa-b9f1a9d03c21",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T01:30:00.039Z",
+    "activity": "Feeding overdue by 8.5 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "899c624b-24db-4637-8e01-671d13181fe8",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T02:00:00.018Z",
+    "activity": "Feeding overdue by 9.0 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "67292dbd-3770-4687-9d51-74a460075f49",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T02:30:00.012Z",
+    "activity": "Feeding overdue by 9.5 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "4f0247b9-c62c-4587-9116-e36e432179d5",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T02:30:42.135Z",
+    "activity": "Image classified: disease",
+    "lifecycleStage": null
+  },
+  {
+    "id": "3f057ee7-b072-491c-a3cc-265c56fcd017",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T03:00:00.008Z",
+    "activity": "Feeding overdue by 10.0 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "b569f877-1c2f-4504-a4be-621886af86ca",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-06-29T03:00:00.009Z",
+    "activity": "Feeding reminder sent",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "43774470-b4bc-4fe6-9bbc-eb2857be88df",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T03:02:49.569Z",
+    "activity": "Image classified: defects",
+    "lifecycleStage": null
+  },
+  {
+    "id": "28886e53-0d58-4ed5-8b24-31dcf8e487bf",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T03:04:07.836Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "e7e3e092-48a0-4aec-ae0c-ac611779d57c",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T03:05:27.634Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "9f2cd699-7210-4dbb-90e7-a79eaab2fea5",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T03:30:00.019Z",
+    "activity": "Feeding overdue by 10.5 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "5078738d-8b25-4cf2-9443-48ee0a3d9775",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-06-29T03:30:00.022Z",
+    "activity": "Feeding reminder sent",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "8e7ad0ad-d1fe-4fd1-904a-0adaa34dbe75",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T04:00:00.011Z",
+    "activity": "Feeding overdue by 11.0 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "58032dc3-703f-4c79-951e-fa795322c2fa",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-06-29T04:00:00.015Z",
+    "activity": "Feeding overdue by 0.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "0aaadb25-cc71-434f-a897-e2068da9f0d7",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-06-29T04:00:00.024Z",
+    "activity": "Feeding reminder sent",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "b1daa19b-3347-4a0b-82f5-7418b2224371",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T05:00:00.031Z",
+    "activity": "Feeding overdue by 12.0 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "ccaf8382-b4ea-4796-9c15-96f03725ebdb",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-06-29T05:00:00.033Z",
+    "activity": "Feeding overdue by 1.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "63d44ed9-ffe4-4a34-b514-988b7c08aa4f",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-06-29T05:00:00.045Z",
+    "activity": "Feeding overdue by 0.1 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "a9bb14ed-2183-47ab-babb-d3814b344fe9",
+    "cageId": "system",
+    "timestamp": "2025-06-29T11:37:46.718Z",
+    "activity": "User jonah logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "3bacb09d-f52f-4e3b-8053-19f7f6b6f81c",
+    "cageId": "system",
+    "timestamp": "2025-06-29T11:40:03.048Z",
+    "activity": "User Winjer logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "edbf3e9f-65d4-43bd-bd19-ffc75af48101",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T11:40:39.937Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "d967fdb5-b2a0-40a6-94a7-5f9512066ce2",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T11:43:20.221Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "8197462b-dd43-48c0-be3d-c59a2352b291",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T11:54:41.117Z",
+    "activity": "Image classified: disease",
+    "lifecycleStage": null
+  },
+  {
+    "id": "ac3b5004-fd6d-486e-9148-b06b7e433384",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T11:56:24.291Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "2fb4e9a3-b001-4856-bd56-f3dd686073b0",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T12:00:00.029Z",
+    "activity": "Feeding overdue by 19.0 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "08e350bd-491a-4eda-8657-63932e9a1092",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-06-29T12:00:00.030Z",
+    "activity": "Feeding overdue by 8.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "a29f5c6a-75ed-4c6d-a2f4-230b0fa3596c",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-06-29T12:00:00.032Z",
+    "activity": "Feeding overdue by 7.1 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "86b27130-9c6a-4a51-a825-8921d6df84f6",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T12:30:00.031Z",
+    "activity": "Feeding overdue by 19.5 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "403a5c84-dd9d-4081-a888-88b18f512743",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-06-29T12:30:00.032Z",
+    "activity": "Feeding overdue by 8.7 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "7b4198dc-826d-4e89-b3f7-43b19ec27b83",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-06-29T12:30:00.036Z",
+    "activity": "Feeding overdue by 7.6 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "ca34d975-bf2c-4b17-bf05-a3dfa4f04e14",
+    "cageId": "system",
+    "timestamp": "2025-06-29T12:34:48.618Z",
+    "activity": "User Winjer logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "612827d8-df1d-468e-b777-2e67b763d15b",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T12:35:28.395Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "3f2b4edf-aef1-461d-8c68-270e4edf28f4",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T12:36:11.403Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "f9a4ff1b-9f54-4273-95cb-a804e22ce18d",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T12:48:40.543Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "7dbbf89f-8758-4b4c-aa17-2fdfa1375ed4",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T12:51:35.250Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "aae48ae3-a55e-40ad-ba91-1ce976a0c7bd",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T12:53:40.769Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "ad399c71-f0d6-4cd6-80cd-1b6957307954",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T12:53:56.345Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "616fac9f-126f-47ac-b4c7-7b06d2b38f17",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T13:00:00.013Z",
+    "activity": "Feeding overdue by 20.0 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "910fa7af-89c6-4778-8bdd-84e81265869f",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-06-29T13:00:00.014Z",
+    "activity": "Feeding overdue by 9.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "2219419f-2c23-4833-9427-1855cc029642",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-06-29T13:00:00.016Z",
+    "activity": "Feeding overdue by 8.1 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "d6daa496-2113-4c49-8dd0-f3bc9365dd49",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T13:30:00.033Z",
+    "activity": "Feeding overdue by 20.5 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "6632c123-4f7a-47ae-8de8-f722c0b8a332",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-06-29T13:30:00.036Z",
+    "activity": "Feeding overdue by 9.7 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "54f70457-cb05-4277-8689-c498f02a9429",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-06-29T13:30:00.044Z",
+    "activity": "Feeding overdue by 8.6 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "b722065d-8de6-46db-a926-630837ca60b7",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T14:00:00.025Z",
+    "activity": "Feeding overdue by 21.0 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "355cfb53-2633-4c7b-9889-f2fc1dac3b00",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-06-29T14:00:00.026Z",
+    "activity": "Feeding overdue by 10.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "cfe3dc6e-dd01-4f81-a21a-3ee83b0f0b6d",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-06-29T14:00:00.030Z",
+    "activity": "Feeding overdue by 9.1 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "5686e501-029c-4d56-a04b-0f5a0120786c",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T14:30:00.029Z",
+    "activity": "Feeding overdue by 21.5 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "f86fe35c-729e-4774-9694-e93b915048be",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-06-29T14:30:00.038Z",
+    "activity": "Feeding overdue by 10.7 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "da9919be-768a-4f5f-b4c1-df953074a3cc",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-06-29T14:30:00.053Z",
+    "activity": "Feeding overdue by 9.6 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "39018946-a549-41e1-90c2-1b44d1e8ad30",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T15:00:00.023Z",
+    "activity": "Feeding overdue by 22.0 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "ab53ca12-4101-4e6e-a21d-100d048de21c",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-06-29T15:00:00.032Z",
+    "activity": "Feeding overdue by 11.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "2ceea029-c924-4df8-a407-c248dfaaa486",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-06-29T15:00:00.033Z",
+    "activity": "Feeding overdue by 10.1 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "88cf0aef-1449-4232-b15e-3293e76ce29a",
+    "cageId": "system",
+    "timestamp": "2025-06-29T15:08:59.523Z",
+    "activity": "User jonah logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "1c6e811c-18b9-4fd6-a807-5724bc5a8142",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-06-29T15:09:25.920Z",
+    "activity": "Batch fed",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "cb84bbe5-f70d-46cc-b5e0-5c5af02348e6",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-06-29T15:09:41.885Z",
+    "activity": "Batch fed",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "31634e5b-265f-41a9-be21-f4a22dc2367a",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-06-29T15:09:46.810Z",
+    "activity": "Batch fed",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "9581427d-23fb-4771-8fb5-a432fbba0546",
+    "cageId": "system",
+    "timestamp": "2025-06-29T15:10:36.623Z",
+    "activity": "User Winjer logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "fa338983-c61b-4e6e-a901-87094d95a895",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T17:43:25.043Z",
+    "activity": "Task created: Clean the bottle and refill water ",
+    "lifecycleStage": null
+  },
+  {
+    "id": "a2caa636-d0ec-4d57-89e8-27f5102205e4",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T17:46:32.585Z",
+    "activity": "Task created: Refill the leaves ",
+    "lifecycleStage": null
+  },
+  {
+    "id": "2dd402c4-d2ad-44fc-823b-c566c0b84e76",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T17:49:02.666Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "74c7ecd9-bb5d-4f22-948c-1a979fd62618",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T18:02:26.611Z",
+    "activity": "Image classified: disease",
+    "lifecycleStage": null
+  },
+  {
+    "id": "dc452f0a-7b7f-477d-8082-39b6a9791d70",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T18:04:30.305Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "309dcfce-72ff-4ad1-ac97-15b22d3bf465",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T18:04:56.350Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "0a48e241-9e92-4192-8505-d0e1729e07f4",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T18:06:31.986Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "1ef3bb62-21a0-49d3-aa4c-ab24513a01ce",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T18:09:24.540Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "113ae899-91bf-44e6-894d-06d392701573",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T18:33:29.959Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "a40dd88d-1c8b-4f35-bd34-4b53bc58e8b5",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T18:34:34.842Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "dce3603b-0147-4cf4-8c14-74d5532a009c",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T18:40:47.296Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "175349ae-d301-4221-849d-c3a0e55cea04",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T18:41:31.524Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "40c64ad5-4677-41df-a6f5-5eadc3e3962b",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-29T18:42:31.645Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "924c52f2-bb77-441a-8e2f-f10a483a8729",
+    "cageId": "system",
+    "timestamp": "2025-06-29T18:45:25.668Z",
+    "activity": "User jonah logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "a9faf3fb-1917-4625-afad-0910732e9da6",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-06-30T00:00:00.026Z",
+    "activity": "Feeding reminder sent",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "b549a229-39dd-451e-81f1-f7b031202d1a",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-06-30T00:30:00.027Z",
+    "activity": "Feeding reminder sent",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "652ffdd9-9bdb-4d12-a598-93c951f4013c",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-06-30T01:00:00.021Z",
+    "activity": "Feeding overdue by 0.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "32ed2442-dfcf-493e-bf10-29e3b34f148b",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-06-30T01:30:00.023Z",
+    "activity": "Feeding overdue by 0.7 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "38a7d32e-4d22-46f6-ba80-de50480bb52a",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-06-30T02:00:00.018Z",
+    "activity": "Feeding overdue by 1.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "7ae01220-929b-457c-b6b6-f878894f9a96",
+    "cageId": "system",
+    "timestamp": "2025-06-30T02:17:24.357Z",
+    "activity": "User Winjer logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "025b0d4c-d6f7-42df-8679-a108649d6336",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-30T02:18:28.729Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "f496e4e3-4a42-4fee-9051-f9422f5f88c4",
+    "cageId": "user-1751042925231-91ab8ql4h",
+    "timestamp": "2025-06-30T02:19:02.351Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "8391ca7b-8155-4b58-b8e2-b819e7c5d173",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-06-30T02:30:00.011Z",
+    "activity": "Feeding overdue by 1.7 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "fb861774-976b-4d92-b576-c2401c910b7c",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-06-30T03:00:00.017Z",
+    "activity": "Feeding overdue by 2.2 hours",
+    "lifecycleStage": "Egg"
   }
 ]

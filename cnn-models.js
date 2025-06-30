@@ -7,7 +7,7 @@ const MODEL_PATHS = {
   BUTTERFLY_SPECIES: './models/model_Butterfly_Species.h5',
   BUTTERFLY_STAGES: './models/model_Butterfly_Stages.h5',
   LARVAL_DISEASES: './models/model_Larval_Diseases.h5',
-  PUPAE_DEFECTS: './models/model_Pupae_Defetcs.h5'
+  PUPAE_DEFECTS: './models/model_Pupae_Defects.h5'
 };
 
 // Classification labels
@@ -19,7 +19,6 @@ const CLASSIFICATION_LABELS = {
     'Butterfly-Common Mime',
     'Butterfly-Common Mormon',
     'Butterfly-Emerald Swallowtail',
-    'Moth-Atlas',
     'Butterfly-Golden Birdwing',
     'Butterfly-Gray Glassy Tiger',
     'Butterfly-Great Eggfly',
@@ -30,27 +29,28 @@ const CLASSIFICATION_LABELS = {
     'Butterfly-Scarlet Mormon',
     'Butterfly-Pink Rose',
     'Butterfly-Tailed Jay',
+    'Moth-Atlas',
     'Moth-Giant Silk'
   ],
   
   BUTTERFLY_STAGES: [
+    'Butterfly', 
     'Egg',
     'Larva',
     'Pupa',
-    'Adult'
   ],
   
   LARVAL_DISEASES: [
-    'Healthy',
     'Anaphylaxis Infection',
     'Gnathostomiasis',
+    'Healthy',
     'Nucleopolyhedrosis'
   ],
   
   PUPAE_DEFECTS: [
-    'Healthy',
     'Antbites',
     'Deformed body',
+    'Healthy',
     'Old Pupa',
     'Overbend',
     'Stretch abdomen'
@@ -65,7 +65,6 @@ const SPECIES_MARKET_PRICES = {
   'Butterfly-Common Mime': 25.00,
   'Butterfly-Common Mormon': 28.00,
   'Butterfly-Emerald Swallowtail': 35.00,
-  'Moth-Atlas': 45.00,
   'Butterfly-Golden Birdwing': 65.00,
   'Butterfly-Gray Glassy Tiger': 30.00,
   'Butterfly-Great Eggfly': 32.00,
@@ -76,44 +75,46 @@ const SPECIES_MARKET_PRICES = {
   'Butterfly-Scarlet Mormon': 36.00,
   'Butterfly-Pink Rose': 44.00,
   'Butterfly-Tailed Jay': 26.00,
+  'Moth-Atlas': 45.00,
   'Moth-Giant Silk': 48.00
 };
 
 // Host plant requirements for each species
 const SPECIES_HOST_PLANTS = {
-  'Butterfly-Clippers': { plant: 'Ixora', dailyConsumption: 120 },
-  'Butterfly-Common Jay': { plant: 'Cinnamomum', dailyConsumption: 160 },
-  'Butterfly-Common Lime': { plant: 'Citrus', dailyConsumption: 140 },
-  'Butterfly-Common Mime': { plant: 'Citrus', dailyConsumption: 150 },
-  'Butterfly-Common Mormon': { plant: 'Citrus', dailyConsumption: 155 },
-  'Butterfly-Emerald Swallowtail': { plant: 'Cinnamomum', dailyConsumption: 180 },
-  'Moth-Atlas': { plant: 'Willow', dailyConsumption: 220 },
-  'Butterfly-Golden Birdwing': { plant: 'Aristolochia', dailyConsumption: 200 },
+  'Butterfly-Clippers': { plant: ['Ixora', 'Wild Cucumber'], dailyConsumption: 120 },
+  'Butterfly-Common Jay': { plant: ['Avocado Tree', 'Soursop', 'Sugar Apple', 'Amuyon', 'Indian Tree'], dailyConsumption: 160 },
+  'Butterfly-Common Lime': { plant:  ['Limeberry', 'Calamondin', 'Pomelo', 'Sweet Orange', 'Calamansi'], dailyConsumption: 140 },
+  'Butterfly-Common Mime': { plant: ['Clover Cinnamon', 'Wild Cinnamon'], dailyConsumption: 150 },
+  'Butterfly-Common Mormon': { plant: ['Limeberry', 'Calamondin', 'Pomelo', 'Sweet Orange', 'Calamansi', 'Lemoncito'], dailyConsumption: 155 },
+  'Butterfly-Emerald Swallowtail': { plant: ['Curry Leafs', 'Pink Lime-Berry Tree'], dailyConsumption: 180 },
+  'Butterfly-Golden Birdwing': { plant: ['Dutchman pipe', 'Indian Birthwort'], dailyConsumption: 200 },
   'Butterfly-Gray Glassy Tiger': { plant: 'Parsonsia', dailyConsumption: 130 },
-  'Butterfly-Great Eggfly': { plant: 'Portulaca', dailyConsumption: 125 },
-  'Butterfly-Great Yellow Mormon': { plant: 'Citrus', dailyConsumption: 165 },
-  'Butterfly-Paper Kite': { plant: 'Parsonsia', dailyConsumption: 145 },
-  'Butterfly-Plain Tiger': { plant: 'Asclepias', dailyConsumption: 135 },
-  'Butterfly-Red Lacewing': { plant: 'Passiflora', dailyConsumption: 170 },
-  'Butterfly-Scarlet Mormon': { plant: 'Citrus', dailyConsumption: 158 },
-  'Butterfly-Pink Rose': { plant: 'Aristolochia', dailyConsumption: 185 },
-  'Butterfly-Tailed Jay': { plant: 'Michelia', dailyConsumption: 140 },
-  'Moth-Giant Silk': { plant: 'Cassia', dailyConsumption: 250 }
+  'Butterfly-Great Eggfly': { plant: ['Sweet Potato', 'Water Spinach', 'Portulaca'], dailyConsumption: 125 },
+  'Butterfly-Great Yellow Mormon': { plant: ['Limeberry', 'Calamondin', 'Pomelo', 'Sweet Orange', 'Calamansi'], dailyConsumption: 165 },
+  'Butterfly-Paper Kite': { plant: ['Common Skillpod'], dailyConsumption: 145 },
+  'Butterfly-Plain Tiger': { plant: ['Crown flower', 'Giant Milkweed'], dailyConsumption: 135 },
+  'Butterfly-Red Lacewing': { plant: ['Wild Bush Passion Fruits'], dailyConsumption: 170 },
+  'Butterfly-Scarlet Mormon': { plant: ['Calamondin', 'Pomelo', 'Sweet Orange', 'Calamansi'], dailyConsumption: 158 },
+  'Butterfly-Pink Rose': { plant: ['Dutchman pipe', 'Indian Birthwort'], dailyConsumption: 185 },
+  'Butterfly-Tailed Jay': { plant: ['Avocado Tree', 'Soursop', 'Sugar Apple', 'Amuyon', 'Indian Tree'], dailyConsumption: 140 },
+  'Moth-Atlas': { plant: 'Willow', 'Soursop', 'Amuyon', dailyConsumption: 220 },
+  'Moth-Giant Silk': { plant: ['Gmelina Tree', 'Cassia'], dailyConsumption: 250 }
 };
+
 
 // Disease severity impact on profit
 const DISEASE_IMPACT = {
-  'Healthy': 1.0,
   'Anaphylaxis Infection': 0.3,
   'Gnathostomiasis': 0.4,
+  'Healthy': 1.0,
   'Nucleopolyhedrosis': 0.1
 };
 
 // Defect severity impact on profit
 const DEFECT_IMPACT = {
-  'Healthy': 1.0,
   'Antbites': 0.7,
   'Deformed body': 0.4,
+  'Healthy': 1.0,
   'Old Pupa': 0.6,
   'Overbend': 0.5,
   'Stretch abdomen': 0.6
@@ -363,9 +364,9 @@ class CNNModelManager {
   // Get defect severity level
   getDefectSeverity(defect) {
     const severityMap = {
-      'Healthy': 'None',
       'Antbites': 'Medium',
       'Deformed body': 'High',
+      'Healthy': 'None',
       'Old Pupa': 'Medium',
       'Overbend': 'Medium',
       'Stretch abdomen': 'Medium'

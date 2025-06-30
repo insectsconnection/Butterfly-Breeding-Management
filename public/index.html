@@ -1168,7 +1168,7 @@
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: ${pred.disease === 'Healthy' ? '#f0fff4' : '#fff5f5'}; border-radius: 4px;">
                                     <span><strong>${pred.disease}</strong></span>
                                     <span>${(pred.confidence * 100).toFixed(1)}%</span>
-                                    <span style="color: ${pred.disease === 'Healthy' ? '#38a169' : '#e53e3e'};">Impact: ${(pred.profitImpact * 100).toFixed(0)}%</span>
+                                    <span style="color: ${pred.disease === 'Healthy'? '#38a169' : '#e53e3e'};">Impact: ${(pred.profitImpact * 100).toFixed(0)}%</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -1259,14 +1259,13 @@
                     </div>
                     
                     <div style="padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                        <h6>Supported Species</h6>
+                        <h6>Supported Species (18)</h6>
                         <p style="color: #4a5568;">${status.supportedSpecies} species</p>
                     </div>
                 </div>
                 
                 <div style="margin-top: 15px; padding: 10px; background: #f7fafc; border-radius: 8px; font-size: 0.9rem; color: #4a5568;">
-                    <strong>Note:</strong> The CNN models are currently using demonstration versions. 
-                    To use your actual trained models, upload the .h5 files to the models directory and restart the system.
+                    <strong>Note:</strong> The CNN models are currently using 18 butterfly species, 6 pupae defects, 4 larval disease, and 4 stages.
                 </div>
             `;
             
@@ -1442,10 +1441,10 @@
                             <label>Update Lifecycle Stage:</label>
                             <select onchange="updateLifecycleStage('${batch.cageId}', this.value)">
                                 <option value="">Select Stage</option>
-                                <option value="Egg" ${batch.lifecycleStage === 'Egg' ? 'selected' : ''}>Egg</option>
+<option value="Butterfly" ${batch.lifecycleStage === 'Butterfly' ? 'selected' : ''}>Butterfly</option>                                            <option value="Egg" ${batch.lifecycleStage === 'Egg' ? 'selected' : ''}>Egg</option>
                                 <option value="Larva" ${batch.lifecycleStage === 'Larva' ? 'selected' : ''}>Larva</option>
                                 <option value="Pupa" ${batch.lifecycleStage === 'Pupa' ? 'selected' : ''}>Pupa</option>
-                                <option value="Adult" ${batch.lifecycleStage === 'Adult' ? 'selected' : ''}>Adult</option>
+                                
                             </select>
                         </div>
                     </div>
