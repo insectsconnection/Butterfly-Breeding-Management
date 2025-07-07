@@ -97,7 +97,7 @@ const SPECIES_HOST_PLANTS = {
   'Butterfly-Scarlet Mormon': { plant: ['Calamondin', 'Pomelo', 'Sweet Orange', 'Calamansi'], dailyConsumption: 158 },
   'Butterfly-Pink Rose': { plant: ['Dutchman pipe', 'Indian Birthwort'], dailyConsumption: 185 },
   'Butterfly-Tailed Jay': { plant: ['Avocado Tree', 'Soursop', 'Sugar Apple', 'Amuyon', 'Indian Tree'], dailyConsumption: 140 },
-  'Moth-Atlas': { plant: 'Willow', 'Soursop', 'Amuyon', dailyConsumption: 220 },
+  'Moth-Atlas': { plant: ['Willow', 'Soursop', 'Amuyon'], dailyConsumption: 220 },
   'Moth-Giant Silk': { plant: ['Gmelina Tree', 'Cassia'], dailyConsumption: 250 }
 };
 
