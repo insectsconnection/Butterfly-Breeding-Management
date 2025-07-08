@@ -43,7 +43,11 @@ This is a comprehensive JavaScript-based web application designed for advanced b
 
 ### 2. Advanced Breeding Features
 - **Species Database**: 8 butterfly species with host plant requirements
-- **Lifecycle Management**: 4-stage tracking (Egg → Larva → Pupa → Adult)
+- **Automatic Lifecycle Management**: 4-stage tracking (Egg → Larva → Pupa → Adult) with automatic status updates:
+  - Egg → Larva: Automatically marked as "hatched" with feeding schedule reset
+  - Larva → Pupa: Automatically marked as "transferred" with feeding schedule stopped
+  - Pupa → Butterfly: Automatically marked as "harvested" with feeding schedule resumed
+  - Feeding actions: Larvae and Butterflies automatically marked as "fed"
 - **Quality Assessment**: Defect tracking with quality score calculations
 - **Profit Optimization**: Real-time revenue and cost projections
 - **QR Code Generation**: Batch identification and mobile scanning
@@ -59,6 +63,8 @@ This is a comprehensive JavaScript-based web application designed for advanced b
 - **Mobile-Ready**: Touch-friendly interface for field operations
 - **Real-time Analytics**: Live profit calculations and performance metrics
 - **Export Functionality**: JSON data export for external analysis
+- **User Profile System**: Separate seller and purchaser profiles with portfolio tracking
+- **Marketplace Integration**: Profile links in marketplace listings for buyer transparency
 
 ## Data Flow
 
@@ -128,6 +134,10 @@ This is a comprehensive JavaScript-based web application designed for advanced b
 - July 8, 2025: Migration completed from Replit Agent to Replit environment
 - July 8, 2025: Added separate user profiles and seller/purchaser functionality
 - July 8, 2025: Enhanced marketplace with seller profile links and user tracking
+- July 8, 2025: Enhanced lifecycle management with automatic status tracking
+- July 8, 2025: Implemented user profile system with seller/purchaser separation
+- July 8, 2025: Added marketplace profile links and portfolio tracking
+- July 8, 2025: Migration from Replit Agent to Replit environment completed
 - June 27, 2025: Complete JavaScript rebuild with advanced breeding features
 - June 27, 2025: Initial Python Streamlit setup (deprecated)
 

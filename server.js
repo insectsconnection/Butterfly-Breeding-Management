@@ -258,6 +258,64 @@ async function logActivity(cageId, activity, lifecycleStage = null) {
   return entry;
 }
 
+// Handle automatic lifecycle transitions and actions
+async function handleLifecycleTransition(batch, oldStage, newStage, cageId) {
+  const now = new Date();
+  
+  switch (newStage) {
+    case 'Larva':
+      if (oldStage === 'Egg') {
+        // Egg hatches → mark as hatched
+        batch.hatchedDate = now;
+        batch.status = 'hatched';
+        await logActivity(cageId, '🥚➡️🐛 Eggs hatched successfully', newStage);
+        
+        // Reset feeding schedule for larvae
+        batch.lastFeeding = now;
+        batch.nextFeeding = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+      }
+      break;
+      
+    case 'Pupa':
+      if (oldStage === 'Larva') {
+        // Transfer larvae to pupation → mark as transferred
+        batch.transferredDate = now;
+        batch.status = 'transferred';
+        await logActivity(cageId, '🐛➡️🛡️ Larvae transferred to pupation stage', newStage);
+        
+        // Stop feeding schedule for pupae
+        batch.nextFeeding = null;
+      }
+      break;
+      
+    case 'Butterfly':
+      if (oldStage === 'Pupa') {
+        // Harvest pupae → mark as harvested
+        batch.harvestedDate = now;
+        batch.status = 'harvested';
+        batch.active = false; // Batch completed
+        await logActivity(cageId, '🛡️➡️🦋 Pupae harvested as butterflies', newStage);
+        
+        // Resume feeding schedule for adult butterflies
+        batch.lastFeeding = now;
+        batch.nextFeeding = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+      }
+      break;
+  }
+  
+  // Update lifecycle progression tracking
+  if (!batch.lifecycleHistory) {
+    batch.lifecycleHistory = [];
+  }
+  
+  batch.lifecycleHistory.push({
+    stage: newStage,
+    date: now,
+    previousStage: oldStage,
+    automaticAction: batch.status
+  });
+}
+
 // Twilio SMS functions
 async function sendSMSNotification(phoneNumber, message) {
   if (!twilioClient || !process.env.TWILIO_PHONE_NUMBER) {
@@ -720,9 +778,15 @@ app.put('/api/batches/:cageId', async (req, res) => {
       }
     });
     
-    // Handle lifecycle stage updates
+    // Handle lifecycle stage updates with automatic actions
     if (updates.lifecycleStage && updates.lifecycleStage !== batch.lifecycleStage) {
-      await logActivity(cageId, `Lifecycle stage updated to ${updates.lifecycleStage}`, updates.lifecycleStage);
+      const oldStage = batch.lifecycleStage;
+      const newStage = updates.lifecycleStage;
+      
+      // Automatic lifecycle actions
+      await handleLifecycleTransition(batch, oldStage, newStage, cageId);
+      
+      await logActivity(cageId, `Lifecycle stage updated from ${oldStage} to ${newStage}`, newStage);
     }
     
     batches[batchIndex] = batch;
@@ -753,8 +817,23 @@ app.post('/api/batches/:cageId/fed', async (req, res) => {
     batch.nextFeeding = new Date(Date.now() + 24 * 60 * 60 * 1000); // Next day
     batch.foliageLevel = 100; // Reset foliage level
     
+    // Mark feeding based on lifecycle stage
+    let feedingMessage = 'Batch fed';
+    switch (batch.lifecycleStage) {
+      case 'Larva':
+        batch.status = 'fed';
+        feedingMessage = '🐛 Larvae marked as fed';
+        break;
+      case 'Butterfly':
+        batch.status = 'fed';
+        feedingMessage = '🦋 Butterflies marked as fed';
+        break;
+      default:
+        feedingMessage = `${batch.lifecycleStage} stage marked as fed`;
+    }
+    
     await saveBatches(batches);
-    await logActivity(cageId, 'Batch fed', batch.lifecycleStage);
+    await logActivity(cageId, feedingMessage, batch.lifecycleStage);
     
     // Emit to connected clients
     io.emit('batchFed', batch);

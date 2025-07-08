@@ -1405,8 +1405,10 @@
                 });
                 
                 if (response.ok) {
-                    showNotification(`Lifecycle updated to ${stage}`, 'success');
+                    const result = await response.json();
+                    showNotification(`Lifecycle updated to ${stage} - Automatic actions applied`, 'success');
                     loadBatches();
+                    loadBreedingLog(); // Refresh log to show new activities
                     closeBatchModal();
                 } else {
                     showNotification('Error updating lifecycle stage', 'danger');
@@ -1445,6 +1447,22 @@
                         <p><strong>Survival Rate:</strong> ${(batch.survivalRate * 100).toFixed(1)}%</p>
                         <p><strong>Quality Score:</strong> ${(batch.qualityScore * 100).toFixed(1)}%</p>
                         <p><strong>Foliage Level:</strong> ${batch.foliageLevel}%</p>
+                        ${batch.status ? `<p><strong>Status:</strong> <span style="color: #38a169; font-weight: bold;">${batch.status.toUpperCase()}</span></p>` : ''}
+                        
+                        ${batch.lifecycleHistory && batch.lifecycleHistory.length > 0 ? `
+                            <div style="margin-top: 15px;">
+                                <h5>Lifecycle Progress:</h5>
+                                <div style="max-height: 150px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 5px; padding: 10px;">
+                                    ${batch.lifecycleHistory.slice(-3).map(history => `
+                                        <div style="font-size: 0.9rem; margin: 5px 0; padding: 5px; background: #f7fafc; border-radius: 3px;">
+                                            <strong>${history.previousStage} → ${history.stage}</strong><br>
+                                            <span style="color: #38a169;">Action: ${history.automaticAction}</span><br>
+                                            <span style="color: #718096; font-size: 0.8rem;">${new Date(history.date).toLocaleDateString()}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
                         
                         <div class="form-group" style="margin-top: 20px;">
                             <label>Update Lifecycle Stage:</label>
