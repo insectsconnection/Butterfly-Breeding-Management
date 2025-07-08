@@ -700,6 +700,19 @@
                     <!-- User orders will be populated by JavaScript -->
                 </div>
             </div>
+            
+            <div class="card">
+                <h3><i class="fas fa-history"></i> Pupae Sales History</h3>
+                <p style="color: #718096; margin-bottom: 20px;">View detailed transaction history for pupae sales with seller and purchaser profiles</p>
+                <div style="margin-bottom: 20px;">
+                    <button onclick="loadPupaeSalesHistory()" class="btn btn-secondary">
+                        <i class="fas fa-refresh"></i> Load Sales History
+                    </button>
+                </div>
+                <div id="pupae-sales-history">
+                    <!-- Pupae sales history will be populated by JavaScript -->
+                </div>
+            </div>
         </div>
 
         <!-- Task Management Tab -->
@@ -2130,7 +2143,7 @@
                         <span class="lifecycle-badge lifecycle-${item.lifecycleStage.toLowerCase()}">${item.lifecycleStage}</span>
                     </div>
                     
-                    <h4>₱${item.price.toFixed(2)}</h4>
+                    <h4>₱${item.price.toFixed(2)} <span style="font-size: 0.8rem; color: #718096;">(₱${item.pricePerItem.toFixed(2)} each)</span></h4>
                     <p><i class="fas fa-bug"></i> ${item.larvaCount} specimens</p>
                     <p><i class="fas fa-leaf"></i> ${item.hostPlant}</p>
                     <p><i class="fas fa-map-marker-alt"></i> ${item.sellerInfo.location}</p>
@@ -2145,22 +2158,47 @@
                         </div>
                     </div>
                     
-                    <div style="margin: 15px 0;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                            <span>Seller Rating:</span>
+                    <div style="margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <span><strong>Seller:</strong> ${item.sellerInfo.sellerName}</span>
+                            <button onclick="viewProfile('${item.sellerInfo.sellerId}')" class="btn btn-small" style="background: #e2e8f0; color: #4a5568; padding: 4px 8px; font-size: 0.8rem;">
+                                <i class="fas fa-user"></i> View Profile
+                            </button>
+                        </div>
+                        <div style="font-size: 0.85rem; color: #718096; margin-bottom: 5px;">
+                            @${item.sellerInfo.sellerUsername} • ${item.sellerInfo.sellerRole}
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 0.85rem;">Rating:</span>
                             <div>
                                 ${Array.from({length: 5}, (_, i) => 
                                     `<i class="fas fa-star" style="color: ${i < item.sellerInfo.rating ? '#ffd700' : '#e2e8f0'};"></i>`
                                 ).join('')}
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span>Seller:</span>
-                            <button onclick="viewProfile('${item.sellerInfo.sellerId}')" class="btn btn-small" style="background: #e2e8f0; color: #4a5568; padding: 4px 8px; font-size: 0.8rem;">
-                                <i class="fas fa-user"></i> View Profile
-                            </button>
+                        <div style="font-size: 0.85rem; color: #718096;">
+                            Total Sales: ${item.sellerInfo.totalSales} • Listed: ${new Date(item.listedAt).toLocaleDateString()} ${new Date(item.listedAt).toLocaleTimeString()}
                         </div>
                     </div>
+                    
+                    ${item.salesHistory && item.salesHistory.length > 0 ? `
+                        <div style="margin: 15px 0; padding: 10px; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #38a169;">
+                            <div style="font-size: 0.9rem; font-weight: bold; margin-bottom: 8px; color: #2d3748;">
+                                <i class="fas fa-history"></i> Recent Sales History
+                            </div>
+                            ${item.salesHistory.slice(-2).map(sale => `
+                                <div style="padding: 5px 0; border-bottom: 1px solid #cbd5e0; font-size: 0.8rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span><strong>${sale.purchaserName}</strong> (@${sale.purchaserUsername})</span>
+                                        <span style="color: #718096;">₱${sale.salePrice.toFixed(2)}</span>
+                                    </div>
+                                    <div style="color: #718096; font-size: 0.75rem; margin-top: 2px;">
+                                        ${new Date(sale.purchaseDate).toLocaleDateString()} at ${new Date(sale.purchaseDate).toLocaleTimeString()} • ${sale.paymentMethod}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
                     
                     <div style="margin-top: 15px;">
                         <button onclick="showPurchaseModal('${item.batchId}')" class="btn btn-success btn-small" style="width: 100%;">
@@ -2735,6 +2773,89 @@
                     }, 5000);
                 }, index * 500); // Stagger multiple notifications
             });
+        }
+
+        // Load pupae sales history
+        async function loadPupaeSalesHistory() {
+            try {
+                const response = await makeAuthenticatedRequest('/api/marketplace/pupae-sales');
+                if (response && response.ok) {
+                    const pupaeSales = await response.json();
+                    updatePupaeSalesDisplay(pupaeSales);
+                }
+            } catch (error) {
+                console.error('Error loading pupae sales history:', error);
+                showNotification('Error loading pupae sales history', 'danger');
+            }
+        }
+
+        // Update pupae sales display
+        function updatePupaeSalesDisplay(pupaeSales) {
+            const container = document.getElementById('pupae-sales-history');
+            
+            if (pupaeSales.length === 0) {
+                container.innerHTML = '<p>No pupae sales history available yet.</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h4>Total Pupae Sales: ${pupaeSales.length}</h4>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+                    ${pupaeSales.map(sale => `
+                        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 15px;">
+                                <h4 style="margin: 0; color: #2d3748;">${sale.species} Pupae</h4>
+                                <span style="background: #e8f5e8; color: #38a169; padding: 4px 8px; border-radius: 15px; font-size: 0.8rem; font-weight: bold;">
+                                    SOLD
+                                </span>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <p style="margin: 5px 0;"><strong>Batch ID:</strong> ${sale.batchId.substring(0, 8)}</p>
+                                <p style="margin: 5px 0;"><strong>Count:</strong> ${sale.larvaCount} specimens</p>
+                                <p style="margin: 5px 0;"><strong>Quality:</strong> ${(sale.qualityScore * 100).toFixed(1)}%</p>
+                                <p style="margin: 5px 0;"><strong>Host Plant:</strong> ${sale.hostPlant}</p>
+                                <p style="margin: 5px 0;"><strong>Final Price:</strong> ₱${sale.finalSalePrice.toFixed(2)}</p>
+                                <p style="margin: 5px 0;"><strong>Sale Date:</strong> ${new Date(sale.soldAt).toLocaleDateString()} at ${new Date(sale.soldAt).toLocaleTimeString()}</p>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <span style="font-weight: bold; color: #2d3748;">Seller Profile:</span>
+                                    <button onclick="viewProfile('${sale.sellerInfo.id}')" class="btn btn-small" style="background: #e2e8f0; color: #4a5568; padding: 4px 8px; font-size: 0.8rem;">
+                                        <i class="fas fa-user"></i> View Profile
+                                    </button>
+                                </div>
+                                <p style="margin: 3px 0; font-size: 0.9rem;">${sale.sellerInfo.name}</p>
+                                <p style="margin: 3px 0; font-size: 0.85rem; color: #718096;">@${sale.sellerInfo.username} • ${sale.sellerInfo.role}</p>
+                            </div>
+                            
+                            ${sale.salesHistory.length > 0 ? `
+                                <div style="padding: 10px; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #38a169;">
+                                    <h5 style="margin: 0 0 10px 0; color: #2d3748;">Purchase History:</h5>
+                                    ${sale.salesHistory.map(purchase => `
+                                        <div style="margin-bottom: 10px; padding: 8px; background: white; border-radius: 5px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                                <span style="font-weight: bold;">Purchaser: ${purchase.purchaserName}</span>
+                                                <button onclick="viewProfile('${purchase.purchaserId}')" class="btn btn-small" style="background: #d1ecf1; color: #0c5460; padding: 2px 6px; font-size: 0.75rem;">
+                                                    <i class="fas fa-user"></i> Profile
+                                                </button>
+                                            </div>
+                                            <p style="margin: 3px 0; font-size: 0.85rem; color: #718096;">@${purchase.purchaserUsername} • ${purchase.purchaserRole}</p>
+                                            <p style="margin: 3px 0; font-size: 0.85rem;"><strong>Price:</strong> ₱${purchase.salePrice.toFixed(2)}</p>
+                                            <p style="margin: 3px 0; font-size: 0.85rem;"><strong>Date:</strong> ${new Date(purchase.purchaseDate).toLocaleDateString()} at ${new Date(purchase.purchaseDate).toLocaleTimeString()}</p>
+                                            <p style="margin: 3px 0; font-size: 0.85rem;"><strong>Payment:</strong> ${purchase.paymentMethod}</p>
+                                            <p style="margin: 3px 0; font-size: 0.8rem; color: #718096;"><strong>Order ID:</strong> ${purchase.orderId}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
         }
 
     </script>

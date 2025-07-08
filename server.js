@@ -1040,6 +1040,7 @@ app.post('/api/test-sms', async (req, res) => {
 app.get('/api/marketplace', auth.authenticateToken, async (req, res) => {
   try {
     const batches = await loadBatches();
+    const users = await auth.getAllUsers();
     
     // Filter for batches available for sale
     const marketplaceItems = batches
@@ -1048,6 +1049,9 @@ app.get('/api/marketplace', auth.authenticateToken, async (req, res) => {
         const cageBatch = new CageBatch();
         Object.assign(cageBatch, batch);
         const profitData = cageBatch.calculateProfitProjection();
+        
+        // Get seller details
+        const seller = users.find(u => u.id === batch.createdBy);
         
         return {
           batchId: batch.cageId,
@@ -1060,13 +1064,19 @@ app.get('/api/marketplace', auth.authenticateToken, async (req, res) => {
           hostPlant: batch.hostPlant,
           sellerInfo: {
             sellerId: batch.createdBy || 'unknown',
+            sellerName: seller ? `${seller.firstName} ${seller.lastName}` : 'Unknown Seller',
+            sellerUsername: seller ? seller.username : 'unknown',
+            sellerRole: seller ? seller.role : 'unknown',
             location: batch.sellerLocation || 'Not specified',
-            rating: batch.sellerRating || 5.0
+            rating: batch.sellerRating || 5.0,
+            totalSales: batch.sellerTotalSales || 0
           },
           images: batch.images || [],
           description: batch.notes,
           availableDate: batch.availableDate || new Date().toISOString(),
-          createdAt: batch.startDate
+          createdAt: batch.startDate,
+          listedAt: batch.listedForSaleAt || new Date().toISOString(),
+          salesHistory: batch.salesHistory || []
         };
       });
     
@@ -1294,8 +1304,11 @@ app.post('/api/batches/:cageId/list-for-sale', auth.authenticateToken, auth.requ
     batch.salePrice = price;
     batch.saleDescription = description;
     batch.availableDate = availableDate || new Date().toISOString();
+    batch.listedForSaleAt = new Date().toISOString();
     batch.sellerLocation = sellerLocation;
     batch.sellerRating = 5.0; // Default rating
+    batch.sellerTotalSales = batch.sellerTotalSales || 0;
+    batch.salesHistory = batch.salesHistory || [];
     
     batches[batchIndex] = batch;
     await saveBatches(batches);
@@ -1309,6 +1322,63 @@ app.post('/api/batches/:cageId/list-for-sale', auth.authenticateToken, auth.requ
   } catch (error) {
     console.error('Error listing batch for sale:', error);
     res.status(500).json({ error: 'Failed to list batch for sale' });
+  }
+});
+
+// Get pupae sales history with seller/purchaser details
+app.get('/api/marketplace/pupae-sales', auth.authenticateToken, async (req, res) => {
+  try {
+    const batches = await loadBatches();
+    const users = await auth.getAllUsers();
+    
+    // Filter for pupae that have been sold
+    const pupaeSales = batches
+      .filter(batch => batch.lifecycleStage === 'Pupa' && batch.sold && batch.salesHistory)
+      .map(batch => {
+        const seller = users.find(u => u.id === batch.createdBy);
+        const salesHistory = batch.salesHistory.map(sale => {
+          const purchaser = users.find(u => u.id === sale.purchaserId);
+          return {
+            ...sale,
+            purchaserDetails: purchaser ? {
+              id: purchaser.id,
+              name: `${purchaser.firstName} ${purchaser.lastName}`,
+              username: purchaser.username,
+              role: purchaser.role,
+              email: purchaser.email
+            } : null,
+            batchInfo: {
+              batchId: batch.cageId,
+              species: batch.species,
+              larvaCount: batch.larvaCount,
+              qualityScore: batch.qualityScore,
+              hostPlant: batch.hostPlant
+            }
+          };
+        });
+        
+        return {
+          batchId: batch.cageId,
+          species: batch.species,
+          larvaCount: batch.larvaCount,
+          qualityScore: batch.qualityScore,
+          hostPlant: batch.hostPlant,
+          sellerInfo: {
+            id: batch.createdBy,
+            name: seller ? `${seller.firstName} ${seller.lastName}` : 'Unknown',
+            username: seller ? seller.username : 'unknown',
+            role: seller ? seller.role : 'unknown'
+          },
+          salesHistory: salesHistory,
+          soldAt: batch.soldAt,
+          finalSalePrice: batch.finalSalePrice
+        };
+      });
+    
+    res.json(pupaeSales);
+  } catch (error) {
+    console.error('Error getting pupae sales:', error);
+    res.status(500).json({ error: 'Failed to get pupae sales' });
   }
 });
 
