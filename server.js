@@ -15,6 +15,7 @@ const path = require('path');
 const auth = require('./auth');
 const { cnnModelManager, CLASSIFICATION_LABELS, SPECIES_MARKET_PRICES, SPECIES_HOST_PLANTS } = require('./cnn-models');
 const { paymentProcessor, PAYMENT_STATUS, PAYMENT_METHODS } = require('./payment-system');
+const AchievementSystem = require('./achievement-system');
 
 const app = express();
 const server = http.createServer(app);
@@ -24,6 +25,9 @@ const io = socketIo(server, {
     methods: ["GET", "POST"]
   }
 });
+
+// Initialize achievement system
+const achievementSystem = new AchievementSystem();
 
 // Middleware
 app.use(cors());
@@ -273,6 +277,12 @@ async function handleLifecycleTransition(batch, oldStage, newStage, cageId) {
         // Reset feeding schedule for larvae
         batch.lastFeeding = now;
         batch.nextFeeding = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        
+        // Update achievement progress for hatching
+        const newAchievements = await achievementSystem.updateUserStats(batch.createdBy || 'admin', 'eggsHatched', batch.larvaCount);
+        if (newAchievements.length > 0) {
+          io.emit('achievementUnlocked', { userId: batch.createdBy || 'admin', achievements: newAchievements });
+        }
       }
       break;
       
@@ -299,6 +309,12 @@ async function handleLifecycleTransition(batch, oldStage, newStage, cageId) {
         // Resume feeding schedule for adult butterflies
         batch.lastFeeding = now;
         batch.nextFeeding = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        
+        // Update achievement progress for completing lifecycle
+        const newAchievements = await achievementSystem.updateUserStats(batch.createdBy || 'admin', 'cycleCompleted', 1, { butterflies: batch.larvaCount });
+        if (newAchievements.length > 0) {
+          io.emit('achievementUnlocked', { userId: batch.createdBy || 'admin', achievements: newAchievements });
+        }
       }
       break;
   }
@@ -746,6 +762,12 @@ app.post('/api/batches', auth.authenticateToken, auth.requirePermission('create_
     
     await logActivity(batch.cageId, 'Batch created', batch.lifecycleStage);
     
+    // Update achievement progress
+    const newAchievements = await achievementSystem.updateUserStats(req.user.id, 'batchCreated', 1, { species: species });
+    if (newAchievements.length > 0) {
+      io.emit('achievementUnlocked', { userId: req.user.id, achievements: newAchievements });
+    }
+    
     // Emit to connected clients
     io.emit('batchCreated', batch);
     
@@ -834,6 +856,12 @@ app.post('/api/batches/:cageId/fed', async (req, res) => {
     
     await saveBatches(batches);
     await logActivity(cageId, feedingMessage, batch.lifecycleStage);
+    
+    // Update achievement progress for feeding
+    const newAchievements = await achievementSystem.updateUserStats(batch.createdBy || 'admin', 'batchFed', 1);
+    if (newAchievements.length > 0) {
+      io.emit('achievementUnlocked', { userId: batch.createdBy || 'admin', achievements: newAchievements });
+    }
     
     // Emit to connected clients
     io.emit('batchFed', batch);
@@ -1316,6 +1344,67 @@ app.post('/api/batches/:cageId/remove-from-sale', auth.authenticateToken, auth.r
   }
 });
 
+// Achievement System API Routes
+app.get('/api/achievements/user/:userId', auth.authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Only allow users to view their own achievements or admins to view any
+    if (req.user.id !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    
+    const userProgress = achievementSystem.getUserProgress(userId);
+    res.json(userProgress);
+  } catch (error) {
+    console.error('Error fetching user achievements:', error);
+    res.status(500).json({ error: 'Failed to fetch achievements' });
+  }
+});
+
+app.get('/api/achievements/leaderboard', auth.authenticateToken, async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+    const leaderboard = achievementSystem.getLeaderboard(limit);
+    res.json(leaderboard);
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    res.status(500).json({ error: 'Failed to fetch leaderboard' });
+  }
+});
+
+app.get('/api/achievements/categories', auth.authenticateToken, async (req, res) => {
+  try {
+    const categories = ['breeding', 'lifecycle', 'diversity', 'quality', 'survival', 'care', 'profit', 'special', 'consistency'];
+    const achievementsByCategory = {};
+    
+    categories.forEach(category => {
+      achievementsByCategory[category] = achievementSystem.getAchievementsByCategory(category);
+    });
+    
+    res.json(achievementsByCategory);
+  } catch (error) {
+    console.error('Error fetching achievement categories:', error);
+    res.status(500).json({ error: 'Failed to fetch achievement categories' });
+  }
+});
+
+app.post('/api/achievements/mark-early-adopter/:userId', auth.authenticateToken, auth.requirePermission('manage_achievements'), async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const newAchievements = await achievementSystem.markEarlyAdopter(userId);
+    
+    if (newAchievements.length > 0) {
+      io.emit('achievementUnlocked', { userId, achievements: newAchievements });
+    }
+    
+    res.json({ message: 'Early adopter status granted', achievements: newAchievements });
+  } catch (error) {
+    console.error('Error marking early adopter:', error);
+    res.status(500).json({ error: 'Failed to mark early adopter' });
+  }
+});
+
 // WebSocket connection handling
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
@@ -1461,6 +1550,9 @@ async function startServer() {
   // Initialize payment system
   await paymentProcessor.initialize();
   
+  // Initialize achievement system
+  await achievementSystem.initialize();
+  
   const PORT = process.env.PORT || 5000;
   
   server.listen(PORT, '0.0.0.0', () => {
@@ -1476,6 +1568,7 @@ async function startServer() {
     
     console.log('🔐 Authentication system ready');
     console.log('🧠 CNN models initialized');
+    console.log('🏆 Achievement system ready');
     console.log('👤 Default admin login: username=admin, password=admin123');
   });
 }
