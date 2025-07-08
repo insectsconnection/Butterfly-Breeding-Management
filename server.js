@@ -672,6 +672,7 @@ app.post('/api/batches', auth.authenticateToken, auth.requirePermission('create_
     
     const batch = new CageBatch(species, new Date(), larvaCount, phoneNumber);
     batch.notes = notes || '';
+    batch.createdBy = req.user.id; // Track the user who created this batch
     
     const batches = await loadBatches();
     batches.push(batch);
@@ -1248,6 +1249,124 @@ io.on('connection', (socket) => {
   socket.on('checkFeeding', async () => {
     await checkFeedingSchedule();
   });
+});
+
+// User Profile API Endpoints
+
+// Get user profile by ID
+app.get('/api/users/:userId', auth.authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const users = await auth.getAllUsers();
+    
+    const user = users.find(u => u.id === userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Return public profile information (exclude sensitive data)
+    const publicProfile = {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+      organization: user.organization,
+      createdAt: user.createdAt,
+      lastLogin: user.lastLogin
+    };
+    
+    res.json(publicProfile);
+  } catch (error) {
+    console.error('Error getting user profile:', error);
+    res.status(500).json({ error: 'Failed to get user profile' });
+  }
+});
+
+// Get user statistics
+app.get('/api/users/:userId/stats', auth.authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const batches = await loadBatches();
+    const orders = await paymentProcessor.getUserOrders(userId, 'seller');
+    const purchases = await paymentProcessor.getUserOrders(userId, 'buyer');
+    
+    // Calculate user statistics
+    const userBatches = batches.filter(batch => batch.createdBy === userId);
+    const activeListings = userBatches.filter(batch => batch.active && batch.forSale);
+    const completedSales = orders.filter(order => order.status === 'completed');
+    
+    const stats = {
+      totalListings: userBatches.length,
+      activeListings: activeListings.length,
+      totalSales: completedSales.length,
+      totalRevenue: completedSales.reduce((sum, order) => sum + order.totalAmount, 0),
+      totalPurchases: purchases.length,
+      memberSince: new Date(userBatches[0]?.startDate || new Date()).getFullYear()
+    };
+    
+    res.json(stats);
+  } catch (error) {
+    console.error('Error getting user stats:', error);
+    res.status(500).json({ error: 'Failed to get user stats' });
+  }
+});
+
+// Get user listings (batches for sale)
+app.get('/api/users/:userId/listings', auth.authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const batches = await loadBatches();
+    
+    const userListings = batches
+      .filter(batch => batch.createdBy === userId && batch.forSale)
+      .map(batch => {
+        const cageBatch = new CageBatch();
+        Object.assign(cageBatch, batch);
+        const profitData = cageBatch.calculateProfitProjection();
+        
+        return {
+          id: batch.cageId,
+          title: `${batch.species} - ${batch.lifecycleStage}`,
+          description: batch.notes,
+          price: profitData.revenue,
+          category: batch.species,
+          createdAt: batch.startDate,
+          views: batch.views || 0,
+          status: batch.active ? 'active' : 'inactive',
+          images: batch.images || []
+        };
+      });
+    
+    res.json(userListings);
+  } catch (error) {
+    console.error('Error getting user listings:', error);
+    res.status(500).json({ error: 'Failed to get user listings' });
+  }
+});
+
+// Get user purchases
+app.get('/api/users/:userId/purchases', auth.authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const purchases = await paymentProcessor.getUserOrders(userId, 'buyer');
+    
+    const purchaseDetails = purchases.map(order => ({
+      id: order.id,
+      title: order.items.map(item => `${item.species} - ${item.quantity}x`).join(', '),
+      description: order.notes || 'No description',
+      price: order.totalAmount,
+      purchaseDate: order.createdAt,
+      status: order.status,
+      sellerName: order.sellerInfo?.name || 'Unknown',
+      sellerId: order.sellerInfo?.id
+    }));
+    
+    res.json(purchaseDetails);
+  } catch (error) {
+    console.error('Error getting user purchases:', error);
+    res.status(500).json({ error: 'Failed to get user purchases' });
+  }
 });
 
 // Initialize the application

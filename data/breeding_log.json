@@ -880,5 +880,453 @@
     "timestamp": "2025-06-30T03:00:00.017Z",
     "activity": "Feeding overdue by 2.2 hours",
     "lifecycleStage": "Egg"
+  },
+  {
+    "id": "0f563587-6711-472f-bd38-3dbffc3c09cf",
+    "cageId": "system",
+    "timestamp": "2025-07-07T08:51:12.859Z",
+    "activity": "User admin logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "dfadd033-70ff-45cb-be36-f7aedc0da80c",
+    "cageId": "system",
+    "timestamp": "2025-07-07T08:52:25.687Z",
+    "activity": "User admin logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "ef9bf2c4-2f00-4792-a252-90ff5e3f3dfd",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-07T09:00:00.029Z",
+    "activity": "Feeding overdue by 176.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "7ff7271f-71d0-49bc-bdec-7156bda81122",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-07T09:00:00.031Z",
+    "activity": "Feeding overdue by 161.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "1dce50f7-11ef-40f8-bf93-343ceadd3248",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-07T09:00:00.034Z",
+    "activity": "Feeding overdue by 161.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "0a3a5313-0fa3-44c0-a938-88fd8a2de659",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-07T09:00:00.036Z",
+    "activity": "Feeding overdue by 161.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "4e90d832-b435-4a08-884f-cba4ab4ac183",
+    "cageId": "system",
+    "timestamp": "2025-07-07T09:27:51.466Z",
+    "activity": "User admin logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "48fb8789-d1db-474a-9e31-6989194f9cf3",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-07T09:30:00.018Z",
+    "activity": "Feeding overdue by 176.7 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "f0a5ce0d-af20-43a0-8c20-350c1625bd63",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-07T09:30:00.020Z",
+    "activity": "Feeding overdue by 162.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "19dde2e6-b708-41cc-b4f7-f7cf13073d6a",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-07T09:30:00.030Z",
+    "activity": "Feeding overdue by 162.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "d6944856-0758-4064-b4fa-55233a7e94a0",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-07T09:30:00.032Z",
+    "activity": "Feeding overdue by 162.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "4b5682a0-9f4f-4848-85e8-780b21d2a1aa",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-07T10:00:00.032Z",
+    "activity": "Feeding overdue by 177.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "b0be448e-7af4-4d63-a23e-8d870db3e2d4",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-07T10:00:00.040Z",
+    "activity": "Feeding overdue by 162.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "dae494b9-ba39-4743-b27d-976891695f22",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-07T10:00:00.055Z",
+    "activity": "Feeding overdue by 162.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "38f09d74-da35-41ac-8e46-ea17529ecbf0",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-07T10:00:00.056Z",
+    "activity": "Feeding overdue by 162.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "bb7e2176-7320-4b0a-acfe-659c92307f4b",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-07T10:30:00.025Z",
+    "activity": "Feeding overdue by 177.7 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "1b4bd81f-8872-40a9-9659-6d165f2af65c",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-07T10:30:00.029Z",
+    "activity": "Feeding overdue by 163.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "50a5499f-5062-4382-99e3-84a3fe2862c1",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-07T10:30:00.031Z",
+    "activity": "Feeding overdue by 163.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "19d09fb9-9c33-4ca0-b4d8-72ec6566f0a0",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-07T10:30:00.032Z",
+    "activity": "Feeding overdue by 163.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "9b408135-870f-4b78-9440-ce492d7ffd8a",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-07T11:00:00.023Z",
+    "activity": "Feeding overdue by 178.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "71e28f52-4d6d-4a70-bf96-e6c40c6e5c11",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-07T11:00:00.025Z",
+    "activity": "Feeding overdue by 163.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "286dd84e-e1e6-4d1d-b840-1a846cb0629f",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-07T11:00:00.027Z",
+    "activity": "Feeding overdue by 163.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "efa87f66-8352-40a6-af3a-2b0a559454e2",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-07T11:00:00.032Z",
+    "activity": "Feeding overdue by 163.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "5fab27e8-21db-4bd6-b442-5aa24a720845",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-07T11:30:00.022Z",
+    "activity": "Feeding overdue by 178.7 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "c42e6fc5-fc25-47b6-aa14-f012188dc9cf",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-07T11:30:00.024Z",
+    "activity": "Feeding overdue by 164.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "58466106-1278-44ac-b284-222663c2b3e7",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-07T11:30:00.028Z",
+    "activity": "Feeding overdue by 164.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "ec04b761-3acd-487b-9e7c-206c643acb19",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-07T11:30:00.031Z",
+    "activity": "Feeding overdue by 164.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "74328582-8289-4bc0-89e3-969e6b174c11",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-07T12:00:00.031Z",
+    "activity": "Feeding overdue by 179.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "7a4e6881-c197-4f6f-a53f-f552b57b275c",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-07T12:00:00.037Z",
+    "activity": "Feeding overdue by 164.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "7971f610-52db-48d4-8f11-671c7a92edf9",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-07T12:00:00.040Z",
+    "activity": "Feeding overdue by 164.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "eaac4b58-ea3c-4f16-9b39-04171be74889",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-07T12:00:00.041Z",
+    "activity": "Feeding overdue by 164.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "648efeb6-6e95-4234-a9dc-e014f129b4b6",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-07T12:30:00.011Z",
+    "activity": "Feeding overdue by 179.7 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "f34415d2-22d4-4893-8fd0-2b99b45c4f09",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-07T12:30:00.012Z",
+    "activity": "Feeding overdue by 165.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "60720d6e-8ea7-485e-83f1-05cedd72b613",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-07T12:30:00.017Z",
+    "activity": "Feeding overdue by 165.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "8c864c21-f296-4d5c-8eaa-dbc5943413fb",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-07T12:30:00.019Z",
+    "activity": "Feeding overdue by 165.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "279c136b-f93d-4942-8542-4f1657a950b2",
+    "cageId": "system",
+    "timestamp": "2025-07-07T12:30:11.596Z",
+    "activity": "User admin logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "539fdea0-9865-427b-bc8c-9d3b0cffe628",
+    "cageId": "admin-001",
+    "timestamp": "2025-07-07T12:30:55.265Z",
+    "activity": "Image classified: disease",
+    "lifecycleStage": null
+  },
+  {
+    "id": "db9b5faf-1f99-4154-81d4-ce12f782d18a",
+    "cageId": "admin-001",
+    "timestamp": "2025-07-07T12:32:32.964Z",
+    "activity": "Image classified: defects",
+    "lifecycleStage": null
+  },
+  {
+    "id": "1e8c9723-139f-4587-9799-8995fd676582",
+    "cageId": "admin-001",
+    "timestamp": "2025-07-07T12:34:32.513Z",
+    "activity": "Image classified: stage",
+    "lifecycleStage": null
+  },
+  {
+    "id": "380dddf8-17e5-40f9-b5a3-7c18cc967f5f",
+    "cageId": "admin-001",
+    "timestamp": "2025-07-07T12:35:59.000Z",
+    "activity": "Image classified: species",
+    "lifecycleStage": null
+  },
+  {
+    "id": "9e7fb896-ab30-4357-81b1-e54aafc4fd7e",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-07T23:00:00.017Z",
+    "activity": "Feeding overdue by 190.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "e288e143-3475-4b7c-93a8-9d9cfeb846da",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-07T23:00:00.021Z",
+    "activity": "Feeding overdue by 175.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "c52550d4-e80c-4686-beb4-19bb7d35dc80",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-07T23:00:00.024Z",
+    "activity": "Feeding overdue by 175.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "a15333d3-8396-42d5-a7d5-276d5fcaa4e3",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-07T23:00:00.025Z",
+    "activity": "Feeding overdue by 175.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "e2f442ad-ffb1-4dd3-a419-d890b3f30139",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-07T23:30:00.015Z",
+    "activity": "Feeding overdue by 190.7 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "d8371b20-7808-4b5d-9746-72d0b251204c",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-07T23:30:00.018Z",
+    "activity": "Feeding overdue by 176.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "c6bf4791-a1cc-4105-9378-b225952ed891",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-07T23:30:00.022Z",
+    "activity": "Feeding overdue by 176.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "0ead5e72-fc2c-4654-a60f-58fe04454c44",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-07T23:30:00.024Z",
+    "activity": "Feeding overdue by 176.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "a8324ff7-7293-4115-b413-6202ed980ff4",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-08T00:00:00.014Z",
+    "activity": "Feeding overdue by 191.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "3a617e57-0b27-4df8-b84c-09472577775b",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-08T00:00:00.016Z",
+    "activity": "Feeding overdue by 176.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "bc3f312b-d907-469c-9748-9a5580902cb1",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-08T00:00:00.019Z",
+    "activity": "Feeding overdue by 176.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "96e9d2f9-b004-4ee1-95ba-485a355cbbbf",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-08T00:00:00.021Z",
+    "activity": "Feeding overdue by 176.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "805c5549-c211-45b6-b879-cde816388a34",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-08T00:30:00.012Z",
+    "activity": "Feeding overdue by 191.7 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "7eb3fa38-1634-412c-abdf-aa4ff31e8bd6",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-08T00:30:00.014Z",
+    "activity": "Feeding overdue by 177.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "4cfeb89f-ee29-43fd-9f30-a3f670585ad2",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-08T00:30:00.016Z",
+    "activity": "Feeding overdue by 177.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "c65d5c34-1542-47bb-a9cf-0311e90d5b38",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-08T00:30:00.021Z",
+    "activity": "Feeding overdue by 177.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "844324c6-be9f-49fb-be40-f48b5ef7a631",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-08T01:00:00.009Z",
+    "activity": "Feeding overdue by 192.2 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "16198770-e802-4d31-94c5-a41c235888bd",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-08T01:00:00.011Z",
+    "activity": "Feeding overdue by 177.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "c8676253-4dbb-4b3a-acfc-07c1586d985a",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-08T01:00:00.012Z",
+    "activity": "Feeding overdue by 177.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "8d4f80c0-03dc-4761-ab00-d6b9f6a07677",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-08T01:00:00.015Z",
+    "activity": "Feeding overdue by 177.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "d5e87065-5724-4f9c-8cb4-44a92d7e291e",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-08T01:30:00.017Z",
+    "activity": "Feeding overdue by 192.7 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "9311f85a-b069-4b6e-b61e-93eaddf53fd6",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-08T01:30:00.031Z",
+    "activity": "Feeding overdue by 178.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "69e1da84-a63e-491e-b560-776378024a83",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-08T01:30:00.033Z",
+    "activity": "Feeding overdue by 178.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "cef295d5-6633-45c1-bc4f-6dbe505a5eef",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-08T01:30:00.042Z",
+    "activity": "Feeding overdue by 178.3 hours",
+    "lifecycleStage": "Larva"
   }
 ]

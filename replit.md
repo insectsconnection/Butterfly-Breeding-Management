@@ -125,8 +125,24 @@ This is a comprehensive JavaScript-based web application designed for advanced b
 
 ## Changelog
 
+- July 8, 2025: Migration completed from Replit Agent to Replit environment
+- July 8, 2025: Added separate user profiles and seller/purchaser functionality
+- July 8, 2025: Enhanced marketplace with seller profile links and user tracking
 - June 27, 2025: Complete JavaScript rebuild with advanced breeding features
 - June 27, 2025: Initial Python Streamlit setup (deprecated)
+
+## Recent Features Added
+
+### User Profile System
+- **Profile Pages**: Individual user profiles with statistics, listings, and purchase history
+- **Seller/Purchaser Links**: Marketplace items now include seller profile links
+- **User Dashboard**: Separate tabs for personal overview, listings, purchases, and contact info
+- **Role-Based Access**: Different functionality based on user roles (breeder, purchaser, etc.)
+
+### Enhanced Marketplace
+- **Seller Information**: Each listing shows seller rating and profile access
+- **User Tracking**: Batches now track the creating user for proper attribution
+- **Profile Integration**: Users can view seller profiles directly from marketplace listings
 
 ## User Preferences
 
