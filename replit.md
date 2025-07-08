@@ -68,6 +68,14 @@ This is a comprehensive JavaScript-based web application designed for advanced b
 
 ## Data Flow
 
+### Complete System Workflow
+1. **User Registration/Login** → Authentication validation → Session establishment
+2. **Batch Creation** → Database storage → Lifecycle tracking initialization → Achievement system activation
+3. **Image Upload** → CNN model classification → Result storage → Dashboard updates
+4. **Health Monitoring** → Survival rate updates → Profit recalculation → Alert generation
+5. **Dashboard Access** → Data aggregation → Visualization rendering → Achievement progress display
+
+### Legacy Monitoring Flow
 1. **Batch Creation**: Users create new larval batches with species, count, and feeding schedules
 2. **Data Persistence**: Batch information stored in JSON files with datetime serialization
 3. **Monitoring Loop**: Application checks for due feedings every 60 seconds
@@ -142,6 +150,14 @@ This is a comprehensive JavaScript-based web application designed for advanced b
 - June 27, 2025: Initial Python Streamlit setup (deprecated)
 
 ## Recent Features Added
+
+### Gamification System (July 8, 2025)
+- **Achievement System**: 16+ achievements across breeding milestones, species diversity, quality metrics, and profit targets
+- **Real-time Tracking**: Automatic achievement unlocking based on lifecycle status transitions
+- **User Levels**: Point-based progression system with level advancement
+- **Leaderboard**: Community ranking system with achievement counts and total points
+- **Achievement Notifications**: Pop-up alerts for newly unlocked achievements with staggered display
+- **Progress Tracking**: Visual progress bars showing advancement toward next achievements
 
 ### User Profile System
 - **Profile Pages**: Individual user profiles with statistics, listings, and purchase history

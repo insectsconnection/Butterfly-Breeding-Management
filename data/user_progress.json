@@ -1,0 +1,48 @@
+{
+  "admin-001": {
+    "userId": "admin-001",
+    "achievements": [
+      "first_batch"
+    ],
+    "stats": {
+      "batchesCreated": 1,
+      "eggsHatched": 0,
+      "cyclesCompleted": 0,
+      "butterfliesHarvested": 0,
+      "speciesCount": 1,
+      "uniqueSpecies": {},
+      "maxQualityScore": 0,
+      "maxSurvivalRate": 0,
+      "feedingCount": 0,
+      "totalProfit": 0,
+      "activeDays": 0,
+      "lastActiveDate": null,
+      "earlyAdopter": false
+    },
+    "totalPoints": 10,
+    "level": 2,
+    "nextLevelPoints": 40
+  },
+  "admin": {
+    "userId": "admin",
+    "achievements": [],
+    "stats": {
+      "batchesCreated": 0,
+      "eggsHatched": 0,
+      "cyclesCompleted": 0,
+      "butterfliesHarvested": 0,
+      "speciesCount": 0,
+      "uniqueSpecies": {},
+      "maxQualityScore": 0,
+      "maxSurvivalRate": 0,
+      "feedingCount": 2,
+      "totalProfit": 0,
+      "activeDays": 0,
+      "lastActiveDate": null,
+      "earlyAdopter": false
+    },
+    "totalPoints": 0,
+    "level": 1,
+    "nextLevelPoints": 100
+  }
+}

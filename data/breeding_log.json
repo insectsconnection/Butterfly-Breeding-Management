@@ -1356,5 +1356,159 @@
     "timestamp": "2025-07-08T02:00:00.024Z",
     "activity": "Feeding overdue by 178.8 hours",
     "lifecycleStage": "Larva"
+  },
+  {
+    "id": "8897d294-f3c6-45f0-88ef-e454ffcb1f7d",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-08T02:30:00.037Z",
+    "activity": "Feeding overdue by 193.7 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "b2ff211e-42c1-4d2b-a858-a5957c4e7f8a",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-08T02:30:00.041Z",
+    "activity": "Feeding overdue by 179.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "61496d97-797d-469d-92fd-38453d2bf071",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-08T02:30:00.050Z",
+    "activity": "Feeding overdue by 179.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "25fe25fe-46ed-4ebb-8c8b-1526bf17301a",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-08T02:30:00.057Z",
+    "activity": "Feeding overdue by 179.3 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "be532329-9357-4ae7-9274-aa512e08c942",
+    "cageId": "system",
+    "timestamp": "2025-07-08T02:56:05.603Z",
+    "activity": "New user registered: bi",
+    "lifecycleStage": null
+  },
+  {
+    "id": "806b81fa-98a4-47a6-8fbb-be2c59985d4f",
+    "cageId": "system",
+    "timestamp": "2025-07-08T02:56:45.702Z",
+    "activity": "User bi logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "d814aa21-1646-4ea4-a112-ac40f29ea04a",
+    "cageId": "system",
+    "timestamp": "2025-07-08T02:59:10.814Z",
+    "activity": "User admin logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "1b49e3fe-7502-4083-80ff-fc0b9f1bcba2",
+    "cageId": "6ddd4aca-9e2c-4a8b-857b-3127dd307025",
+    "timestamp": "2025-07-08T02:59:44.529Z",
+    "activity": "Batch created",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "84c683fd-8d74-4a95-bbab-9bcf950d44ac",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-08T03:00:00.017Z",
+    "activity": "Feeding overdue by 194.2 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "b38926f6-dffc-44d0-a811-80af07aa2b1e",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-08T03:00:00.023Z",
+    "activity": "Feeding overdue by 179.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "97358a01-b571-4c96-9f2e-f7835019ef9f",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-08T03:00:00.036Z",
+    "activity": "Feeding overdue by 179.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "70f6aee7-feca-4a7b-ae4b-2fab580bf3b8",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-08T03:00:00.040Z",
+    "activity": "Feeding overdue by 179.8 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "566212bc-c4eb-45d0-b91d-ca1b21f465ea",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-08T03:00:41.211Z",
+    "activity": "🐛 Larvae marked as fed",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "b7a4fa53-7338-45d6-9382-cd217a038307",
+    "cageId": "system",
+    "timestamp": "2025-07-08T03:01:15.903Z",
+    "activity": "User admin logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "bb519816-0a9f-4a32-9454-7309addb7d68",
+    "cageId": "system",
+    "timestamp": "2025-07-08T03:02:07.242Z",
+    "activity": "User bi logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "d98ba753-5525-4c70-84ab-dd8f655af94a",
+    "cageId": "system",
+    "timestamp": "2025-07-08T03:02:40.098Z",
+    "activity": "User admin logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "e1b5af23-3079-4fc6-9653-b7785c66ee66",
+    "cageId": "admin-001",
+    "timestamp": "2025-07-08T03:03:17.925Z",
+    "activity": "Batch listed for sale: 450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "d56246b9-e2a5-4b6d-9cd5-206accc3283b",
+    "cageId": "admin-001",
+    "timestamp": "2025-07-08T03:04:02.370Z",
+    "activity": "Batch listed for sale: 884fc9b7-37f8-4192-872b-0c95d987b661",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "31b17bdc-46a7-48f5-9b89-905f7de7723c",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-08T03:04:06.954Z",
+    "activity": "🐛 Larvae marked as fed",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "999355c9-0c44-4993-b5ae-104e878b807e",
+    "cageId": "system",
+    "timestamp": "2025-07-08T03:05:41.648Z",
+    "activity": "New user registered: rob",
+    "lifecycleStage": null
+  },
+  {
+    "id": "53e580d5-3090-4b23-a971-c7ea580575fd",
+    "cageId": "system",
+    "timestamp": "2025-07-08T03:06:14.375Z",
+    "activity": "User rob logged in",
+    "lifecycleStage": null
+  },
+  {
+    "id": "4d0a4f5e-dcfb-4085-84b9-5f0b865439b5",
+    "cageId": "user-1751943941647-v3612ln1f",
+    "timestamp": "2025-07-08T03:10:10.221Z",
+    "activity": "Task created: Pupae of C.Mormon",
+    "lifecycleStage": null
   }
 ]

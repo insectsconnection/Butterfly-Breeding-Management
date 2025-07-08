@@ -9,7 +9,7 @@
     "lastName": "Administrator",
     "organization": "Butterfly Breeding Management",
     "createdAt": "2025-06-27T16:44:06.451Z",
-    "lastLogin": "2025-07-07T12:30:11.592Z",
+    "lastLogin": "2025-07-08T03:02:40.096Z",
     "isActive": true
   },
   {
@@ -62,6 +62,32 @@
     "organization": "",
     "createdAt": "2025-06-28T06:33:40.190Z",
     "lastLogin": "2025-06-28T06:33:51.351Z",
+    "isActive": true
+  },
+  {
+    "id": "user-1751943365600-6mxmdnyzh",
+    "username": "bi",
+    "email": "bibo@gmail.com",
+    "password": "$2b$10$TqU5ylTjxBq37.Uw2OGKBOygP6A1xz/WRLfcMNOJulmzE.vcvxonK",
+    "role": "purchaser",
+    "firstName": "Bibo",
+    "lastName": "Nalo",
+    "organization": "",
+    "createdAt": "2025-07-08T02:56:05.600Z",
+    "lastLogin": "2025-07-08T03:02:07.240Z",
+    "isActive": true
+  },
+  {
+    "id": "user-1751943941647-v3612ln1f",
+    "username": "rob",
+    "email": "rob@gmail.com",
+    "password": "$2b$10$5GAe8jPl6ilMR7euX79.wOCzas4f23dB5spRNU9E8YKdCKmiSFXzS",
+    "role": "breeder",
+    "firstName": "rob",
+    "lastName": "lun",
+    "organization": "",
+    "createdAt": "2025-07-08T03:05:41.647Z",
+    "lastLogin": "2025-07-08T03:06:14.374Z",
     "isActive": true
   }
 ]
