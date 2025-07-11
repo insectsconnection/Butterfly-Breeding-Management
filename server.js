@@ -318,13 +318,13 @@ async function saveBreedingLog(log) {
   }
 }
 
-async function logActivity(cageId, activity, lifecycleStage = null, userId = 'admin') {
+async function logActivity(cageId, activity, lifecycleStage = null, userId = null) {
   try {
     const entry = await Database.addBreedingLog({
       cageId: cageId,
       activity: activity,
       lifecycleStage: lifecycleStage,
-      userId: userId
+      userId: userId // Pass null if no valid user ID
     });
     
     // Emit to connected clients
@@ -354,9 +354,11 @@ async function handleLifecycleTransition(batch, oldStage, newStage, cageId) {
         batch.nextFeeding = new Date(now.getTime() + 24 * 60 * 60 * 1000);
         
         // Update achievement progress for hatching
-        const newAchievements = await achievementSystem.updateUserStats(batch.createdBy || 'admin', 'eggsHatched', batch.larvaCount);
-        if (newAchievements.length > 0) {
-          io.emit('achievementUnlocked', { userId: batch.createdBy || 'admin', achievements: newAchievements });
+        if (batch.createdBy) {
+          const newAchievements = await achievementSystem.updateUserStats(batch.createdBy, 'eggsHatched', batch.larvaCount);
+          if (newAchievements.length > 0) {
+            io.emit('achievementUnlocked', { userId: batch.createdBy, achievements: newAchievements });
+          }
         }
       }
       break;
@@ -1586,57 +1588,166 @@ app.post('/api/batches/:cageId/list-for-sale', auth.authenticateToken, auth.requ
 // Get pupae sales history with seller/purchaser details
 app.get('/api/marketplace/pupae-sales', auth.authenticateToken, async (req, res) => {
   try {
-    const batches = await loadBatches();
-    const users = await auth.getAllUsers();
-    
-    // Filter for pupae that have been sold
-    const pupaeSales = batches
-      .filter(batch => batch.lifecycleStage === 'Pupa' && batch.sold && batch.salesHistory)
-      .map(batch => {
-        const seller = users.find(u => u.id === batch.createdBy);
-        const salesHistory = batch.salesHistory.map(sale => {
-          const purchaser = users.find(u => u.id === sale.purchaserId);
-          return {
-            ...sale,
-            purchaserDetails: purchaser ? {
-              id: purchaser.id,
-              name: `${purchaser.firstName} ${purchaser.lastName}`,
-              username: purchaser.username,
-              role: purchaser.role,
-              email: purchaser.email
-            } : null,
-            batchInfo: {
-              batchId: batch.cageId,
-              species: batch.species,
-              larvaCount: batch.larvaCount,
-              qualityScore: batch.qualityScore,
-              hostPlant: batch.hostPlant
-            }
-          };
-        });
-        
-        return {
-          batchId: batch.cageId,
-          species: batch.species,
-          larvaCount: batch.larvaCount,
-          qualityScore: batch.qualityScore,
-          hostPlant: batch.hostPlant,
-          sellerInfo: {
-            id: batch.createdBy,
-            name: seller ? `${seller.firstName} ${seller.lastName}` : 'Unknown',
-            username: seller ? seller.username : 'unknown',
-            role: seller ? seller.role : 'unknown'
-          },
-          salesHistory: salesHistory,
-          soldAt: batch.soldAt,
-          finalSalePrice: batch.finalSalePrice
-        };
-      });
-    
+    const pupaeSales = await Database.getPupaeSalesHistory();
     res.json(pupaeSales);
   } catch (error) {
     console.error('Error getting pupae sales:', error);
     res.status(500).json({ error: 'Failed to get pupae sales' });
+  }
+});
+
+// Mark batch as harvested (for pupae)
+app.put('/api/batches/:cageId/harvest', auth.authenticateToken, async (req, res) => {
+  try {
+    const { cageId } = req.params;
+    const batch = await Database.getBatchByCageId(cageId);
+    
+    if (!batch) {
+      return res.status(404).json({ error: 'Batch not found' });
+    }
+    
+    // Update batch status to harvested
+    const updatedBatch = await Database.updateBatch(cageId, {
+      lifecycle_stage: 'Pupa',
+      status: 'harvested'
+    });
+    
+    await logActivity(cageId, 'Batch marked as harvested - pupae ready for sale', 'Pupa', req.user.id);
+    
+    // Update achievement progress
+    const newAchievements = await achievementSystem.updateUserStats(req.user.id, 'batchHarvested', 1);
+    if (newAchievements.length > 0) {
+      io.emit('achievementUnlocked', { userId: req.user.id, achievements: newAchievements });
+    }
+    
+    // Emit to connected clients
+    io.emit('batchUpdated', updatedBatch);
+    
+    res.json(updatedBatch);
+  } catch (error) {
+    console.error('Error marking batch as harvested:', error);
+    res.status(500).json({ error: 'Failed to mark batch as harvested' });
+  }
+});
+
+// Sell pupae
+app.post('/api/marketplace/sell-pupae', auth.authenticateToken, async (req, res) => {
+  try {
+    const { cageId, salePrice } = req.body;
+    
+    if (!cageId || !salePrice) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    
+    const batch = await Database.getBatchByCageId(cageId);
+    if (!batch) {
+      return res.status(404).json({ error: 'Batch not found' });
+    }
+    
+    // Verify batch is harvested and belongs to seller
+    if (batch.status !== 'harvested' || batch.created_by !== req.user.id) {
+      return res.status(403).json({ error: 'Cannot sell this batch' });
+    }
+    
+    // Add to pupae sales history
+    const saleData = {
+      batchId: cageId,
+      species: batch.species,
+      larvalCount: batch.larval_count,
+      qualityScore: batch.quality_score,
+      hostPlant: batch.host_plant,
+      finalSalePrice: salePrice,
+      sellerId: req.user.id,
+      sellerName: req.user.name || req.user.username,
+      sellerUsername: req.user.username,
+      sellerRole: req.user.role,
+      salesHistory: []
+    };
+    
+    const sale = await Database.addPupaeSale(saleData);
+    
+    // Update batch status to sold
+    await Database.updateBatch(cageId, {
+      status: 'sold'
+    });
+    
+    await logActivity(cageId, `Pupae sold for ₱${salePrice}`, 'Pupa', req.user.id);
+    
+    // Update achievement progress
+    const newAchievements = await achievementSystem.updateUserStats(req.user.id, 'pupaeSold', 1, { salePrice });
+    if (newAchievements.length > 0) {
+      io.emit('achievementUnlocked', { userId: req.user.id, achievements: newAchievements });
+    }
+    
+    // Emit to connected clients
+    io.emit('pupaeSold', { cageId, salePrice, sellerId: req.user.id });
+    
+    res.json({ success: true, sale });
+  } catch (error) {
+    console.error('Error selling pupae:', error);
+    res.status(500).json({ error: 'Failed to sell pupae' });
+  }
+});
+
+// Purchase pupae
+app.post('/api/marketplace/purchase-pupae', auth.authenticateToken, async (req, res) => {
+  try {
+    const { saleId, paymentMethod = 'GCash' } = req.body;
+    
+    if (!saleId) {
+      return res.status(400).json({ error: 'Missing sale ID' });
+    }
+    
+    // Get sale information from pupae sales
+    const sales = await Database.getPupaeSalesHistory();
+    const sale = sales.find(s => s.id === saleId);
+    
+    if (!sale) {
+      return res.status(404).json({ error: 'Sale not found' });
+    }
+    
+    // Create order for the purchase
+    const orderData = {
+      orderId: `ORDER-${Date.now()}`,
+      buyerId: req.user.id,
+      sellerId: sale.seller_id,
+      batchId: sale.batch_id,
+      lifecycleStage: 'Pupa',
+      species: sale.species,
+      quantity: sale.larval_count,
+      pricePerUnit: sale.final_sale_price / sale.larval_count,
+      totalAmount: sale.final_sale_price
+    };
+    
+    const order = await Database.createOrder(orderData);
+    
+    // Create payment
+    const paymentData = {
+      paymentId: `PAY-${Date.now()}`,
+      orderId: order.id,
+      payerId: req.user.id,
+      amount: sale.final_sale_price,
+      paymentMethod: paymentMethod,
+      referenceNumber: `REF-${Date.now()}`
+    };
+    
+    const payment = await Database.createPayment(paymentData);
+    
+    await logActivity(sale.batch_id, `Pupae purchased by ${req.user.username} for ₱${sale.final_sale_price}`, 'Pupa', req.user.id);
+    
+    // Update achievement progress
+    const newAchievements = await achievementSystem.updateUserStats(req.user.id, 'pupaePurchased', 1, { purchasePrice: sale.final_sale_price });
+    if (newAchievements.length > 0) {
+      io.emit('achievementUnlocked', { userId: req.user.id, achievements: newAchievements });
+    }
+    
+    // Emit to connected clients
+    io.emit('pupaePurchased', { orderId: order.order_id, buyerId: req.user.id, sellerId: sale.seller_id });
+    
+    res.json({ success: true, order, payment });
+  } catch (error) {
+    console.error('Error purchasing pupae:', error);
+    res.status(500).json({ error: 'Failed to purchase pupae' });
   }
 });
 

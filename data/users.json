@@ -100,7 +100,20 @@
     "lastName": "ORIA",
     "organization": "",
     "createdAt": "2025-07-11T07:32:15.963Z",
-    "lastLogin": "2025-07-11T07:32:31.870Z",
+    "lastLogin": "2025-07-11T08:52:35.411Z",
+    "isActive": true
+  },
+  {
+    "id": "user-1752230245699-0j6wffznp",
+    "username": "Jer",
+    "email": "jermont@gmail.com",
+    "password": "$2b$10$D9R8jwpf1HfFGU/SGOY0Re.mEcD6Zbj0NqV0riQu3cKhN0MY2jy32",
+    "role": "student",
+    "firstName": "Jerwin",
+    "lastName": "Montellano",
+    "organization": "",
+    "createdAt": "2025-07-11T10:37:25.699Z",
+    "lastLogin": "2025-07-11T10:42:00.950Z",
     "isActive": true
   }
 ]

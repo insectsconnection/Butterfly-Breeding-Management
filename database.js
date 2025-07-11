@@ -123,7 +123,7 @@ class Database {
     const result = await pool.query(`
       INSERT INTO breeding_log (cage_id, activity, lifecycle_stage, user_id)
       VALUES ($1, $2, $3, $4) RETURNING *
-    `, [cageId, activity, lifecycleStage, userId]);
+    `, [cageId, activity, lifecycleStage, userId || null]); // Handle null userId properly
     return result.rows[0];
   }
 

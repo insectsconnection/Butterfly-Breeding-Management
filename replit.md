@@ -163,6 +163,8 @@ This is a comprehensive JavaScript-based web application designed for advanced b
 - **Enhanced Data Integrity**: Proper foreign key relationships and data validation
 - **Improved Performance**: Connection pooling and optimized queries for better scalability
 - **Sales History Tables**: Dedicated tables for each lifecycle stage sales (pupae_sales, larva_sales, egg_sales, butterfly_sales)
+- **Pupa Marketplace**: Added harvest, sell, and purchase functionality for pupae with database integration
+- **Error Resolution**: Fixed UUID validation errors in breeding log and activity tracking
 
 ### Migration Completion (July 11, 2025)
 - **Project Migration**: Successfully migrated from Replit Agent to Replit environment
