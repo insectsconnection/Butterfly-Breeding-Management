@@ -1517,5 +1517,54 @@
     "timestamp": "2025-07-08T03:18:41.633Z",
     "activity": "User bi logged in",
     "lifecycleStage": null
+  },
+  {
+    "id": "cea359e9-b4e9-4e24-b10d-7e8c25dff649",
+    "cageId": "eb29a990-d654-4c3e-aa38-b67371339c9a",
+    "timestamp": "2025-07-11T07:30:00.029Z",
+    "activity": "Feeding overdue by 52.5 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "0969a260-1352-4679-ba4c-af6a1f29f54e",
+    "cageId": "450babbc-b8ee-4a48-9533-7ed84bd47482",
+    "timestamp": "2025-07-11T07:30:00.032Z",
+    "activity": "Feeding overdue by 256.3 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "62e1dcdf-1525-429f-9fec-8cb1d8b2f00f",
+    "cageId": "884fc9b7-37f8-4192-872b-0c95d987b661",
+    "timestamp": "2025-07-11T07:30:00.044Z",
+    "activity": "Feeding overdue by 52.4 hours",
+    "lifecycleStage": "Larva"
+  },
+  {
+    "id": "83f2cccb-fbd4-4035-9698-4486ace2a584",
+    "cageId": "742e4787-8f04-485b-9f52-9bd7f43da3eb",
+    "timestamp": "2025-07-11T07:30:00.045Z",
+    "activity": "Feeding overdue by 256.3 hours",
+    "lifecycleStage": "Butterfly"
+  },
+  {
+    "id": "c1ee403a-1be5-4fa1-84a5-3a6d86c19a04",
+    "cageId": "6ddd4aca-9e2c-4a8b-857b-3127dd307025",
+    "timestamp": "2025-07-11T07:30:00.049Z",
+    "activity": "Feeding overdue by 52.5 hours",
+    "lifecycleStage": "Egg"
+  },
+  {
+    "id": "313b53e6-fe5d-4547-a092-48efd2ccf3f5",
+    "cageId": "system",
+    "timestamp": "2025-07-11T07:32:15.965Z",
+    "activity": "New user registered: ERIC",
+    "lifecycleStage": null
+  },
+  {
+    "id": "f38208c9-3557-49ca-8572-bf1d710a4d52",
+    "cageId": "system",
+    "timestamp": "2025-07-11T07:32:31.875Z",
+    "activity": "User ERIC logged in",
+    "lifecycleStage": null
   }
 ]

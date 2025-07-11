@@ -873,6 +873,180 @@ app.post('/api/batches/:cageId/fed', async (req, res) => {
   }
 });
 
+// Stage-specific actions for improved cage management
+app.post('/api/batches/:cageId/stage-action', auth.authenticateToken, auth.requirePermission('update_batches'), async (req, res) => {
+  try {
+    const { cageId } = req.params;
+    const { action } = req.body;
+    const batches = await loadBatches();
+    
+    const batchIndex = batches.findIndex(b => b.cageId === cageId);
+    if (batchIndex === -1) {
+      return res.status(404).json({ error: 'Batch not found' });
+    }
+    
+    const batch = batches[batchIndex];
+    let message = '';
+    
+    switch(action) {
+      case 'MARK_AS_HATCHED':
+        if (batch.lifecycleStage === 'Egg') {
+          batch.status = 'hatched';
+          batch.lastFeeding = new Date();
+          batch.nextFeeding = new Date(Date.now() + 8 * 60 * 60 * 1000); // 8 hours for fresh larvae
+          message = 'Eggs marked as hatched - feeding schedule started';
+          await logActivity(cageId, 'Eggs hatched - feeding schedule activated', 'Egg');
+        } else {
+          return res.status(400).json({ error: 'Can only mark eggs as hatched' });
+        }
+        break;
+        
+      case 'MARK_AS_FED':
+        if (batch.lifecycleStage === 'Larva') {
+          batch.status = 'fed';
+          batch.lastFeeding = new Date();
+          batch.nextFeeding = new Date(Date.now() + 24 * 60 * 60 * 1000);
+          batch.foliageLevel = Math.max(20, batch.foliageLevel - 15);
+          message = 'Larvae marked as fed - next feeding scheduled';
+          await logActivity(cageId, 'Larvae feeding completed', 'Larva');
+        } else {
+          return res.status(400).json({ error: 'Can only feed larvae stage' });
+        }
+        break;
+        
+      case 'MARK_AS_HARVESTED':
+        if (batch.lifecycleStage === 'Pupa') {
+          batch.status = 'harvested';
+          batch.qualityScore = Math.min(1.0, batch.qualityScore + 0.05); // Quality improvement
+          message = 'Pupae marked as harvested - quality assessed';
+          await logActivity(cageId, 'Pupae harvested and quality assessed', 'Pupa');
+        } else {
+          return res.status(400).json({ error: 'Can only harvest pupae stage' });
+        }
+        break;
+        
+      case 'MARK_AS_FORAGE':
+        if (batch.lifecycleStage === 'Butterfly') {
+          batch.status = 'forage';
+          batch.lastFeeding = new Date();
+          batch.nextFeeding = new Date(Date.now() + 12 * 60 * 60 * 1000); // 12 hours for nectar
+          message = 'Butterflies marked as foraging - nectar feeding scheduled';
+          await logActivity(cageId, 'Butterfly foraging activity recorded', 'Butterfly');
+        } else {
+          return res.status(400).json({ error: 'Can only mark butterflies as foraging' });
+        }
+        break;
+        
+      default:
+        return res.status(400).json({ error: 'Invalid action specified' });
+    }
+    
+    // Update achievement tracking
+    if (req.user && req.user.id) {
+      await achievementSystem.updateUserStats(req.user.id, 'stage_actions', 1, {
+        action: action,
+        cageId: cageId,
+        stage: batch.lifecycleStage
+      });
+    }
+    
+    await saveBatches(batches);
+    io.emit('batchUpdated', batch);
+    
+    res.json({ message, batch });
+  } catch (error) {
+    console.error('Error performing stage action:', error);
+    res.status(500).json({ error: 'Failed to perform stage action' });
+  }
+});
+
+// Lifecycle stage transition
+app.post('/api/batches/:cageId/transition', auth.authenticateToken, auth.requirePermission('update_batches'), async (req, res) => {
+  try {
+    const { cageId } = req.params;
+    const { newStage } = req.body;
+    const batches = await loadBatches();
+    
+    const batchIndex = batches.findIndex(b => b.cageId === cageId);
+    if (batchIndex === -1) {
+      return res.status(404).json({ error: 'Batch not found' });
+    }
+    
+    const batch = batches[batchIndex];
+    const previousStage = batch.lifecycleStage;
+    
+    // Validate transition
+    const validTransitions = {
+      'Egg': 'Larva',
+      'Larva': 'Pupa',
+      'Pupa': 'Butterfly'
+    };
+    
+    if (validTransitions[previousStage] !== newStage) {
+      return res.status(400).json({ 
+        error: `Invalid transition from ${previousStage} to ${newStage}` 
+      });
+    }
+    
+    // Record lifecycle history
+    if (!batch.lifecycleHistory) {
+      batch.lifecycleHistory = [];
+    }
+    
+    let automaticAction = '';
+    
+    // Apply stage-specific automatic actions
+    switch(newStage) {
+      case 'Larva':
+        automaticAction = 'Started feeding schedule';
+        batch.lastFeeding = new Date();
+        batch.nextFeeding = new Date(Date.now() + 8 * 60 * 60 * 1000);
+        break;
+      case 'Pupa':
+        automaticAction = 'Stopped feeding schedule';
+        batch.nextFeeding = null;
+        break;
+      case 'Butterfly':
+        automaticAction = 'Started nectar feeding schedule';
+        batch.lastFeeding = new Date();
+        batch.nextFeeding = new Date(Date.now() + 12 * 60 * 60 * 1000);
+        break;
+    }
+    
+    batch.lifecycleHistory.push({
+      previousStage,
+      stage: newStage,
+      date: new Date(),
+      automaticAction
+    });
+    
+    batch.lifecycleStage = newStage;
+    
+    // Update achievement tracking
+    if (req.user && req.user.id) {
+      await achievementSystem.updateUserStats(req.user.id, 'stage_transitions', 1, {
+        from: previousStage,
+        to: newStage,
+        cageId: cageId
+      });
+    }
+    
+    await saveBatches(batches);
+    await logActivity(cageId, `Lifecycle transitioned from ${previousStage} to ${newStage} - ${automaticAction}`, newStage);
+    
+    io.emit('batchUpdated', batch);
+    
+    res.json({ 
+      message: automaticAction,
+      batch,
+      transition: { from: previousStage, to: newStage }
+    });
+  } catch (error) {
+    console.error('Error transitioning lifecycle stage:', error);
+    res.status(500).json({ error: 'Failed to transition lifecycle stage' });
+  }
+});
+
 // Add defect to batch
 app.post('/api/batches/:cageId/defects', async (req, res) => {
   try {

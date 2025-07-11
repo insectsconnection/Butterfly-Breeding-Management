@@ -89,5 +89,18 @@
     "createdAt": "2025-07-08T03:05:41.647Z",
     "lastLogin": "2025-07-08T03:06:14.374Z",
     "isActive": true
+  },
+  {
+    "id": "user-1752219135963-mr3d1v6fq",
+    "username": "ERIC",
+    "email": "ERC@GMAIL.COM",
+    "password": "$2b$10$2FQEoLkkMmfjBwPQuyIwfOfvrHF8OQstsIiPUn5DWkKIDzRa1A2bS",
+    "role": "purchaser",
+    "firstName": "ERIC",
+    "lastName": "ORIA",
+    "organization": "",
+    "createdAt": "2025-07-11T07:32:15.963Z",
+    "lastLogin": "2025-07-11T07:32:31.870Z",
+    "isActive": true
   }
 ]

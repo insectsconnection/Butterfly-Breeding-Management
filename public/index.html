@@ -560,6 +560,9 @@
             <button class="nav-tab" onclick="showTab('settings')">
                 <i class="fas fa-cog"></i> Settings
             </button>
+            <button class="nav-tab" onclick="showTab('student-dashboard')">
+                <i class="fas fa-graduation-cap"></i> Student Dashboard
+            </button>
             <button class="nav-tab" onclick="viewProfile()" style="margin-left: auto; background: #48bb78;">
                 <i class="fas fa-user"></i> My Profile
             </button>
@@ -826,6 +829,86 @@
                 <h3><i class="fas fa-ranking-star"></i> Leaderboard</h3>
                 <div id="leaderboard">
                     <!-- Leaderboard will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Dashboard Tab -->
+        <div id="student-dashboard" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-graduation-cap"></i> Student Portal - Butterfly Production Training</h3>
+                <p>Access your butterfly breeding training courses and certification programs through TESDA.</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px;">
+                    <!-- Course Enrollment -->
+                    <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px; padding: 25px; text-align: center;">
+                        <i class="fas fa-certificate" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <h4>Butterfly Production Level II</h4>
+                        <p style="margin: 15px 0;">Advanced breeding techniques and quality management certification program</p>
+                        <div style="margin: 20px 0;">
+                            <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 10px;">
+                                <p><strong>Duration:</strong> 80 hours</p>
+                                <p><strong>Type:</strong> Blended Learning</p>
+                                <p><strong>Certificate:</strong> NC II</p>
+                            </div>
+                        </div>
+                        <button onclick="showEnrollmentModal()" class="btn" style="background: white; color: #667eea; font-weight: bold; width: 100%;">
+                            <i class="fas fa-user-plus"></i> ENROLL NOW
+                        </button>
+                    </div>
+                    
+                    <!-- Scholarship Information -->
+                    <div style="background: linear-gradient(135deg, #48bb78, #38a169); color: white; border-radius: 15px; padding: 25px; text-align: center;">
+                        <i class="fas fa-hand-holding-usd" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <h4>TESDA Scholarship Program</h4>
+                        <p style="margin: 15px 0;">Get free training with TESDA scholarship opportunities for qualified students</p>
+                        <div style="margin: 20px 0;">
+                            <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 10px;">
+                                <p><strong>Coverage:</strong> 100% Training Fee</p>
+                                <p><strong>Allowance:</strong> Available</p>
+                                <p><strong>Requirements:</strong> Basic Education</p>
+                            </div>
+                        </div>
+                        <button onclick="showScholarshipModal()" class="btn" style="background: white; color: #48bb78; font-weight: bold; width: 100%;">
+                            <i class="fas fa-info-circle"></i> HOW TO APPLY
+                        </button>
+                    </div>
+                    
+                    <!-- Exploration Center -->
+                    <div style="background: linear-gradient(135deg, #ed8936, #dd6b20); color: white; border-radius: 15px; padding: 25px; text-align: center;">
+                        <i class="fas fa-compass" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <h4>Explore Career Paths</h4>
+                        <p style="margin: 15px 0;">Discover various career opportunities in butterfly farming and biotechnology</p>
+                        <div style="margin: 20px 0;">
+                            <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 10px;">
+                                <p><strong>Opportunities:</strong> Entrepreneur</p>
+                                <p><strong>Industry:</strong> Agriculture</p>
+                                <p><strong>Growth:</strong> High Demand</p>
+                            </div>
+                        </div>
+                        <button onclick="showCareerModal()" class="btn" style="background: white; color: #ed8936; font-weight: bold; width: 100%;">
+                            <i class="fas fa-search"></i> EXPLORE
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quick Access Links -->
+                <div class="card" style="margin-top: 30px;">
+                    <h4><i class="fas fa-external-link-alt"></i> Quick Access Links</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+                        <a href="https://tesda.gov.ph" target="_blank" class="btn btn-secondary" style="text-decoration: none; text-align: center;">
+                            <i class="fas fa-globe"></i> TESDA Official Website
+                        </a>
+                        <a href="https://enrollment.tesda.gov.ph" target="_blank" class="btn btn-secondary" style="text-decoration: none; text-align: center;">
+                            <i class="fas fa-laptop"></i> Online Enrollment Portal
+                        </a>
+                        <a href="https://scholarship.tesda.gov.ph" target="_blank" class="btn btn-secondary" style="text-decoration: none; text-align: center;">
+                            <i class="fas fa-graduation-cap"></i> Scholarship Portal
+                        </a>
+                        <button onclick="downloadTrainingGuide()" class="btn btn-secondary">
+                            <i class="fas fa-download"></i> Download Training Guide
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1656,14 +1739,24 @@
                         ` : ''}
                         
                         <div class="form-group" style="margin-top: 20px;">
-                            <label>Update Lifecycle Stage:</label>
-                            <select onchange="updateLifecycleStage('${batch.cageId}', this.value)">
-                                <option value="">Select Stage</option>
-<option value="Butterfly" ${batch.lifecycleStage === 'Butterfly' ? 'selected' : ''}>Butterfly</option>                                            <option value="Egg" ${batch.lifecycleStage === 'Egg' ? 'selected' : ''}>Egg</option>
-                                <option value="Larva" ${batch.lifecycleStage === 'Larva' ? 'selected' : ''}>Larva</option>
-                                <option value="Pupa" ${batch.lifecycleStage === 'Pupa' ? 'selected' : ''}>Pupa</option>
+                            <label>Lifecycle Management:</label>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                                <p><strong>Current Stage:</strong> 
+                                    <span class="lifecycle-badge lifecycle-${batch.lifecycleStage.toLowerCase()}">${batch.lifecycleStage}</span>
+                                </p>
                                 
-                            </select>
+                                <div style="margin-top: 15px;">
+                                    <h5>Stage-Specific Actions:</h5>
+                                    ${getStageSpecificActions(batch)}
+                                </div>
+                                
+                                <div style="margin-top: 15px;">
+                                    <label>Transition to Next Stage:</label>
+                                    <div style="display: flex; gap: 10px; margin-top: 8px;">
+                                        ${getTransitionButtons(batch)}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -2856,6 +2949,224 @@
                     `).join('')}
                 </div>
             `;
+        }
+
+        // Stage-specific actions for improved cage management
+        function getStageSpecificActions(batch) {
+            const stage = batch.lifecycleStage;
+            
+            switch(stage) {
+                case 'Egg':
+                    return `
+                        <div style="margin: 10px 0;">
+                            <button onclick="performStageAction('${batch.cageId}', 'MARK_AS_HATCHED')" class="btn btn-success btn-small">
+                                <i class="fas fa-egg"></i> Mark as Hatched
+                            </button>
+                            <p style="font-size: 0.9rem; color: #718096; margin-top: 5px;">
+                                Records hatching and starts feeding schedule
+                            </p>
+                        </div>
+                    `;
+                case 'Larva':
+                    return `
+                        <div style="margin: 10px 0;">
+                            <button onclick="performStageAction('${batch.cageId}', 'MARK_AS_FED')" class="btn btn-primary btn-small">
+                                <i class="fas fa-utensils"></i> Mark as Fed
+                            </button>
+                            <p style="font-size: 0.9rem; color: #718096; margin-top: 5px;">
+                                Records feeding and updates next feeding schedule
+                            </p>
+                        </div>
+                    `;
+                case 'Pupa':
+                    return `
+                        <div style="margin: 10px 0;">
+                            <button onclick="performStageAction('${batch.cageId}', 'MARK_AS_HARVESTED')" class="btn btn-warning btn-small">
+                                <i class="fas fa-harvest"></i> Mark as Harvested
+                            </button>
+                            <p style="font-size: 0.9rem; color: #718096; margin-top: 5px;">
+                                Records pupae harvest and quality assessment
+                            </p>
+                        </div>
+                    `;
+                case 'Butterfly':
+                    return `
+                        <div style="margin: 10px 0;">
+                            <button onclick="performStageAction('${batch.cageId}', 'MARK_AS_FORAGE')" class="btn btn-info btn-small">
+                                <i class="fas fa-leaf"></i> Mark as Forage
+                            </button>
+                            <p style="font-size: 0.9rem; color: #718096; margin-top: 5px;">
+                                Records foraging activity and nectar feeding
+                            </p>
+                        </div>
+                    `;
+                default:
+                    return '<p>No specific actions available for this stage.</p>';
+            }
+        }
+
+        function getTransitionButtons(batch) {
+            const stage = batch.lifecycleStage;
+            const transitions = {
+                'Egg': 'Larva',
+                'Larva': 'Pupa', 
+                'Pupa': 'Butterfly',
+                'Butterfly': null
+            };
+            
+            const nextStage = transitions[stage];
+            
+            if (!nextStage) {
+                return '<p style="color: #718096; font-size: 0.9rem;">Final stage reached</p>';
+            }
+            
+            return `
+                <button onclick="transitionLifecycleStage('${batch.cageId}', '${nextStage}')" class="btn btn-secondary btn-small">
+                    <i class="fas fa-arrow-right"></i> Transition to ${nextStage}
+                </button>
+            `;
+        }
+
+        // Perform stage-specific action
+        async function performStageAction(cageId, action) {
+            try {
+                const response = await makeAuthenticatedRequest(`/api/batches/${cageId}/stage-action`, {
+                    method: 'POST',
+                    body: JSON.stringify({ action })
+                });
+                
+                if (response && response.ok) {
+                    const result = await response.json();
+                    showNotification(result.message || 'Action completed successfully', 'success');
+                    loadBatches();
+                    loadBreedingLog();
+                    closeBatchModal();
+                } else if (response) {
+                    const error = await response.json();
+                    showNotification(error.error || 'Error performing action', 'danger');
+                }
+            } catch (error) {
+                console.error('Error performing stage action:', error);
+                showNotification('Error performing stage action', 'danger');
+            }
+        }
+
+        // Transition lifecycle stage
+        async function transitionLifecycleStage(cageId, newStage) {
+            try {
+                const response = await makeAuthenticatedRequest(`/api/batches/${cageId}/transition`, {
+                    method: 'POST',
+                    body: JSON.stringify({ newStage })
+                });
+                
+                if (response && response.ok) {
+                    const result = await response.json();
+                    showNotification(`Transitioned to ${newStage} - ${result.message}`, 'success');
+                    loadBatches();
+                    loadBreedingLog();
+                    closeBatchModal();
+                } else if (response) {
+                    const error = await response.json();
+                    showNotification(error.error || 'Error transitioning stage', 'danger');
+                }
+            } catch (error) {
+                console.error('Error transitioning lifecycle stage:', error);
+                showNotification('Error transitioning lifecycle stage', 'danger');
+            }
+        }
+
+        // Student Dashboard Functions
+        function showEnrollmentModal() {
+            showNotification('Redirecting to TESDA enrollment system...', 'info');
+            setTimeout(() => {
+                window.open('https://enrollment.tesda.gov.ph', '_blank');
+            }, 1000);
+        }
+
+        function showScholarshipModal() {
+            showNotification('Opening TESDA scholarship information...', 'info');
+            setTimeout(() => {
+                window.open('https://scholarship.tesda.gov.ph', '_blank');
+            }, 1000);
+        }
+
+        function showCareerModal() {
+            showNotification('Loading career exploration resources...', 'info');
+            setTimeout(() => {
+                alert(`🦋 Butterfly Farming Career Opportunities:
+
+1. BUTTERFLY BREEDER ENTREPRENEUR
+   - Start your own breeding facility
+   - Supply butterflies to collectors and educational institutions
+   - Expected income: ₱50,000 - ₱200,000/month
+
+2. AGRICULTURAL TECHNICIAN
+   - Work with research institutions
+   - Develop new breeding techniques
+   - Salary range: ₱25,000 - ₱45,000/month
+
+3. EDUCATION SPECIALIST
+   - Teach butterfly farming techniques
+   - Conduct training programs
+   - Consulting fees: ₱5,000 - ₱15,000/day
+
+4. BIOTECHNOLOGY RESEARCHER
+   - Study butterfly genetics and behavior
+   - Develop conservation programs
+   - Research positions: ₱35,000 - ₱70,000/month
+
+Ready to start your journey? Enroll in our TESDA-certified programs!`);
+            }, 1000);
+        }
+
+        function downloadTrainingGuide() {
+            const guideContent = `BUTTERFLY PRODUCTION LEVEL II TRAINING GUIDE
+
+COURSE OVERVIEW:
+- Duration: 80 hours (6 weeks)
+- Mode: Blended Learning (Online + Hands-on)
+- Certificate: TESDA NC II
+
+MODULES:
+1. Butterfly Biology and Lifecycle Management
+2. Advanced Breeding Techniques
+3. Quality Control and Assessment
+4. Disease Prevention and Treatment
+5. Profit Optimization Strategies
+6. Digital Record Keeping
+7. Market Analysis and Sales
+8. Sustainable Farming Practices
+
+REQUIREMENTS:
+- High School Diploma or equivalent
+- Basic computer literacy
+- Access to internet for online modules
+
+CAREER PROSPECTS:
+- Butterfly Farm Owner/Manager
+- Agricultural Technician
+- Research Assistant
+- Training Specialist
+
+For enrollment and scholarship information:
+Visit: https://tesda.gov.ph
+Email: info@tesda.gov.ph
+Phone: (02) 8888-TESDA
+
+© TESDA 2025 - Technical Education and Skills Development Authority`;
+
+            const blob = new Blob([guideContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'TESDA-Butterfly-Production-Level-II-Guide.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            URL.revokeObjectURL(url);
+            showNotification('Training guide downloaded successfully!', 'success');
         }
 
     </script>
