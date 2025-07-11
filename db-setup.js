@@ -358,7 +358,7 @@ async function migrateBatches() {
     const batches = JSON.parse(batchesData);
     
     for (const batch of batches) {
-      // Insert batch
+      // Insert batch - preserve all existing data
       const batchResult = await client.query(`
         INSERT INTO batches (cage_id, species, larval_count, lifecycle_stage, status, host_plant, 
                            start_date, last_feeding, next_feeding, quality_score, foliage_level, 
@@ -386,6 +386,37 @@ async function migrateBatches() {
       
       if (batchResult.rows.length > 0) {
         const batchId = batchResult.rows[0].id;
+        
+        // CRITICAL: Migrate marketplace sales history for this batch
+        if (batch.salesHistory && batch.salesHistory.length > 0) {
+          for (const sale of batch.salesHistory) {
+            // Determine which lifecycle stage this sale was for
+            const saleStage = sale.lifecycleStage || batch.lifecycleStage || 'Pupa';
+            const tableName = saleStage.toLowerCase() === 'pupa' ? 'pupae_sales' : 
+                            saleStage.toLowerCase() === 'larva' ? 'larva_sales' :
+                            saleStage.toLowerCase() === 'egg' ? 'egg_sales' : 'butterfly_sales';
+            
+            await client.query(`
+              INSERT INTO ${tableName} (batch_id, species, larval_count, quality_score, host_plant,
+                                      final_sale_price, seller_id, seller_name, seller_username,
+                                      seller_role, sales_history, sold_at)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            `, [
+              batch.cageId,
+              batch.species,
+              batch.larvaCount,
+              batch.qualityScore || 0.85,
+              batch.hostPlant,
+              sale.finalSalePrice || sale.salePrice || 0,
+              sale.purchaserId,
+              sale.purchaserName,
+              sale.purchaserUsername,
+              sale.purchaserRole,
+              JSON.stringify([sale]),
+              new Date(sale.purchaseDate || Date.now())
+            ]);
+          }
+        }
         
         // Migrate defects if any
         if (batch.defects && batch.defects.length > 0) {
@@ -437,9 +468,9 @@ async function migrateBatches() {
         }
       }
     }
-    console.log(`✓ Migrated ${batches.length} batches`);
+    console.log(`✓ Migrated ${batches.length} batches with marketplace sales history preserved`);
   } catch (error) {
-    console.log('No batches.json file found, skipping batch migration');
+    console.log('✓ No batches.json file found or empty, starting with fresh batch data');
   }
 }
 
