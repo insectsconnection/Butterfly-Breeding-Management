@@ -25,12 +25,15 @@ This is a comprehensive JavaScript-based web application designed for advanced b
 - **Background Processing**: Cron-based monitoring every 30 minutes
 
 ### Data Storage
-- **Primary Storage**: JSON files for data persistence
-  - `data/batches.json`: Advanced cage batch information with profit calculations
-  - `data/breeding_log.json`: Comprehensive breeding activity tracking
-  - `data/profit_data.json`: Financial analytics and projections
+- **Primary Storage**: PostgreSQL database with connection pooling
+  - **Batches Table**: Advanced cage batch information with profit calculations
+  - **Sales History Tables**: Dedicated tables for marketplace sales (pupae_sales, larva_sales, egg_sales, butterfly_sales)
+  - **Breeding Log Table**: Comprehensive breeding activity tracking
+  - **Users Table**: User authentication and profile management
+  - **Orders & Payments Tables**: E-commerce transaction management
 - **File Uploads**: Image storage for batch documentation
-- **Real-time State**: In-memory caching with WebSocket synchronization
+- **Real-time State**: Database-backed with WebSocket synchronization
+- **Legacy Support**: JSON file fallback for compatibility
 
 ## Key Components
 
@@ -86,6 +89,9 @@ This is a comprehensive JavaScript-based web application designed for advanced b
 ## External Dependencies
 
 ### Required Services
+- **PostgreSQL**: Primary database requiring:
+  - `DATABASE_URL`
+  - `PGUSER`, `PGPASSWORD`, `PGHOST`, `PGPORT`, `PGDATABASE`
 - **Twilio**: SMS notification service requiring:
   - `TWILIO_ACCOUNT_SID`
   - `TWILIO_AUTH_TOKEN`
@@ -150,6 +156,13 @@ This is a comprehensive JavaScript-based web application designed for advanced b
 - June 27, 2025: Initial Python Streamlit setup (deprecated)
 
 ## Recent Features Added
+
+### PostgreSQL Database Integration (July 11, 2025)
+- **Database Migration**: Successfully migrated from JSON files to PostgreSQL database
+- **Marketplace Sales Preservation**: All pupae, larva, egg, and butterfly sales history preserved during migration
+- **Enhanced Data Integrity**: Proper foreign key relationships and data validation
+- **Improved Performance**: Connection pooling and optimized queries for better scalability
+- **Sales History Tables**: Dedicated tables for each lifecycle stage sales (pupae_sales, larva_sales, egg_sales, butterfly_sales)
 
 ### Migration Completion (July 11, 2025)
 - **Project Migration**: Successfully migrated from Replit Agent to Replit environment

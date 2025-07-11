@@ -17,6 +17,9 @@ const { cnnModelManager, CLASSIFICATION_LABELS, SPECIES_MARKET_PRICES, SPECIES_H
 const { paymentProcessor, PAYMENT_STATUS, PAYMENT_METHODS } = require('./payment-system');
 const AchievementSystem = require('./achievement-system');
 
+// Import database operations
+const Database = require('./database.js');
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -199,67 +202,139 @@ async function initializeDataDir() {
   }
 }
 
-// Data management functions
+// Data management functions - Updated to use PostgreSQL
 async function loadBatches() {
   try {
-    const data = await fs.readFile(BATCHES_FILE, 'utf8');
-    const batches = JSON.parse(data);
-    return batches.map(batch => {
-      // Convert date strings back to Date objects
-      batch.startDate = new Date(batch.startDate);
-      batch.lastFeeding = new Date(batch.lastFeeding);
-      batch.nextFeeding = new Date(batch.nextFeeding);
-      return batch;
-    });
+    const batches = await Database.getAllBatches();
+    
+    // Add marketplace sales history for each batch to preserve existing functionality
+    const batchesWithSales = await Promise.all(batches.map(async (batch) => {
+      try {
+        // Load sales history from all marketplace tables
+        const pupaeSales = await Database.getPupaeSalesHistory();
+        const larvaSales = await Database.getLarvaSalesHistory();
+        const eggSales = await Database.getEggSalesHistory();
+        const butterflySales = await Database.getButterflySalesHistory();
+        
+        // Find sales for this specific batch
+        const batchSales = [
+          ...pupaeSales.filter(sale => sale.batch_id === batch.cage_id),
+          ...larvaSales.filter(sale => sale.batch_id === batch.cage_id),
+          ...eggSales.filter(sale => sale.batch_id === batch.cage_id),
+          ...butterflySales.filter(sale => sale.batch_id === batch.cage_id)
+        ];
+        
+        // Convert database format to frontend format
+        batch.salesHistory = batchSales.map(sale => ({
+          purchaserId: sale.seller_id,
+          purchaserName: sale.seller_name,
+          purchaserUsername: sale.seller_username,
+          purchaserRole: sale.seller_role,
+          salePrice: parseFloat(sale.final_sale_price),
+          finalSalePrice: parseFloat(sale.final_sale_price),
+          purchaseDate: sale.sold_at,
+          paymentMethod: 'GCash',
+          orderId: `ORDER-${sale.id}`,
+          lifecycleStage: batch.lifecycle_stage
+        }));
+        
+        // Convert database column names to frontend format
+        batch.cageId = batch.cage_id;
+        batch.larvaCount = batch.larval_count;
+        batch.lifecycleStage = batch.lifecycle_stage;
+        batch.qualityScore = parseFloat(batch.quality_score || 0.85);
+        batch.foliageLevel = batch.foliage_level || 100;
+        batch.lastFeeding = batch.last_feeding;
+        batch.nextFeeding = batch.next_feeding;
+        batch.startDate = batch.start_date;
+        batch.phoneNumber = batch.phone_number;
+        batch.hostPlant = batch.host_plant;
+        batch.createdBy = batch.created_by;
+        
+        return batch;
+      } catch (error) {
+        console.error('Error processing batch sales history:', error);
+        batch.salesHistory = [];
+        return batch;
+      }
+    }));
+    
+    return batchesWithSales;
   } catch (error) {
-    console.error('Error loading batches:', error);
+    console.error('Error loading batches from database:', error);
     return [];
   }
 }
 
 async function saveBatches(batches) {
   try {
-    await fs.writeFile(BATCHES_FILE, JSON.stringify(batches, null, 2));
+    // This function is now replaced by individual database operations
+    // Keep for backward compatibility but log a warning
+    console.warn('saveBatches() called but should use individual database operations');
+    return true;
   } catch (error) {
-    console.error('Error saving batches:', error);
+    console.error('Error in saveBatches compatibility function:', error);
+    return false;
+  }
+}
+
+// New function to save individual batch to database
+async function saveBatch(batchData) {
+  try {
+    const batch = await Batch.findByPk(batchData.cageId);
+    if (batch) {
+      // Update existing batch
+      await batch.update(batchData);
+      return batch.toJSON();
+    } else {
+      // Create new batch
+      const newBatch = await Batch.create(batchData);
+      return newBatch.toJSON();
+    }
+  } catch (error) {
+    console.error('Error saving batch to database:', error);
+    throw error;
   }
 }
 
 async function loadBreedingLog() {
   try {
-    const data = await fs.readFile(BREEDING_LOG_FILE, 'utf8');
-    return JSON.parse(data);
+    const logs = await Database.getBreedingLog();
+    return logs;
   } catch (error) {
-    console.error('Error loading breeding log:', error);
+    console.error('Error loading breeding log from database:', error);
     return [];
   }
 }
 
 async function saveBreedingLog(log) {
   try {
-    await fs.writeFile(BREEDING_LOG_FILE, JSON.stringify(log, null, 2));
+    // This function is now replaced by individual database operations
+    console.warn('saveBreedingLog() called but should use individual database operations');
+    return true;
   } catch (error) {
-    console.error('Error saving breeding log:', error);
+    console.error('Error in saveBreedingLog compatibility function:', error);
+    return false;
   }
 }
 
-async function logActivity(cageId, activity, lifecycleStage = null) {
-  const log = await loadBreedingLog();
-  const entry = {
-    id: uuidv4(),
-    cageId: cageId,
-    timestamp: new Date(),
-    activity: activity,
-    lifecycleStage: lifecycleStage
-  };
-  
-  log.push(entry);
-  await saveBreedingLog(log);
-  
-  // Emit to connected clients
-  io.emit('activityLog', entry);
-  
-  return entry;
+async function logActivity(cageId, activity, lifecycleStage = null, userId = 'admin') {
+  try {
+    const entry = await Database.addBreedingLog({
+      cageId: cageId,
+      activity: activity,
+      lifecycleStage: lifecycleStage,
+      userId: userId
+    });
+    
+    // Emit to connected clients
+    io.emit('activityLog', entry);
+    
+    return entry;
+  } catch (error) {
+    console.error('Error logging activity to database:', error);
+    return null;
+  }
 }
 
 // Handle automatic lifecycle transitions and actions
@@ -748,10 +823,6 @@ app.post('/api/batches', auth.authenticateToken, auth.requirePermission('create_
     batch.notes = notes || '';
     batch.createdBy = req.user.id; // Track the user who created this batch
     
-    const batches = await loadBatches();
-    batches.push(batch);
-    await saveBatches(batches);
-    
     // Generate QR code for the batch
     const qrData = {
       cageId: batch.cageId,
@@ -760,7 +831,20 @@ app.post('/api/batches', auth.authenticateToken, auth.requirePermission('create_
     };
     batch.qrCode = await generateQRCode(qrData);
     
-    await logActivity(batch.cageId, 'Batch created', batch.lifecycleStage);
+    // Save to database
+    const savedBatch = await Database.createBatch({
+      cageId: batch.cageId,
+      species: batch.species,
+      larvalCount: batch.larvaCount,
+      lifecycleStage: batch.lifecycleStage,
+      hostPlant: batch.hostPlant,
+      startDate: batch.startDate,
+      phoneNumber: batch.phoneNumber,
+      notes: batch.notes,
+      createdBy: req.user.id
+    });
+    
+    await logActivity(batch.cageId, 'Batch created', batch.lifecycleStage, req.user.id);
     
     // Update achievement progress
     const newAchievements = await achievementSystem.updateUserStats(req.user.id, 'batchCreated', 1, { species: species });
@@ -769,9 +853,9 @@ app.post('/api/batches', auth.authenticateToken, auth.requirePermission('create_
     }
     
     // Emit to connected clients
-    io.emit('batchCreated', batch);
+    io.emit('batchCreated', savedBatch);
     
-    res.status(201).json(batch);
+    res.status(201).json(savedBatch);
   } catch (error) {
     console.error('Error creating batch:', error);
     res.status(500).json({ error: 'Failed to create batch' });
@@ -1783,6 +1867,17 @@ app.get('/api/users/:userId/purchases', auth.authenticateToken, async (req, res)
 
 // Initialize the application
 async function startServer() {
+  console.log('🚀 Starting Butterfly Breeding Management System with PostgreSQL database...');
+  
+  // Test database connection
+  try {
+    await Database.query('SELECT NOW()');
+    console.log('✅ PostgreSQL database connected successfully');
+  } catch (error) {
+    console.error('❌ Database connection failed:', error);
+    console.log('⚠️ Continuing with limited functionality...');
+  }
+  
   await initializeDataDir();
   
   // Initialize authentication system
