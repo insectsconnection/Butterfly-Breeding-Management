@@ -610,11 +610,6 @@
                             <input type="number" id="larva-count" min="1" required>
                         </div>
                         <div class="form-group">
-<div class="form-group">
-                            <label for="pupae-count">Total Count *</label>
-                            <input type="number" id="pupae-count" min="1" required>
-                        </div>
-                        <div class="form-group">
                             <label for="phone-number">Phone Number *</label>
                             <input type="tel" id="phone-number" placeholder="+1234567890" required>
                         </div>
@@ -2113,7 +2108,28 @@
             document.getElementById(tabName).classList.add('active');
             
             // Add active class to clicked nav tab
-            event.target.classList.add('active');
+            const clickedTab = Array.from(document.querySelectorAll('.nav-tab')).find(tab => 
+                tab.getAttribute('onclick') && tab.getAttribute('onclick').includes(tabName)
+            );
+            if (clickedTab) {
+                clickedTab.classList.add('active');
+            }
+            
+            // Load data for specific tabs
+            if (tabName === 'batches') {
+                loadBatches();
+                loadSpeciesData();
+            } else if (tabName === 'marketplace') {
+                loadMarketplace();
+            } else if (tabName === 'tasks') {
+                loadTasks();
+            } else if (tabName === 'achievements') {
+                loadAchievements();
+            } else if (tabName === 'analytics') {
+                loadAnalytics();
+            } else if (tabName === 'breeding-log') {
+                loadBreedingLog();
+            }
         }
 
         // Send test SMS
@@ -3172,6 +3188,66 @@ Phone: (02) 8888-TESDA
             
             URL.revokeObjectURL(url);
             showNotification('Training guide downloaded successfully!', 'success');
+        }
+
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+        });
+
+        // Check authentication status
+        function checkAuthentication() {
+            authToken = localStorage.getItem('auth_token');
+            const userData = localStorage.getItem('user_data');
+            
+            if (!authToken || !userData) {
+                // Redirect to login page
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            try {
+                currentUser = JSON.parse(userData);
+                updateUserInterface();
+                initializeSocket();
+                loadInitialData();
+                setupEventListeners();
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                logout();
+            }
+        }
+
+        // Update UI based on user role
+        function updateUserInterface() {
+            const header = document.querySelector('.header h1');
+            if (currentUser && currentUser.username) {
+                header.textContent = `🦋 Welcome, ${currentUser.username}`;
+            }
+            
+            // Hide navigation tabs based on user permissions
+            const userRole = currentUser.role || 'user';
+            const permissions = getRolePermissions(userRole);
+            
+            // CNN Classification tab
+            if (!permissions.includes('classify_images') && !permissions.includes('*')) {
+                document.querySelector('[onclick="showTab(\'classification\')"]').style.display = 'none';
+            }
+            
+            // Cage management tab
+            if (!permissions.includes('create_batches') && !permissions.includes('*')) {
+                document.querySelector('[onclick="showTab(\'batches\')"]').style.display = 'none';
+            }
+            
+            // Task management tab
+            if (!permissions.includes('manage_tasks') && !permissions.includes('*')) {
+                document.querySelector('[onclick="showTab(\'tasks\')"]').style.display = 'none';
+            }
+            
+            // Analytics tab
+            if (!permissions.includes('view_analytics') && !permissions.includes('*')) {
+                document.querySelector('[onclick="showTab(\'analytics\')"]').style.display = 'none';
+            }
         }
 
     </script>
