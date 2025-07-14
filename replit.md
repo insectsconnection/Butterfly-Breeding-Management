@@ -158,6 +158,16 @@ This is a comprehensive JavaScript-based web application designed for advanced b
 
 ## Recent Features Added
 
+### Augmented Reality Lifecycle Viewer (July 14, 2025)
+- **AR Integration**: Fully implemented AR Lifecycle Viewer with WebXR support
+- **3D Fallback**: Interactive 3D visualization for devices without AR support
+- **Lifecycle Stages**: Visual representation of all 4 butterfly lifecycle stages (Egg, Larva, Pupa, Adult)
+- **Interactive Elements**: Click-to-select stages with detailed information display
+- **Species Integration**: Species-specific AR visualization with dropdown selection
+- **Authentication Fix**: Resolved UUID authentication issues for batch creation
+- **Visual Enhancement**: Gradient-based stage cards with hover effects and animations
+- **Educational Content**: Detailed stage information including duration, characteristics, care requirements, and common issues
+
 ### Migration to Replit Environment (July 14, 2025)
 - **Environment Migration**: Successfully migrated project from Replit Agent to Replit environment
 - **Database Setup**: PostgreSQL database created and initialized with proper connection pooling

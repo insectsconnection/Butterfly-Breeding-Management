@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const fs = require('fs').promises;
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 const USERS_FILE = path.join('./data', 'users.json');
 const JWT_SECRET = process.env.JWT_SECRET || 'butterfly-breeding-secret-key-2025';
@@ -29,7 +30,7 @@ const ROLE_PERMISSIONS = {
 
 // Default admin user
 const DEFAULT_ADMIN = {
-  id: 'admin-001',
+  id: uuidv4(),
   username: 'admin',
   email: 'admin@butterflybreeding.com',
   password: '$2a$10$YourHashedPasswordHere', // Will be properly hashed
@@ -116,25 +117,43 @@ async function registerUser(userData) {
 
 // Authenticate user
 async function authenticateUser(username, password) {
-  const users = await loadUsers();
-  const user = users.find(u => u.username === username && u.isActive);
-  
-  if (!user) {
+  try {
+    // First try database authentication
+    const Database = require('./database');
+    const user = await Database.getUserByUsername(username);
+    
+    if (user && user.password_hash) {
+      const isValidPassword = await bcrypt.compare(password, user.password_hash);
+      if (isValidPassword) {
+        // Return user without password
+        const { password_hash, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      }
+    }
+    
+    // Fallback to file-based authentication
+    const users = await loadUsers();
+    const fileUser = users.find(u => u.username === username && u.isActive);
+    
+    if (!fileUser) {
+      throw new Error('Invalid credentials');
+    }
+    
+    const isValidPassword = await bcrypt.compare(password, fileUser.password);
+    if (!isValidPassword) {
+      throw new Error('Invalid credentials');
+    }
+    
+    // Update last login
+    fileUser.lastLogin = new Date().toISOString();
+    await saveUsers(users);
+    
+    // Return user without password
+    const { password: _, ...userWithoutPassword } = fileUser;
+    return userWithoutPassword;
+  } catch (error) {
     throw new Error('Invalid credentials');
   }
-  
-  const isValidPassword = await bcrypt.compare(password, user.password);
-  if (!isValidPassword) {
-    throw new Error('Invalid credentials');
-  }
-  
-  // Update last login
-  user.lastLogin = new Date().toISOString();
-  await saveUsers(users);
-  
-  // Return user without password
-  const { password: _, ...userWithoutPassword } = user;
-  return userWithoutPassword;
 }
 
 // Generate JWT token

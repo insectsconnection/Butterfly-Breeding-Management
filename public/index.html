@@ -942,6 +942,33 @@
                 </button>
             </div>
 
+            <!-- AR Lifecycle Viewer -->
+            <div class="card">
+                <h3><i class="fas fa-eye"></i> AR Lifecycle Viewer</h3>
+                <p style="color: #666; margin-bottom: 20px;">
+                    Experience butterfly lifecycle stages in augmented reality or 3D visualization.
+                </p>
+                
+                <div id="ar-container" style="margin-bottom: 20px;">
+                    <!-- AR viewer will be inserted here -->
+                </div>
+                
+                <div id="stage-details" style="margin-top: 20px;">
+                    <!-- Stage details will be shown here -->
+                </div>
+                
+                <div class="form-group">
+                    <label for="ar-species">Select Species for AR View</label>
+                    <select id="ar-species" onchange="updateARSpecies()">
+                        <option value="">Choose species...</option>
+                    </select>
+                </div>
+                
+                <button onclick="initializeAR()" class="btn btn-secondary">
+                    <i class="fas fa-cube"></i> Initialize AR Viewer
+                </button>
+            </div>
+
             <div class="card">
                 <h3><i class="fas fa-database"></i> Data Management</h3>
                 <button onclick="exportData()" class="btn">
@@ -3236,9 +3263,361 @@ Phone: (02) 8888-TESDA
             showNotification('Training guide downloaded successfully!', 'success');
         }
 
+        // AR Lifecycle Viewer variables
+        let arViewer = null;
+
+        // Initialize AR viewer
+        async function initializeAR() {
+            if (arViewer) {
+                showNotification('AR viewer already initialized', 'info');
+                return;
+            }
+            
+            try {
+                showNotification('Initializing AR viewer...', 'info');
+                arViewer = new ARLifecycleViewer();
+                await arViewer.initialize();
+                
+                const status = arViewer.getStatus();
+                if (status.isInitialized) {
+                    showNotification('AR viewer initialized successfully!', 'success');
+                } else {
+                    showNotification('AR viewer initialization failed', 'danger');
+                }
+            } catch (error) {
+                console.error('Error initializing AR:', error);
+                showNotification('Error initializing AR viewer', 'danger');
+            }
+        }
+
+        // Update AR species
+        function updateARSpecies() {
+            const species = document.getElementById('ar-species').value;
+            if (arViewer && species) {
+                arViewer.updateSpecies(species);
+                showNotification(`AR updated for ${species}`, 'success');
+            }
+        }
+
+        // AR Lifecycle Viewer Class
+        class ARLifecycleViewer {
+            constructor() {
+                this.isARSupported = false;
+                this.currentStage = 'Egg';
+                this.currentSpecies = 'Butterfly-Common Mormon';
+                this.isInitialized = false;
+            }
+
+            async initialize() {
+                try {
+                    console.log('Initializing AR Lifecycle Viewer...');
+                    
+                    if ('xr' in navigator) {
+                        try {
+                            const supported = await navigator.xr.isSessionSupported('immersive-ar');
+                            this.isARSupported = supported;
+                            
+                            if (supported) {
+                                console.log('AR is supported');
+                                await this.setupAREnvironment();
+                            } else {
+                                console.log('AR not supported, falling back to 3D viewer');
+                                await this.setup3DViewer();
+                            }
+                        } catch (error) {
+                            console.log('WebXR check failed, using 3D viewer');
+                            await this.setup3DViewer();
+                        }
+                    } else {
+                        console.log('WebXR not available, using 3D viewer');
+                        await this.setup3DViewer();
+                    }
+                    
+                    this.isInitialized = true;
+                    return true;
+                } catch (error) {
+                    console.error('Error initializing AR viewer:', error);
+                    return false;
+                }
+            }
+
+            async setupAREnvironment() {
+                const arButton = document.createElement('button');
+                arButton.textContent = 'Start AR Experience';
+                arButton.className = 'btn btn-primary ar-button';
+                arButton.onclick = () => this.startARSession();
+                
+                const arContainer = document.getElementById('ar-container');
+                if (arContainer) {
+                    arContainer.appendChild(arButton);
+                }
+            }
+
+            async setup3DViewer() {
+                const viewerContainer = document.createElement('div');
+                viewerContainer.id = 'lifecycle-3d-viewer';
+                viewerContainer.style.cssText = `
+                    width: 100%;
+                    height: 400px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 15px;
+                    position: relative;
+                    overflow: hidden;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 20px 0;
+                `;
+                
+                this.create3DLifecycleStages(viewerContainer);
+                
+                const arContainer = document.getElementById('ar-container');
+                if (arContainer) {
+                    arContainer.innerHTML = '';
+                    arContainer.appendChild(viewerContainer);
+                }
+            }
+
+            create3DLifecycleStages(container) {
+                const stagesContainer = document.createElement('div');
+                stagesContainer.style.cssText = `
+                    display: flex;
+                    justify-content: space-around;
+                    align-items: center;
+                    width: 100%;
+                    height: 100%;
+                    padding: 20px;
+                `;
+
+                const stages = [
+                    { name: 'Egg', icon: '🥚', color: '#ffd700' },
+                    { name: 'Larva', icon: '🐛', color: '#32cd32' },
+                    { name: 'Pupa', icon: '🛡️', color: '#8b4513' },
+                    { name: 'Adult', icon: '🦋', color: '#ff69b4' }
+                ];
+
+                stages.forEach((stage, index) => {
+                    const stageElement = document.createElement('div');
+                    stageElement.className = 'lifecycle-stage';
+                    stageElement.style.cssText = `
+                        text-align: center;
+                        cursor: pointer;
+                        transition: transform 0.3s ease;
+                        padding: 15px;
+                        border-radius: 10px;
+                        background: rgba(255, 255, 255, 0.1);
+                        backdrop-filter: blur(10px);
+                        border: 2px solid rgba(255, 255, 255, 0.2);
+                        min-width: 120px;
+                    `;
+
+                    stageElement.innerHTML = `
+                        <div style="font-size: 3rem; margin-bottom: 10px;">${stage.icon}</div>
+                        <div style="color: white; font-weight: bold; font-size: 1.1rem;">${stage.name}</div>
+                        <div style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-top: 5px;">
+                            ${this.getStageDescription(stage.name)}
+                        </div>
+                    `;
+
+                    stageElement.addEventListener('mouseenter', () => {
+                        stageElement.style.transform = 'scale(1.1)';
+                        stageElement.style.background = 'rgba(255, 255, 255, 0.2)';
+                    });
+
+                    stageElement.addEventListener('mouseleave', () => {
+                        stageElement.style.transform = 'scale(1)';
+                        stageElement.style.background = 'rgba(255, 255, 255, 0.1)';
+                    });
+
+                    stageElement.addEventListener('click', () => {
+                        this.selectStage(stage.name);
+                    });
+
+                    stagesContainer.appendChild(stageElement);
+
+                    if (index < stages.length - 1) {
+                        const arrow = document.createElement('div');
+                        arrow.innerHTML = '→';
+                        arrow.style.cssText = `
+                            color: white;
+                            font-size: 2rem;
+                            font-weight: bold;
+                            opacity: 0.7;
+                        `;
+                        stagesContainer.appendChild(arrow);
+                    }
+                });
+
+                container.appendChild(stagesContainer);
+            }
+
+            getStageDescription(stage) {
+                const descriptions = {
+                    'Egg': 'Fertilized eggs laid on host plants',
+                    'Larva': 'Caterpillar stage, rapid growth',
+                    'Pupa': 'Chrysalis stage, metamorphosis',
+                    'Adult': 'Mature butterfly, reproduction'
+                };
+                return descriptions[stage] || 'Stage description';
+            }
+
+            selectStage(stage) {
+                this.currentStage = stage;
+                
+                const stages = document.querySelectorAll('.lifecycle-stage');
+                stages.forEach(stageEl => {
+                    stageEl.style.border = '2px solid rgba(255, 255, 255, 0.2)';
+                });
+                
+                const currentStageEl = Array.from(stages).find(el => 
+                    el.textContent.includes(stage)
+                );
+                if (currentStageEl) {
+                    currentStageEl.style.border = '2px solid #00ff00';
+                }
+
+                this.showStageDetails(stage);
+            }
+
+            showStageDetails(stage) {
+                const detailsContainer = document.getElementById('stage-details');
+                if (!detailsContainer) return;
+
+                const stageInfo = this.getDetailedStageInfo(stage);
+                
+                detailsContainer.innerHTML = `
+                    <div class="stage-details-card" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                        <h3 style="color: #2d3748; margin-bottom: 15px;">${stage} Stage</h3>
+                        <div class="stage-info">
+                            <div style="margin-bottom: 10px;">
+                                <strong>Duration:</strong> ${stageInfo.duration}
+                            </div>
+                            <div style="margin-bottom: 10px;">
+                                <strong>Characteristics:</strong> ${stageInfo.characteristics}
+                            </div>
+                            <div style="margin-bottom: 10px;">
+                                <strong>Care Requirements:</strong> ${stageInfo.care}
+                            </div>
+                            <div style="margin-bottom: 10px;">
+                                <strong>Common Issues:</strong> ${stageInfo.issues}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getDetailedStageInfo(stage) {
+                const stageData = {
+                    'Egg': {
+                        duration: '3-7 days',
+                        characteristics: 'Small, round, attached to host plant leaves',
+                        care: 'Maintain humidity, protect from predators',
+                        issues: 'Desiccation, parasitism, predation'
+                    },
+                    'Larva': {
+                        duration: '14-21 days',
+                        characteristics: 'Caterpillar with multiple instars, feeding actively',
+                        care: 'Fresh host plants, proper spacing, cleanliness',
+                        issues: 'Disease, overcrowding, food shortage'
+                    },
+                    'Pupa': {
+                        duration: '7-14 days',
+                        characteristics: 'Chrysalis stage, internal restructuring',
+                        care: 'Stable environment, minimal disturbance',
+                        issues: 'Deformation, parasitism, premature emergence'
+                    },
+                    'Adult': {
+                        duration: '2-4 weeks',
+                        characteristics: 'Fully developed butterfly, ready for reproduction',
+                        care: 'Nectar sources, mating space, egg-laying sites',
+                        issues: 'Wing damage, poor mating success'
+                    }
+                };
+                
+                return stageData[stage] || {
+                    duration: 'Variable',
+                    characteristics: 'Stage characteristics',
+                    care: 'Basic care requirements',
+                    issues: 'Common problems'
+                };
+            }
+
+            async startARSession() {
+                try {
+                    if (!this.isARSupported) {
+                        throw new Error('AR not supported');
+                    }
+                    console.log('Starting AR session...');
+                    this.showARInstructions();
+                } catch (error) {
+                    console.error('Failed to start AR session:', error);
+                    showNotification('AR not available. Using 3D viewer instead.', 'warning');
+                }
+            }
+
+            showARInstructions() {
+                const modal = document.createElement('div');
+                modal.className = 'modal';
+                modal.style.display = 'block';
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                        <h3>AR Lifecycle Viewer</h3>
+                        <div style="padding: 20px; text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 20px;">🦋</div>
+                            <p>Point your device at a flat surface to view the butterfly lifecycle in 3D!</p>
+                            <div style="margin: 20px 0;">
+                                <div>• Move your device to explore different angles</div>
+                                <div>• Tap on lifecycle stages to learn more</div>
+                                <div>• Use gestures to interact with models</div>
+                            </div>
+                            <button onclick="this.parentElement.parentElement.parentElement.remove()" class="btn">
+                                Start AR Experience
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+            }
+
+            updateSpecies(species) {
+                this.currentSpecies = species;
+                console.log(`Updated AR viewer for species: ${species}`);
+            }
+
+            getStatus() {
+                return {
+                    isInitialized: this.isInitialized,
+                    isARSupported: this.isARSupported,
+                    currentStage: this.currentStage,
+                    currentSpecies: this.currentSpecies
+                };
+            }
+        }
+
+        // Populate AR species dropdown
+        function populateARSpeciesDropdown() {
+            const arSpeciesSelect = document.getElementById('ar-species');
+            if (!arSpeciesSelect) return;
+            
+            arSpeciesSelect.innerHTML = '<option value="">Choose species...</option>';
+            
+            if (speciesData && speciesData.length > 0) {
+                speciesData.forEach(species => {
+                    const option = document.createElement('option');
+                    option.value = species.name;
+                    option.textContent = species.name;
+                    arSpeciesSelect.appendChild(option);
+                });
+            }
+        }
+
         // Initialize the application when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             checkAuthentication();
+            // Initialize AR species dropdown after species data is loaded
+            setTimeout(populateARSpeciesDropdown, 2000);
         });
 
         // Check authentication status
