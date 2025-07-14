@@ -917,7 +917,17 @@
         <div id="settings" class="tab-content">
             <div class="card">
                 <h3><i class="fas fa-sms"></i> SMS Configuration</h3>
-                <div id="twilio-status"></div>
+                <div id="twilio-status">
+                    <div style="padding: 15px; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #38a169; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center;">
+                            <i class="fas fa-check-circle" style="color: #38a169; margin-right: 10px;"></i>
+                            <span style="font-weight: bold;">SMS Notifications Enabled</span>
+                        </div>
+                        <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #2d3748;">
+                            Twilio SMS service is properly configured and ready to send notifications.
+                        </p>
+                    </div>
+                </div>
                 
                 <div class="form-group">
                     <label for="test-phone">Test Phone Number</label>
@@ -1218,14 +1228,24 @@
         // Populate species dropdown
         function populateSpeciesDropdown() {
             const speciesSelect = document.getElementById('species');
+            if (!speciesSelect) {
+                console.error('Species select element not found');
+                return;
+            }
+            
             speciesSelect.innerHTML = '<option value="">Select Species</option>';
             
-            speciesData.forEach(species => {
-                const option = document.createElement('option');
-                option.value = species.name;
-                option.textContent = `${species.name} - $${species.marketPrice}`;
-                speciesSelect.appendChild(option);
-            });
+            if (speciesData && speciesData.length > 0) {
+                speciesData.forEach(species => {
+                    const option = document.createElement('option');
+                    option.value = species.name;
+                    option.textContent = `${species.name} - $${species.marketPrice}`;
+                    speciesSelect.appendChild(option);
+                });
+                console.log('Species dropdown populated with', speciesData.length, 'species');
+            } else {
+                console.log('No species data available');
+            }
         }
 
         // Load batches from API
@@ -1301,12 +1321,35 @@
         async function createBatch(event) {
             event.preventDefault();
             
+            const speciesValue = document.getElementById('species').value;
+            const larvaCountValue = document.getElementById('larva-count').value;
+            const phoneNumberValue = document.getElementById('phone-number').value;
+            const notesValue = document.getElementById('notes').value;
+            
+            // Validate form data
+            if (!speciesValue) {
+                showNotification('Please select a species', 'warning');
+                return;
+            }
+            
+            if (!larvaCountValue || parseInt(larvaCountValue) <= 0) {
+                showNotification('Please enter a valid larva count', 'warning');
+                return;
+            }
+            
+            if (!phoneNumberValue) {
+                showNotification('Please enter a phone number', 'warning');
+                return;
+            }
+            
             const formData = {
-                species: document.getElementById('species').value,
-                larvaCount: parseInt(document.getElementById('larva-count').value),
-                phoneNumber: document.getElementById('phone-number').value,
-                notes: document.getElementById('notes').value
+                species: speciesValue,
+                larvaCount: parseInt(larvaCountValue),
+                phoneNumber: phoneNumberValue,
+                notes: notesValue || ''
             };
+            
+            console.log('Submitting batch data:', formData);
             
             try {
                 const response = await makeAuthenticatedRequest('/api/batches', {
@@ -1322,10 +1365,13 @@
                 } else if (response) {
                     const error = await response.json();
                     showNotification(error.error || 'Error creating batch', 'danger');
+                    console.error('Server error:', error);
+                } else {
+                    showNotification('Network error - please try again', 'danger');
                 }
             } catch (error) {
                 console.error('Error creating batch:', error);
-                showNotification('Error creating batch', 'danger');
+                showNotification('Error creating batch: ' + error.message, 'danger');
             }
         }
 
