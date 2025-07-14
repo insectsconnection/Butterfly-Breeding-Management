@@ -825,6 +825,11 @@ app.post('/api/batches', auth.authenticateToken, auth.requirePermission('create_
     batch.notes = notes || '';
     batch.createdBy = req.user.id; // Track the user who created this batch
     
+    // Ensure user ID is valid UUID
+    if (!req.user.id || typeof req.user.id !== 'string') {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+    
     // Generate QR code for the batch
     const qrData = {
       cageId: batch.cageId,
