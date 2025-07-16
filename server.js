@@ -1849,6 +1849,34 @@ app.post('/api/achievements/mark-early-adopter/:userId', auth.authenticateToken,
   }
 });
 
+// Test SMS notification endpoint
+app.post('/api/sms/test', auth.authenticateToken, async (req, res) => {
+  try {
+    const { phoneNumber, message } = req.body;
+    
+    if (!phoneNumber || !message) {
+      return res.status(400).json({ error: 'Phone number and message are required' });
+    }
+    
+    // Check if Twilio is configured
+    if (!twilioClient) {
+      return res.status(500).json({ error: 'Twilio SMS service not configured' });
+    }
+    
+    const success = await sendSMSNotification(phoneNumber, message);
+    
+    if (success) {
+      await logActivity(req.user.id, `Test SMS sent to ${phoneNumber}`, null);
+      res.json({ success: true, message: 'SMS sent successfully' });
+    } else {
+      res.status(500).json({ error: 'Failed to send SMS. Please check your Twilio phone number configuration.' });
+    }
+  } catch (error) {
+    console.error('Error sending test SMS:', error);
+    res.status(500).json({ error: 'Failed to send SMS' });
+  }
+});
+
 // WebSocket connection handling
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
