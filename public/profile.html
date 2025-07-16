@@ -256,6 +256,40 @@
             padding: 40px;
         }
 
+        .lifecycle-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            color: white;
+        }
+
+        .lifecycle-egg { background-color: #f6e05e; color: #744210; }
+        .lifecycle-larva { background-color: #48bb78; }
+        .lifecycle-pupa { background-color: #4299e1; }
+        .lifecycle-adult { background-color: #9f7aea; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            color: white;
+        }
+
+        .status-active { background-color: #48bb78; }
+        .status-completed { background-color: #4299e1; }
+        .status-inactive { background-color: #a0aec0; }
+
+        .batch-status {
+            margin-top: 10px;
+            text-align: right;
+        }
+
         @media (max-width: 768px) {
             .profile-header {
                 flex-direction: column;
@@ -300,6 +334,9 @@
             <button class="profile-tab active" onclick="showTab('overview')">
                 <i class="fas fa-chart-line"></i> Overview
             </button>
+            <button class="profile-tab" onclick="showTab('batches')">
+                <i class="fas fa-flask"></i> My Batches
+            </button>
             <button class="profile-tab" onclick="showTab('listings')">
                 <i class="fas fa-store"></i> Listings
             </button>
@@ -314,20 +351,37 @@
         <div id="overview" class="tab-content active">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number" id="totalListings">0</div>
-                    <div class="stat-label">Total Listings</div>
+                    <div class="stat-number" id="totalBatches">0</div>
+                    <div class="stat-label">Total Batches</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="activeListings">0</div>
-                    <div class="stat-label">Active Listings</div>
+                    <div class="stat-number" id="activeBatches">0</div>
+                    <div class="stat-label">Active Batches</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="totalSales">0</div>
                     <div class="stat-label">Total Sales</div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-number" id="speciesCount">0</div>
+                    <div class="stat-label">Species Bred</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalRevenue">₱0</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-card">
                     <div class="stat-number" id="memberSince">-</div>
                     <div class="stat-label">Member Since</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="batches" class="tab-content">
+            <div id="batchesContainer">
+                <div class="no-data">
+                    <i class="fas fa-flask fa-3x" style="color: #e2e8f0; margin-bottom: 20px;"></i>
+                    <p>No batches found</p>
                 </div>
             </div>
         </div>
@@ -461,26 +515,67 @@
         function displayProfile() {
             if (!profileUserData) return;
 
-            // Profile avatar (first letter of name)
+            // Profile avatar (first letter of username)
             const avatar = document.getElementById('profileAvatar');
-            avatar.textContent = profileUserData.firstName.charAt(0).toUpperCase();
+            avatar.textContent = profileUserData.user.username.charAt(0).toUpperCase();
 
             // Profile info
-            document.getElementById('profileName').textContent = 
-                `${profileUserData.firstName} ${profileUserData.lastName}`;
-            document.getElementById('profileEmail').textContent = profileUserData.email;
-            document.getElementById('profileOrganization').textContent = 
-                profileUserData.organization || 'Not specified';
-            document.getElementById('profileRole').textContent = profileUserData.role;
+            document.getElementById('profileName').textContent = profileUserData.user.username;
+            document.getElementById('profileEmail').textContent = profileUserData.user.email;
+            document.getElementById('profileOrganization').textContent = 'Butterfly Breeder';
+            document.getElementById('profileRole').textContent = profileUserData.user.role;
 
             // Contact info
-            document.getElementById('contactEmail').textContent = profileUserData.email;
-            document.getElementById('contactOrganization').textContent = 
-                profileUserData.organization || 'Not specified';
+            document.getElementById('contactEmail').textContent = profileUserData.user.email;
+            document.getElementById('contactOrganization').textContent = 'Butterfly Breeder';
+
+            // Update statistics
+            if (profileUserData.statistics) {
+                document.getElementById('totalBatches').textContent = profileUserData.statistics.totalBatches;
+                document.getElementById('activeBatches').textContent = profileUserData.statistics.activeBatches;
+                document.getElementById('totalSales').textContent = profileUserData.statistics.totalSales;
+                document.getElementById('speciesCount').textContent = profileUserData.statistics.speciesCount;
+                document.getElementById('totalRevenue').textContent = '₱' + profileUserData.statistics.totalRevenue.toFixed(2);
+            }
 
             // Member since
-            const memberSince = new Date(profileUserData.createdAt).getFullYear();
+            const memberSince = new Date(profileUserData.user.created_at).getFullYear();
             document.getElementById('memberSince').textContent = memberSince;
+        }
+
+        function loadBatches() {
+            const container = document.getElementById('batchesContainer');
+            
+            if (!profileUserData.batches || profileUserData.batches.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-flask fa-3x" style="color: #e2e8f0; margin-bottom: 20px;"></i>
+                        <p>No batches found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = profileUserData.batches.map(batch => `
+                <div class="listing-card">
+                    <div class="listing-header">
+                        <div class="listing-title">${batch.species} - ${batch.cage_id.substring(0, 8)}</div>
+                        <div class="listing-price">
+                            <span class="lifecycle-badge lifecycle-${batch.lifecycle_stage.toLowerCase()}">${batch.lifecycle_stage}</span>
+                        </div>
+                    </div>
+                    <div class="listing-meta">
+                        <span><i class="fas fa-calendar"></i> ${new Date(batch.start_date).toLocaleDateString()}</span>
+                        <span><i class="fas fa-bug"></i> ${batch.larval_count} larvae</span>
+                        <span><i class="fas fa-leaf"></i> ${batch.host_plant}</span>
+                        <span><i class="fas fa-star"></i> Quality: ${(batch.quality_score * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="listing-description">${batch.notes || 'No notes provided'}</div>
+                    <div class="batch-status">
+                        <span class="status-badge status-${batch.status}">${batch.status.toUpperCase()}</span>
+                    </div>
+                </div>
+            `).join('');
         }
 
         async function loadUserStats() {

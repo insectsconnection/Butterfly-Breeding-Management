@@ -1924,28 +1924,97 @@ app.get('/api/users/:userId/stats', auth.authenticateToken, async (req, res) => 
   }
 });
 
+// Get user profile data with portfolio
+app.get('/api/profile/:userId', auth.authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Get user information from database
+    const user = await Database.getUserById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Get user's batches
+    const batches = await Database.getAllBatches();
+    const userBatches = batches.filter(batch => batch.created_by === userId);
+    
+    // Get user's orders (as buyer)
+    const buyerOrders = await paymentProcessor.getUserOrders(userId, 'buyer');
+    
+    // Get user's orders (as seller)
+    const sellerOrders = await paymentProcessor.getUserOrders(userId, 'seller');
+    
+    // Get user achievements
+    const achievements = await Database.getUserAchievements(userId);
+    
+    // Get user progress
+    const progress = await Database.getUserProgress(userId);
+    
+    // Calculate statistics
+    const totalBatches = userBatches.length;
+    const activeBatches = userBatches.filter(batch => batch.status === 'active').length;
+    const completedBatches = userBatches.filter(batch => batch.status === 'completed').length;
+    const totalSales = sellerOrders.filter(order => order.status === 'completed').length;
+    const totalRevenue = sellerOrders
+      .filter(order => order.status === 'completed')
+      .reduce((sum, order) => sum + order.totalAmount, 0);
+    
+    // Get species diversity
+    const speciesCount = new Set(userBatches.map(batch => batch.species)).size;
+    
+    res.json({
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        phone_number: user.phone_number,
+        created_at: user.created_at
+      },
+      batches: userBatches,
+      purchases: buyerOrders,
+      sales: sellerOrders,
+      achievements: achievements || [],
+      progress: progress || {},
+      statistics: {
+        totalBatches,
+        activeBatches,
+        completedBatches,
+        totalSales,
+        totalRevenue,
+        speciesCount
+      }
+    });
+  } catch (error) {
+    console.error('Error getting user profile:', error);
+    res.status(500).json({ error: 'Failed to get user profile' });
+  }
+});
+
 // Get user listings (batches for sale)
 app.get('/api/users/:userId/listings', auth.authenticateToken, async (req, res) => {
   try {
     const { userId } = req.params;
-    const batches = await loadBatches();
+    const batches = await Database.getAllBatches();
     
     const userListings = batches
-      .filter(batch => batch.createdBy === userId && batch.forSale)
+      .filter(batch => batch.created_by === userId && batch.status === 'active')
       .map(batch => {
         const cageBatch = new CageBatch();
         Object.assign(cageBatch, batch);
         const profitData = cageBatch.calculateProfitProjection();
         
         return {
-          id: batch.cageId,
-          title: `${batch.species} - ${batch.lifecycleStage}`,
+          id: batch.cage_id,
+          title: `${batch.species} - ${batch.lifecycle_stage}`,
           description: batch.notes,
           price: profitData.revenue,
           category: batch.species,
-          createdAt: batch.startDate,
+          createdAt: batch.start_date,
           views: batch.views || 0,
-          status: batch.active ? 'active' : 'inactive',
+          status: batch.status,
           images: batch.images || []
         };
       });

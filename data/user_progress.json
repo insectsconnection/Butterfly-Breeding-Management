@@ -1,6 +1,6 @@
 {
-  "admin-001": {
-    "userId": "admin-001",
+  "dda7d93c-3576-477e-b81a-e217854a44dd": {
+    "userId": "dda7d93c-3576-477e-b81a-e217854a44dd",
     "achievements": [
       "first_batch"
     ],
@@ -22,28 +22,6 @@
     "totalPoints": 10,
     "level": 2,
     "nextLevelPoints": 40
-  },
-  "admin": {
-    "userId": "admin",
-    "achievements": [],
-    "stats": {
-      "batchesCreated": 0,
-      "eggsHatched": 0,
-      "cyclesCompleted": 0,
-      "butterfliesHarvested": 0,
-      "speciesCount": 0,
-      "uniqueSpecies": {},
-      "maxQualityScore": 0,
-      "maxSurvivalRate": 0,
-      "feedingCount": 2,
-      "totalProfit": 0,
-      "activeDays": 0,
-      "lastActiveDate": null,
-      "earlyAdopter": false
-    },
-    "totalPoints": 0,
-    "level": 1,
-    "nextLevelPoints": 100
   },
   "f3365906-2ccf-4e8d-a62a-610f24115bfd": {
     "userId": "f3365906-2ccf-4e8d-a62a-610f24115bfd",
