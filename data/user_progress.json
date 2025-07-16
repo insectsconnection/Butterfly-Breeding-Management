@@ -46,5 +46,29 @@
     "totalPoints": 10,
     "level": 2,
     "nextLevelPoints": 40
+  },
+  "3812591f-bd2a-471d-83cc-b5c3c422ce4f": {
+    "userId": "3812591f-bd2a-471d-83cc-b5c3c422ce4f",
+    "achievements": [
+      "first_batch"
+    ],
+    "stats": {
+      "batchesCreated": 1,
+      "eggsHatched": 0,
+      "cyclesCompleted": 0,
+      "butterfliesHarvested": 0,
+      "speciesCount": 1,
+      "uniqueSpecies": {},
+      "maxQualityScore": 0,
+      "maxSurvivalRate": 0,
+      "feedingCount": 0,
+      "totalProfit": 0,
+      "activeDays": 0,
+      "lastActiveDate": null,
+      "earlyAdopter": false
+    },
+    "totalPoints": 10,
+    "level": 2,
+    "nextLevelPoints": 40
   }
 }
