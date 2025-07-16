@@ -78,78 +78,46 @@ async function saveUsers(users) {
 
 // Register new user
 async function registerUser(userData) {
-  const users = await loadUsers();
-  
-  // Check if username or email already exists
-  const existingUser = users.find(u => 
-    u.username === userData.username || u.email === userData.email
-  );
-  
-  if (existingUser) {
-    throw new Error('Username or email already exists');
+  try {
+    // Use database instead of file system
+    const Database = require('./database');
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    
+    const newUser = await Database.createUser({
+      username: userData.username,
+      email: userData.email,
+      password: hashedPassword,
+      role: userData.role || USER_ROLES.OTHER,
+      phoneNumber: userData.phoneNumber
+    });
+    
+    return newUser;
+  } catch (error) {
+    if (error.code === '23505') { // Unique constraint violation
+      throw new Error('Username or email already exists');
+    }
+    throw error;
   }
-  
-  // Hash password
-  const hashedPassword = await bcrypt.hash(userData.password, 10);
-  
-  // Create new user
-  const newUser = {
-    id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    username: userData.username,
-    email: userData.email,
-    password: hashedPassword,
-    role: userData.role || USER_ROLES.OTHER,
-    firstName: userData.firstName,
-    lastName: userData.lastName,
-    organization: userData.organization || '',
-    createdAt: new Date().toISOString(),
-    lastLogin: null,
-    isActive: true
-  };
-  
-  users.push(newUser);
-  await saveUsers(users);
-  
-  // Return user without password
-  const { password, ...userWithoutPassword } = newUser;
-  return userWithoutPassword;
 }
 
 // Authenticate user
 async function authenticateUser(username, password) {
   try {
-    // First try database authentication
+    // Use database authentication only
     const Database = require('./database');
     const user = await Database.getUserByUsername(username);
     
-    if (user && user.password_hash) {
-      const isValidPassword = await bcrypt.compare(password, user.password_hash);
-      if (isValidPassword) {
-        // Return user without password
-        const { password_hash, ...userWithoutPassword } = user;
-        return userWithoutPassword;
-      }
-    }
-    
-    // Fallback to file-based authentication
-    const users = await loadUsers();
-    const fileUser = users.find(u => u.username === username && u.isActive);
-    
-    if (!fileUser) {
+    if (!user || !user.password_hash) {
       throw new Error('Invalid credentials');
     }
     
-    const isValidPassword = await bcrypt.compare(password, fileUser.password);
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
     if (!isValidPassword) {
       throw new Error('Invalid credentials');
     }
     
-    // Update last login
-    fileUser.lastLogin = new Date().toISOString();
-    await saveUsers(users);
-    
     // Return user without password
-    const { password: _, ...userWithoutPassword } = fileUser;
+    const { password_hash, ...userWithoutPassword } = user;
     return userWithoutPassword;
   } catch (error) {
     throw new Error('Invalid credentials');
