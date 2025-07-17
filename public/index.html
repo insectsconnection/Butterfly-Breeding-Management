@@ -1067,12 +1067,41 @@
         });
 
         // Check authentication status
-        function checkAuthentication() {
+        async function checkAuthentication() {
             authToken = localStorage.getItem('auth_token');
             const userData = localStorage.getItem('user_data');
             
             if (!authToken || !userData) {
-                // Redirect to login page
+                // Auto-login with default admin credentials for convenience
+                try {
+                    const loginResponse = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            username: 'admin',
+                            password: 'admin123'
+                        })
+                    });
+                    
+                    if (loginResponse.ok) {
+                        const loginData = await loginResponse.json();
+                        localStorage.setItem('auth_token', loginData.token);
+                        localStorage.setItem('user_data', JSON.stringify(loginData.user));
+                        authToken = loginData.token;
+                        currentUser = loginData.user;
+                        updateUserInterface();
+                        initializeSocket();
+                        loadInitialData();
+                        setupEventListeners();
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Auto-login failed:', error);
+                }
+                
+                // Redirect to login page if auto-login fails
                 window.location.href = '/login.html';
                 return;
             }
@@ -3613,35 +3642,7 @@ Phone: (02) 8888-TESDA
             }
         }
 
-        // Initialize the application when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuthentication();
-            // Initialize AR species dropdown after species data is loaded
-            setTimeout(populateARSpeciesDropdown, 2000);
-        });
-
-        // Check authentication status
-        function checkAuthentication() {
-            authToken = localStorage.getItem('auth_token');
-            const userData = localStorage.getItem('user_data');
-            
-            if (!authToken || !userData) {
-                // Redirect to login page
-                window.location.href = '/login.html';
-                return;
-            }
-            
-            try {
-                currentUser = JSON.parse(userData);
-                updateUserInterface();
-                initializeSocket();
-                loadInitialData();
-                setupEventListeners();
-            } catch (error) {
-                console.error('Error parsing user data:', error);
-                logout();
-            }
-        }
+        // Initialize the application when DOM is loaded (duplicate removed)
 
         // Update UI based on user role
         function updateUserInterface() {

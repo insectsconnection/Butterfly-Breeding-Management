@@ -24,13 +24,13 @@ const CLASSIFICATION_LABELS = {
     'Butterfly-Great Eggfly',
     'Butterfly-Great Yellow Mormon',
     'Butterfly-Paper Kite',
+    'Butterfly-Pink Rose',
     'Butterfly-Plain Tiger',
     'Butterfly-Red Lacewing',
     'Butterfly-Scarlet Mormon',
-    'Butterfly-Pink Rose',
     'Butterfly-Tailed Jay',
     'Moth-Atlas',
-    'Moth-Giant Silk'
+    'Moth-Giant Silk',
   ],
 
   lifestages_names: [
