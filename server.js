@@ -13,7 +13,7 @@ const path = require('path');
 
 // Import authentication and CNN modules
 const auth = require('./auth');
-const { cnnModelManager, SPECIES_MARKET_PRICES, SPECIES_HOST_PLANTS, BUTTERFLY_SPECIES_INFO } = require('./cnn-models');
+const { cnnModelManager, SPECIES_MARKET_PRICES, SPECIES_HOST_PLANTS, butterfly_species_names_INFO } = require('./cnn-models');
 const { paymentProcessor, PAYMENT_STATUS, PAYMENT_METHODS } = require('./payment-system');
 const AchievementSystem = require('./achievement-system');
 
@@ -751,11 +751,11 @@ app.get('/api/species', auth.authenticateToken, async (req, res) => {
       name: species,
       hostPlant: SPECIES_HOST_PLANTS[species],
       marketPrice: SPECIES_MARKET_PRICES[species] || 25.00,
-      scientificName: BUTTERFLY_SPECIES_INFO[species]?.scientific_name || 'Unknown',
-      family: BUTTERFLY_SPECIES_INFO[species]?.family || 'Unknown',
-      description: BUTTERFLY_SPECIES_INFO[species]?.description || '',
-      discovered: BUTTERFLY_SPECIES_INFO[species]?.discovered || 'Unknown',
-      year: BUTTERFLY_SPECIES_INFO[species]?.year || 'Unknown'
+      scientificName: butterfly_species_names_INFO[species]?.scientific_name || 'Unknown',
+      family: butterfly_species_names_INFO[species]?.family || 'Unknown',
+      description: butterfly_species_names_INFO[species]?.description || '',
+      discovered: butterfly_species_names_INFO[species]?.discovered || 'Unknown',
+      year: butterfly_species_names_INFO[species]?.year || 'Unknown'
     }));
     
     res.json(speciesData);
