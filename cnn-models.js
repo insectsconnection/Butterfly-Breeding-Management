@@ -6,7 +6,7 @@ const path = require('path');
 const MODEL_PATHS = {
   butterfly_species_names: './models/butterfly.json',
   lifestages_names: './models/butterfly_stages.json',
-  larvaldiseases_names: './models/larva_diseases.json',
+  larvaldiseases_names: './models/larval_diseases.json',
   pupaedefects_names: './models/pupae_defects.json'
 };
 

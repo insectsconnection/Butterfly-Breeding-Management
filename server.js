@@ -13,7 +13,7 @@ const path = require('path');
 
 // Import authentication and CNN modules
 const auth = require('./auth');
-const { cnnModelManager, CLASSIFICATION_LABELS, SPECIES_MARKET_PRICES, SPECIES_HOST_PLANTS, BUTTERFLY_SPECIES_INFO } = require('./cnn-models');
+const { cnnModelManager, SPECIES_MARKET_PRICES, SPECIES_HOST_PLANTS, BUTTERFLY_SPECIES_INFO } = require('./cnn-models');
 const { paymentProcessor, PAYMENT_STATUS, PAYMENT_METHODS } = require('./payment-system');
 const AchievementSystem = require('./achievement-system');
 
@@ -95,7 +95,7 @@ const QUALITY_MATRIX = {
 };
 
 // Lifecycle stages
-const LIFECYCLE_STAGES = ["Egg", "Larva", "Pupa", "Adult"];
+const lifestages_names = ["Butterfly","Egg", "Larva", "Pupa"];
 
 // CageBatch class
 class CageBatch {
@@ -163,7 +163,7 @@ class CageBatch {
   }
 
   updateLifecycleStage(stage) {
-    if (LIFECYCLE_STAGES.includes(stage)) {
+    if (lifestages_names.includes(stage)) {
       this.lifecycleStage = stage;
       this.logActivity(`Lifecycle stage updated to ${stage}`);
     }
@@ -270,7 +270,9 @@ async function saveBatches(batches) {
   try {
     // This function is now replaced by individual database operations
     // Keep for backward compatibility but log a warning
+    // Parameter 'batches' is preserved for API compatibility but not used
     console.warn('saveBatches() called but should use individual database operations');
+    console.warn(`Legacy call attempted to save ${batches?.length || 0} batches`);
     return true;
   } catch (error) {
     console.error('Error in saveBatches compatibility function:', error);
