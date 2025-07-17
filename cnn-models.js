@@ -4,15 +4,15 @@ const path = require('path');
 
 // Model file paths - Updated to use JSON format for better accuracy
 const MODEL_PATHS = {
-  BUTTERFLY_SPECIES: './models/butterfly.json',
-  BUTTERFLY_STAGES: './models/butterfly_stages.json',
-  LARVAL_DISEASES: './models/larval_diseases.json',
-  PUPAE_DEFECTS: './models/pupae_defects.json'
+  butterfly_species_names: './models/butterfly.json',
+  lifestages_names: './models/butterfly_stages.json',
+  larvaldiseases_names: './models/larva_diseases.json',
+  pupaedefects_names: './models/pupae_defects.json'
 };
 
 // Classification labels
 const CLASSIFICATION_LABELS = {
-  BUTTERFLY_SPECIES: [
+  butterfly_species_names: [
     'Butterfly-Clippers',
     'Butterfly-Common Jay',
     'Butterfly-Common Lime',
@@ -32,22 +32,22 @@ const CLASSIFICATION_LABELS = {
     'Moth-Atlas',
     'Moth-Giant Silk'
   ],
-  
-  BUTTERFLY_STAGES: [
+
+  lifestages_names: [
     'Butterfly', 
     'Egg',
     'Larva',
     'Pupa',
   ],
-  
-  LARVAL_DISEASES: [
+
+  larvaldiseases_names: [
     'Anaphylaxis Infection',
     'Gnathostomiasis',
     'Healthy',
     'Nucleopolyhedrosis'
   ],
-  
-  PUPAE_DEFECTS: [
+
+  pupaedefects_names: [
     'Antbites',
     'Deformed body',
     'Healthy',
@@ -58,7 +58,7 @@ const CLASSIFICATION_LABELS = {
 };
 
 // Comprehensive butterfly species information with scientific details
-const BUTTERFLY_SPECIES_INFO = {
+const butterfly_species_names_INFO = {
   'Butterfly-Clippers': {
     scientific_name: 'Parthenos sylvia',
     family: 'Nymphalidae',
@@ -207,7 +207,7 @@ const BUTTERFLY_SPECIES_INFO = {
 
 // Market prices for butterfly species (for profit calculations)
 const SPECIES_MARKET_PRICES = Object.fromEntries(
-  Object.entries(BUTTERFLY_SPECIES_INFO).map(([species, info]) => [species, info.value])
+  Object.entries(butterfly_species_names_INFO).map(([species, info]) => [species, info.value])
 );
 
 // Host plant requirements for each species
@@ -234,7 +234,7 @@ const SPECIES_HOST_PLANTS = {
 
 
 // Enhanced larval disease information
-const LARVAL_DISEASES_INFO = {
+const larvaldiseases_names_INFO = {
   'Anaphylaxis Infection': {
     treatment_info: 'Seek entomologist advice; isolate infected larvae. No specific treatment for severe cases.',
     impact_score: 0.3
@@ -254,7 +254,7 @@ const LARVAL_DISEASES_INFO = {
 };
 
 // Enhanced pupae defect information
-const PUPAE_DEFECTS_INFO = {
+const pupaedefects_names_INFO = {
   'Antbites': {
     quality_info: 'Indicates ant damage, can lead to pupae death or malformation.',
     impact_score: 0.3
@@ -299,12 +299,12 @@ const LIFESTAGES_INFO = {
 
 // Disease severity impact on profit
 const DISEASE_IMPACT = Object.fromEntries(
-  Object.entries(LARVAL_DISEASES_INFO).map(([disease, info]) => [disease, info.impact_score])
+  Object.entries(larvaldiseases_names_INFO).map(([disease, info]) => [disease, info.impact_score])
 );
 
 // Defect severity impact on profit
 const DEFECT_IMPACT = Object.fromEntries(
-  Object.entries(PUPAE_DEFECTS_INFO).map(([defect, info]) => [defect, info.impact_score])
+  Object.entries(pupaedefects_names_INFO).map(([defect, info]) => [defect, info.impact_score])
 );
 
 class CNNModelManager {
@@ -316,32 +316,32 @@ class CNNModelManager {
   async initialize() {
     try {
       console.log('🧠 Initializing CNN models (JSON format)...');
-      
+
       // Create models directory if it doesn't exist
       await fs.mkdir('./models', { recursive: true });
-      
+
       // Try to load actual JSON models, fallback to mock models
       this.models = {};
-      
+
       // Load each model type
-      const modelTypes = ['BUTTERFLY_SPECIES', 'BUTTERFLY_STAGES', 'LARVAL_DISEASES', 'PUPAE_DEFECTS'];
-      
+      const modelTypes = ['butterfly_species_names', 'lifestages_names', 'larvaldiseases_names', 'pupaedefects_names'];
+
       for (const modelType of modelTypes) {
         const modelPath = MODEL_PATHS[modelType];
-        
+
         // Try to load JSON model first
         const loaded = await this.loadActualModel(modelPath, modelType);
-        
+
         if (!loaded) {
           // Fallback to mock model
           console.log(`Creating mock model for ${modelType}`);
           this.models[modelType] = await this.createMockModel(this.getNumClasses(modelType));
         }
       }
-      
+
       this.isInitialized = true;
       console.log('✓ CNN models initialized successfully (JSON format)');
-      
+
       return true;
     } catch (error) {
       console.error('❌ Error initializing CNN models:', error);
@@ -365,7 +365,7 @@ class CNNModelManager {
         tf.layers.dense({ units: numClasses, activation: 'softmax' })
       ]
     });
-    
+
     return model;
   }
 
@@ -373,31 +373,31 @@ class CNNModelManager {
   async loadActualModel(modelPath, modelType) {
     try {
       console.log(`Loading JSON model from: ${modelPath}`);
-      
+
       // Load JSON model data
       const modelData = await fs.readFile(modelPath, 'utf8');
       const jsonModel = JSON.parse(modelData);
-      
+
       console.log(`✓ ${modelType} JSON model loaded successfully`);
-      
+
       // Create a wrapper that mimics TensorFlow model behavior
       this.models[modelType] = {
         predict: (inputTensor) => {
           // Simulate prediction with JSON model data
           const numClasses = this.getNumClasses(modelType);
           const batchSize = inputTensor.shape[0];
-          
+
           // Generate prediction based on JSON model patterns
           const predictions = [];
           for (let i = 0; i < batchSize; i++) {
             const prediction = new Array(numClasses).fill(0);
-            
+
             // Use JSON model data to influence predictions
             if (jsonModel.predictions && jsonModel.predictions.length > 0) {
               // Use patterns from JSON model
               const randomIndex = Math.floor(Math.random() * jsonModel.predictions.length);
               const pattern = jsonModel.predictions[randomIndex];
-              
+
               if (pattern.classIndex < numClasses) {
                 prediction[pattern.classIndex] = pattern.confidence || 0.85;
               }
@@ -406,10 +406,10 @@ class CNNModelManager {
               const randomIndex = Math.floor(Math.random() * numClasses);
               prediction[randomIndex] = 0.75 + Math.random() * 0.2;
             }
-            
+
             predictions.push(prediction);
           }
-          
+
           // Return tensor-like object
           return tf.tensor2d(predictions, [batchSize, numClasses]);
         },
@@ -417,7 +417,7 @@ class CNNModelManager {
           // No-op for JSON model
         }
       };
-      
+
       return true;
     } catch (error) {
       console.error(`❌ Error loading ${modelType} JSON model:`, error);
@@ -428,14 +428,14 @@ class CNNModelManager {
   // Get number of classes for a model type
   getNumClasses(modelType) {
     switch (modelType) {
-      case 'BUTTERFLY_SPECIES':
-        return CLASSIFICATION_LABELS.BUTTERFLY_SPECIES.length;
-      case 'BUTTERFLY_STAGES':
-        return CLASSIFICATION_LABELS.BUTTERFLY_STAGES.length;
-      case 'LARVAL_DISEASES':
-        return CLASSIFICATION_LABELS.LARVAL_DISEASES.length;
-      case 'PUPAE_DEFECTS':
-        return CLASSIFICATION_LABELS.PUPAE_DEFECTS.length;
+      case 'butterfly_species_names':
+        return CLASSIFICATION_LABELS.butterfly_species_names.length;
+      case 'lifestages_names':
+        return CLASSIFICATION_LABELS.lifestages_names.length;
+      case 'larvaldiseases_names':
+        return CLASSIFICATION_LABELS.larvaldiseases_names.length;
+      case 'pupaedefects_names':
+        return CLASSIFICATION_LABELS.pupaedefects_names.length;
       default:
         return 10; // Default fallback
     }
@@ -446,21 +446,21 @@ class CNNModelManager {
     try {
       // Decode image
       const imageTensor = tf.node.decodeImage(imageBuffer, 3);
-      
+
       // Resize to 224x224 (standard input size for most CNN models)
       const resized = tf.image.resizeBilinear(imageTensor, [224, 224]);
-      
+
       // Normalize pixel values to [0, 1]
       const normalized = resized.div(255.0);
-      
+
       // Add batch dimension
       const batched = normalized.expandDims(0);
-      
+
       // Clean up intermediate tensors
       imageTensor.dispose();
       resized.dispose();
       normalized.dispose();
-      
+
       return batched;
     } catch (error) {
       console.error('Error preprocessing image:', error);
@@ -470,21 +470,21 @@ class CNNModelManager {
 
   // Classify butterfly species
   async classifySpecies(imageBuffer) {
-    if (!this.isInitialized || !this.models.BUTTERFLY_SPECIES) {
+    if (!this.isInitialized || !this.models.butterfly_species_names) {
       throw new Error('Species classification model not available');
     }
 
     try {
       const preprocessed = this.preprocessImage(imageBuffer);
-      const predictions = await this.models.BUTTERFLY_SPECIES.predict(preprocessed);
+      const predictions = await this.models.butterfly_species_names.predict(preprocessed);
       const probabilities = await predictions.data();
-      
+
       // Clean up tensors
       preprocessed.dispose();
       predictions.dispose();
-      
+
       // Get top 3 predictions
-      const results = CLASSIFICATION_LABELS.BUTTERFLY_SPECIES
+      const results = CLASSIFICATION_LABELS.butterfly_species_names
         .map((label, index) => ({
           species: label,
           confidence: probabilities[index],
@@ -493,9 +493,9 @@ class CNNModelManager {
         }))
         .sort((a, b) => b.confidence - a.confidence)
         .slice(0, 3);
-      
+
       return {
-        modelType: 'BUTTERFLY_SPECIES',
+        modelType: 'butterfly_species_names',
         predictions: results,
         timestamp: new Date().toISOString()
       };
@@ -507,27 +507,27 @@ class CNNModelManager {
 
   // Classify butterfly lifecycle stage
   async classifyLifecycleStage(imageBuffer) {
-    if (!this.isInitialized || !this.models.BUTTERFLY_STAGES) {
+    if (!this.isInitialized || !this.models.lifestages_names) {
       throw new Error('Lifecycle stage classification model not available');
     }
 
     try {
       const preprocessed = this.preprocessImage(imageBuffer);
-      const predictions = await this.models.BUTTERFLY_STAGES.predict(preprocessed);
+      const predictions = await this.models.lifestages_names.predict(preprocessed);
       const probabilities = await predictions.data();
-      
+
       preprocessed.dispose();
       predictions.dispose();
-      
-      const results = CLASSIFICATION_LABELS.BUTTERFLY_STAGES
+
+      const results = CLASSIFICATION_LABELS.lifestages_names
         .map((label, index) => ({
           stage: label,
           confidence: probabilities[index]
         }))
         .sort((a, b) => b.confidence - a.confidence);
-      
+
       return {
-        modelType: 'BUTTERFLY_STAGES',
+        modelType: 'lifestages_names',
         predictions: results,
         timestamp: new Date().toISOString()
       };
@@ -539,19 +539,19 @@ class CNNModelManager {
 
   // Classify larval diseases
   async classifyLarvalDisease(imageBuffer) {
-    if (!this.isInitialized || !this.models.LARVAL_DISEASES) {
+    if (!this.isInitialized || !this.models.larvaldiseases_names) {
       throw new Error('Larval disease classification model not available');
     }
 
     try {
       const preprocessed = this.preprocessImage(imageBuffer);
-      const predictions = await this.models.LARVAL_DISEASES.predict(preprocessed);
+      const predictions = await this.models.larvaldiseases_names.predict(preprocessed);
       const probabilities = await predictions.data();
-      
+
       preprocessed.dispose();
       predictions.dispose();
-      
-      const results = CLASSIFICATION_LABELS.LARVAL_DISEASES
+
+      const results = CLASSIFICATION_LABELS.larvaldiseases_names
         .map((label, index) => ({
           disease: label,
           confidence: probabilities[index],
@@ -560,9 +560,9 @@ class CNNModelManager {
           treatmentRecommended: label !== 'Healthy'
         }))
         .sort((a, b) => b.confidence - a.confidence);
-      
+
       return {
-        modelType: 'LARVAL_DISEASES',
+        modelType: 'larvaldiseases_names',
         predictions: results,
         timestamp: new Date().toISOString()
       };
@@ -574,19 +574,19 @@ class CNNModelManager {
 
   // Classify pupae defects
   async classifyPupaeDefects(imageBuffer) {
-    if (!this.isInitialized || !this.models.PUPAE_DEFECTS) {
+    if (!this.isInitialized || !this.models.pupaedefects_names) {
       throw new Error('Pupae defect classification model not available');
     }
 
     try {
       const preprocessed = this.preprocessImage(imageBuffer);
-      const predictions = await this.models.PUPAE_DEFECTS.predict(preprocessed);
+      const predictions = await this.models.pupaedefects_names.predict(preprocessed);
       const probabilities = await predictions.data();
-      
+
       preprocessed.dispose();
       predictions.dispose();
-      
-      const results = CLASSIFICATION_LABELS.PUPAE_DEFECTS
+
+      const results = CLASSIFICATION_LABELS.pupaedefects_names
         .map((label, index) => ({
           defect: label,
           confidence: probabilities[index],
@@ -595,9 +595,9 @@ class CNNModelManager {
           qualityGrade: this.getQualityGrade(DEFECT_IMPACT[label] || 0.5)
         }))
         .sort((a, b) => b.confidence - a.confidence);
-      
+
       return {
-        modelType: 'PUPAE_DEFECTS',
+        modelType: 'pupaedefects_names',
         predictions: results,
         timestamp: new Date().toISOString()
       };
@@ -634,24 +634,24 @@ class CNNModelManager {
   // Perform comprehensive analysis on an image
   async performFullAnalysis(imageBuffer, analysisType = 'all') {
     const results = {};
-    
+
     try {
       if (analysisType === 'all' || analysisType === 'species') {
         results.species = await this.classifySpecies(imageBuffer);
       }
-      
+
       if (analysisType === 'all' || analysisType === 'stage') {
         results.stage = await this.classifyLifecycleStage(imageBuffer);
       }
-      
+
       if (analysisType === 'all' || analysisType === 'disease') {
         results.disease = await this.classifyLarvalDisease(imageBuffer);
       }
-      
+
       if (analysisType === 'all' || analysisType === 'defects') {
         results.defects = await this.classifyPupaeDefects(imageBuffer);
       }
-      
+
       // Calculate overall health score
       let healthScore = 1.0;
       if (results.disease) {
@@ -660,14 +660,14 @@ class CNNModelManager {
       if (results.defects) {
         healthScore *= results.defects.predictions[0].profitImpact;
       }
-      
+
       results.summary = {
         overallHealthScore: healthScore,
         qualityGrade: this.getQualityGrade(healthScore),
         analysisTimestamp: new Date().toISOString(),
         recommendedActions: this.generateRecommendations(results)
       };
-      
+
       return results;
     } catch (error) {
       console.error('Error in full analysis:', error);
@@ -678,7 +678,7 @@ class CNNModelManager {
   // Generate care recommendations based on analysis
   generateRecommendations(analysisResults) {
     const recommendations = [];
-    
+
     if (analysisResults.disease) {
       const topDisease = analysisResults.disease.predictions[0];
       if (topDisease.disease !== 'Healthy' && topDisease.confidence > 0.7) {
@@ -690,7 +690,7 @@ class CNNModelManager {
         });
       }
     }
-    
+
     if (analysisResults.defects) {
       const topDefect = analysisResults.defects.predictions[0];
       if (topDefect.defect !== 'Healthy' && topDefect.confidence > 0.6) {
@@ -702,7 +702,7 @@ class CNNModelManager {
         });
       }
     }
-    
+
     if (analysisResults.species) {
       const topSpecies = analysisResults.species.predictions[0];
       recommendations.push({
@@ -712,7 +712,7 @@ class CNNModelManager {
         description: `Ensure proper ${topSpecies.hostPlant.plant} supply (${topSpecies.hostPlant.dailyConsumption}g/day).`
       });
     }
-    
+
     return recommendations;
   }
 
@@ -721,12 +721,12 @@ class CNNModelManager {
     return {
       initialized: this.isInitialized,
       models: {
-        BUTTERFLY_SPECIES: !!this.models.BUTTERFLY_SPECIES,
-        BUTTERFLY_STAGES: !!this.models.BUTTERFLY_STAGES,
-        LARVAL_DISEASES: !!this.models.LARVAL_DISEASES,
-        PUPAE_DEFECTS: !!this.models.PUPAE_DEFECTS
+        butterfly_species_names: !!this.models.butterfly_species_names,
+        lifestages_names: !!this.models.lifestages_names,
+        larvaldiseases_names: !!this.models.larvaldiseases_names,
+        pupaedefects_names: !!this.models.pupaedefects_names
       },
-      supportedSpecies: CLASSIFICATION_LABELS.BUTTERFLY_SPECIES.length,
+      supportedSpecies: CLASSIFICATION_LABELS.butterfly_species_names.length,
       lastInitialized: this.isInitialized ? new Date().toISOString() : null
     };
   }
@@ -740,9 +740,9 @@ module.exports = {
   CLASSIFICATION_LABELS,
   SPECIES_MARKET_PRICES,
   SPECIES_HOST_PLANTS,
-  BUTTERFLY_SPECIES_INFO,
-  LARVAL_DISEASES_INFO,
-  PUPAE_DEFECTS_INFO,
+  butterfly_species_names_INFO,
+  larvaldiseases_names_INFO,
+  pupaedefects_names_INFO,
   LIFESTAGES_INFO,
   DISEASE_IMPACT,
   DEFECT_IMPACT
