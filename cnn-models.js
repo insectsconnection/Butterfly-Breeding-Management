@@ -727,7 +727,13 @@ class CNNModelManager {
         pupaedefects_names: !!this.models.pupaedefects_names
       },
       supportedSpecies: CLASSIFICATION_LABELS.butterfly_species_names.length,
-      lastInitialized: this.isInitialized ? new Date().toISOString() : null
+      lastInitialized: this.isInitialized ? new Date().toISOString() : null,
+      modelDetails: {
+        butterflyModel: this.models.butterfly_species_names ? 'Ready' : 'Not Available',
+        lifecycleModel: this.models.lifestages_names ? 'Ready' : 'Not Available', 
+        diseaseModel: this.models.larvaldiseases_names ? 'Ready' : 'Not Available',
+        defectModel: this.models.pupaedefects_names ? 'Ready' : 'Not Available'
+      }
     };
   }
 }
