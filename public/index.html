@@ -606,8 +606,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="larva-count">Total Count *</label>
-                            <input type="number" id="larva-count" min="1" required>
+                            <label for="total-count">Total Count *</label>
+                            <input type="number" id="total-count" min="1" required>
                         </div>
                         <div class="form-group">
                             <label for="phone-number">Phone Number *</label>
@@ -1179,6 +1179,11 @@
 
         // Make authenticated API calls
         async function makeAuthenticatedRequest(url, options = {}) {
+            if (!authToken) {
+                console.error('No auth token available for request to:', url);
+                return null;
+            }
+            
             const headers = {
                 'Authorization': `Bearer ${authToken}`,
                 'Content-Type': 'application/json',
@@ -1192,6 +1197,7 @@
             
             if (response.status === 401 || response.status === 403) {
                 // Token expired or invalid
+                console.error('Authentication failed for:', url);
                 logout();
                 return null;
             }
@@ -1271,10 +1277,18 @@
         // Load species data
         async function loadSpeciesData() {
             try {
+                console.log('Loading species data...');
                 const response = await makeAuthenticatedRequest('/api/species');
-                if (response) {
+                if (response && response.ok) {
                     speciesData = await response.json();
+                    console.log('Species data loaded:', speciesData);
                     populateSpeciesDropdown();
+                } else {
+                    console.error('Failed to load species data. Response:', response);
+                    if (response) {
+                        const errorText = await response.text();
+                        console.error('Error response:', errorText);
+                    }
                 }
             } catch (error) {
                 console.error('Error loading species data:', error);
