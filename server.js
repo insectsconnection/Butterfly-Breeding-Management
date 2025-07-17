@@ -13,7 +13,7 @@ const path = require('path');
 
 // Import authentication and CNN modules
 const auth = require('./auth');
-const { cnnModelManager, CLASSIFICATION_LABELS, SPECIES_MARKET_PRICES, SPECIES_HOST_PLANTS } = require('./cnn-models');
+const { cnnModelManager, CLASSIFICATION_LABELS, SPECIES_MARKET_PRICES, SPECIES_HOST_PLANTS, BUTTERFLY_SPECIES_INFO } = require('./cnn-models');
 const { paymentProcessor, PAYMENT_STATUS, PAYMENT_METHODS } = require('./payment-system');
 const AchievementSystem = require('./achievement-system');
 
@@ -467,6 +467,9 @@ async function checkFeedingSchedule() {
   for (const batch of batches) {
     if (!batch.active) continue;
     
+    // Check if pupae are 3 days old and need to be listed for sale
+    await checkPupaeForSale(batch, now);
+    
     const timeUntilFeeding = new Date(batch.nextFeeding) - now;
     const hoursUntilFeeding = timeUntilFeeding / (1000 * 60 * 60);
     
@@ -499,6 +502,102 @@ Overdue by: ${overdueHours.toFixed(1)} hours`;
       });
     }
   }
+}
+
+// Check if pupae are 3 days old and automatically list for sale
+async function checkPupaeForSale(batch, now) {
+  try {
+    if (batch.lifecycleStage !== 'Pupa') return;
+    
+    // Check if pupae stage started 3 days ago
+    const pupaeStageStart = batch.pupaeStageDate ? new Date(batch.pupaeStageDate) : null;
+    if (!pupaeStageStart) return;
+    
+    const daysSincePupation = (now - pupaeStageStart) / (1000 * 60 * 60 * 24);
+    
+    // If pupae are 3 days old and not yet listed for sale
+    if (daysSincePupation >= 3 && !batch.listedForSale) {
+      await listPupaeForSale(batch);
+      
+      // Send notification to breeder
+      const message = `🦋 AUTOMATIC LISTING ALERT!
+      
+Cage: ${batch.cageId.substring(0, 8)}
+Species: ${batch.species}
+Pupae Count: ${batch.larvaCount}
+Status: Listed for sale (3 days old)
+
+Your pupae have been automatically listed in the marketplace!`;
+      
+      await sendSMSNotification(batch.phoneNumber, message);
+      await logActivity(batch.cageId, 'Pupae automatically listed for sale (3 days old)', batch.lifecycleStage);
+      
+      // Emit to connected clients
+      io.emit('pupaeListedForSale', {
+        cageId: batch.cageId,
+        species: batch.species,
+        count: batch.larvaCount,
+        autoListed: true
+      });
+    }
+  } catch (error) {
+    console.error('Error checking pupae for sale:', error);
+  }
+}
+
+// List pupae for sale in the marketplace
+async function listPupaeForSale(batch) {
+  try {
+    const speciesInfo = require('./cnn-models').BUTTERFLY_SPECIES_INFO[batch.species];
+    const marketPrice = SPECIES_MARKET_PRICES[batch.species] || 25.00;
+    
+    // Calculate quality-adjusted price
+    const qualityScore = batch.qualityScore || 1.0;
+    const adjustedPrice = marketPrice * qualityScore;
+    
+    // Create marketplace listing
+    const listingData = {
+      batchId: batch.cageId,
+      species: batch.species,
+      scientificName: speciesInfo?.scientific_name || 'Unknown',
+      family: speciesInfo?.family || 'Unknown',
+      lifecycleStage: 'Pupa',
+      count: batch.larvaCount,
+      price: adjustedPrice,
+      qualityScore: qualityScore,
+      description: `High-quality ${batch.species} pupae, 3 days old and ready for emergence. ${speciesInfo?.description || ''}`,
+      sellerId: batch.userId,
+      sellerPhone: batch.phoneNumber,
+      listedDate: new Date().toISOString(),
+      autoListed: true,
+      hostPlants: SPECIES_HOST_PLANTS[batch.species]?.plant || [],
+      expectedEmergence: calculateEmergenceDate(batch.pupaeStageDate),
+      status: 'available'
+    };
+    
+    // Add to pupae sales database
+    await Database.addPupaeSale(listingData);
+    
+    // Update batch to mark as listed
+    await Database.updateBatch(batch.cageId, {
+      listedForSale: true,
+      listedDate: new Date().toISOString(),
+      marketPrice: adjustedPrice
+    });
+    
+    console.log(`✅ Pupae automatically listed for sale: ${batch.species} (${batch.cageId})`);
+  } catch (error) {
+    console.error('Error listing pupae for sale:', error);
+  }
+}
+
+// Calculate expected emergence date based on species
+function calculateEmergenceDate(pupaeDate) {
+  const pupaeStart = new Date(pupaeDate);
+  // Most butterfly pupae emerge in 7-14 days, default to 10 days
+  const emergenceDays = 10;
+  const emergenceDate = new Date(pupaeStart.getTime() + (emergenceDays * 24 * 60 * 60 * 1000));
+  return emergenceDate.toISOString();
 }
 
 // Schedule monitoring every 30 minutes
@@ -649,7 +748,12 @@ app.get('/api/species', auth.authenticateToken, async (req, res) => {
     const speciesData = Object.keys(SPECIES_HOST_PLANTS).map(species => ({
       name: species,
       hostPlant: SPECIES_HOST_PLANTS[species],
-      marketPrice: SPECIES_MARKET_PRICES[species] || 25.00
+      marketPrice: SPECIES_MARKET_PRICES[species] || 25.00,
+      scientificName: BUTTERFLY_SPECIES_INFO[species]?.scientific_name || 'Unknown',
+      family: BUTTERFLY_SPECIES_INFO[species]?.family || 'Unknown',
+      description: BUTTERFLY_SPECIES_INFO[species]?.description || '',
+      discovered: BUTTERFLY_SPECIES_INFO[species]?.discovered || 'Unknown',
+      year: BUTTERFLY_SPECIES_INFO[species]?.year || 'Unknown'
     }));
     
     res.json(speciesData);
@@ -1094,8 +1198,10 @@ app.post('/api/batches/:cageId/transition', auth.authenticateToken, auth.require
         batch.nextFeeding = new Date(Date.now() + 8 * 60 * 60 * 1000);
         break;
       case 'Pupa':
-        automaticAction = 'Stopped feeding schedule';
+        automaticAction = 'Stopped feeding schedule - Will auto-list for sale in 3 days';
         batch.nextFeeding = null;
+        batch.pupaeStageDate = new Date().toISOString(); // Track when pupae stage started
+        batch.listedForSale = false; // Reset listing status
         break;
       case 'Butterfly':
         automaticAction = 'Started nectar feeding schedule';
@@ -1874,6 +1980,65 @@ app.post('/api/sms/test', auth.authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error sending test SMS:', error);
     res.status(500).json({ error: 'Failed to send SMS' });
+  }
+});
+
+// Get marketplace listings
+app.get('/api/marketplace/pupae', async (req, res) => {
+  try {
+    const listings = await Database.getPupaeSalesHistory();
+    
+    // Filter for available listings and add additional info
+    const availableListings = listings
+      .filter(listing => listing.status === 'available')
+      .map(listing => ({
+        ...listing,
+        speciesInfo: BUTTERFLY_SPECIES_INFO[listing.species] || {},
+        daysOld: Math.floor((new Date() - new Date(listing.listed_date)) / (1000 * 60 * 60 * 24))
+      }));
+    
+    res.json(availableListings);
+  } catch (error) {
+    console.error('Error fetching marketplace listings:', error);
+    res.status(500).json({ error: 'Failed to fetch marketplace listings' });
+  }
+});
+
+// Test endpoint for auto-listing (admin only)
+app.post('/api/test/auto-list', auth.authenticateToken, auth.requirePermission('*'), async (req, res) => {
+  try {
+    const { cageId } = req.body;
+    
+    if (!cageId) {
+      return res.status(400).json({ error: 'cageId required' });
+    }
+    
+    const batches = await loadBatches();
+    const batch = batches.find(b => b.cageId === cageId);
+    
+    if (!batch) {
+      return res.status(404).json({ error: 'Batch not found' });
+    }
+    
+    if (batch.lifecycleStage !== 'Pupa') {
+      return res.status(400).json({ error: 'Batch must be in Pupa stage' });
+    }
+    
+    // Force auto-listing for testing
+    batch.pupaeStageDate = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(); // 4 days ago
+    batch.listedForSale = false;
+    
+    await saveBatches(batches);
+    await checkPupaeForSale(batch, new Date());
+    
+    res.json({ 
+      message: 'Auto-listing test triggered', 
+      batch,
+      pupaeAge: Math.floor((new Date() - new Date(batch.pupaeStageDate)) / (1000 * 60 * 60 * 24))
+    });
+  } catch (error) {
+    console.error('Error in auto-listing test:', error);
+    res.status(500).json({ error: 'Failed to test auto-listing' });
   }
 });
 

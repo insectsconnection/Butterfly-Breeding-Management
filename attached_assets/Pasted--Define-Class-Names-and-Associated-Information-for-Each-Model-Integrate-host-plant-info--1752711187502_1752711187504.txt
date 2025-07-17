@@ -1,0 +1,49 @@
+# --- Define Class Names and Associated Information for Each Model ---
+# Integrate host plant info directly into butterfly_species_info
+butterfly_species_info = {
+    "Butterfly-Clippers": {"scientific_name": "Parthenos sylvia", "family": "Nymphalidae", "discovered":"Carl Peter Thunberg, Cramer","year":"1776", "description":"Forewing triangular; costa very slightly curved, apex rounded, exterior margin oblique and slightly scalloped, posterior margin short, angle convex; ", "value": 25, **SPECIES_HOST_PLANTS.get('Butterfly-Clippers', {})},
+    "Butterfly-Common Jay": {"scientific_name": "Graphium doson", "family": "Papilionidae", "discovered":"C. & R. Felder","year":"1864", "description":"", "value": 30, **SPECIES_HOST_PLANTS.get('Butterfly-Common Jay', {})},
+    "Butterfly-Common Lime": {"scientific_name": "Papilio demoleus", "family": "Papilionidae", "discovered":"Linnaeus","year":"1758", "description":"The butterfly is tailless and has a wingspan 80–100 mm,the butterfly has a large number of irregular spots on the wing.", "value": 20, **SPECIES_HOST_PLANTS.get('Butterfly-Common Lime', {})},
+    "Butterfly-Common Mime": {"scientific_name": "Papilio clytia", "family": "Papilionidae", "discovered":"Linnaeus","year":"1758", "description":" It's a black-bodied swallowtail and a good example of Batesian mimicry, meaning it mimics the appearance of other distasteful butterflies. ", "value": 28, **SPECIES_HOST_PLANTS.get('Butterfly-Common Mime', {})},
+    "Butterfly-Common Mormon": {"scientific_name": "Papilio polytes", "family": "Papilionidae","discovered":"Linnaeus","year":"1758", "description":" ", "value": 28, **SPECIES_HOST_PLANTS.get('Butterfly-Common Mormon', {})},
+    "Butterfly-Emerald Swallowtail": {"scientific_name": "Papilio palinurus", "family": "Papilionidae", "discovered":"Fabricius","year":"1787", "description":"", "value": 50, **SPECIES_HOST_PLANTS.get('Butterfly-Emerald Swallowtail', {})},
+    "Butterfly-Golden Birdwing": {"scientific_name": "Troides rhadamantus", "family": "Papilionidae", "discovered":"H. Lucas","year":"1835", "description":"", "value": 45, **SPECIES_HOST_PLANTS.get('Butterfly-Golden Birdwing', {})},
+    "Butterfly-Gray Glassy Tiger": {"scientific_name": "Ideopsis juventa", "family": "Nymphalidae", "discovered":"Cramer","year":"1777", "description":"", "value": 30, **SPECIES_HOST_PLANTS.get('Butterfly-Gray Glassy Tiger', {})},
+    "Butterfly-Great Eggfly": {"scientific_name": "Hypolimnas bolina", "family": "Nymphalidae", "discovered":"Linnaeus","year":"1758", "description":"", "value": 35, **SPECIES_HOST_PLANTS.get('Butterfly-Great Eggfly', {})},
+    "Butterfly-Great Yellow Mormon": {"scientific_name": "Papilio lowi", "family": "Papilionidae", "discovered":"Wallace","year":"1865", "description":"", "value": 40, **SPECIES_HOST_PLANTS.get('Butterfly-Great Yellow Mormon', {})},
+    "Butterfly-Paper Kite": {"scientific_name": "Idea leuconoe", "family": "Nymphalidae", "discovered":"Rothschild","year":"1895", "description":"", "value": 35, **SPECIES_HOST_PLANTS.get('Butterfly-Paper Kite', {})},
+    "Butterfly-Pink Rose": {"scientific_name": "Pachliopta kotzebuea", "family": "Papilionidae", "discovered":"Escholtz","year":"1821", "description":"", "value": 32, **SPECIES_HOST_PLANTS.get('Butterfly-Pink Rose', {})},
+    "Butterfly-Plain Tiger": {"scientific_name": "Danaus chrysippus", "family": "Nymphalidae", "discovered":"Hulstaert","year":"1931", "description":"", "value": 25, **SPECIES_HOST_PLANTS.get('Butterfly-Plain Tiger', {})},
+    "Butterfly-Red Lacewing": {"scientific_name": "Cethosia biblis", "family": "Nymphalidae", "discovered":"Drury","year":"1773", "description":"", "value": 28, **SPECIES_HOST_PLANTS.get('Butterfly-Red Lacewing', {})},
+    "Butterfly-Scarlet Mormon": {"scientific_name": "Papilio rumanzovia", "family": "Papilionidae", "discovered":"Eschscholtz","year":"1821", "description":"", "value": 40, **SPECIES_HOST_PLANTS.get('Butterfly-Scarlet Mormon', {})},
+    "Butterfly-Tailed Jay": {"scientific_name": "Graphium agamemnon", "family": "Papilionidae", "discovered":"Linnaeus","year":"1758", "description":"", "value": 30, **SPECIES_HOST_PLANTS.get('Butterfly-Tailed Jay', {})},
+    "Moth-Atlas": {"scientific_name": "Attacus atlas", "family": "Saturniidae","discovered":"Linnaeus","year":"1758", "description":"", "value": 45, **SPECIES_HOST_PLANTS.get('Moth-Atlas', {})},
+    "Moth-Giant Silk": {"scientific_name": "Samia cynthia", "family": "Saturniidae", "discovered":"Hubner","year":"1819", "description":"", "value": 40, **SPECIES_HOST_PLANTS.get('Moth-Giant Silk', {})},
+}
+butterfly_species_names = list(butterfly_species_info.keys())
+
+lifestages_info = {
+    "Butterfly": {"stages_info": "Reproductive stage, winged insect capable of flight."},
+    "Eggs": {"stages_info": "Early developmental stage, typically laid on host plants."},
+    "Larvae": {"stages_info": "Caterpillar stage, primary feeding and growth phase."},
+    "Pupae": {"stages_info": "Chrysalis (butterfly) or cocoon (moth) stage, metamorphosis occurs."},
+}
+lifestages_names = list(lifestages_info.keys())
+
+pupaedefects_info = {
+    "Ant bites": {"quality_info": "Indicates ant damage, can lead to pupae death or malformation.", "impact_score": 0.3},
+    "Deformed body": {"quality_info": "Physical deformities, may indicate poor health or environmental stress.", "impact_score": 0.5},
+    "Healthy Pupae": {"quality_info": "No visible defects, good potential for adult emergence.", "impact_score": 1.0},
+    "Old Pupa": {"quality_info": "Pupae nearing emergence or past its prime, may be discolored or shriveled.", "impact_score": 0.4},
+    "Overbend": {"quality_info": "Abnormal curvature, can impede proper development.", "impact_score": 0.6},
+    "Stretch abdomen": {"quality_info": "Abdomen appears stretched or elongated, potentially due to stress or disease.", "impact_score": 0.7},
+}
+pupaedefects_names = list(pupaedefects_info.keys())
+
+larvaldiseases_info = {
+    "Anaphylaxis Infection": {"treatment_info": "Seek entomologist advice; isolate infected larvae. No specific treatment for severe cases.", "impact_score": 0.7},
+    "Gnathostomiasis": {"treatment_info": "Parasitic infection. Isolate, remove parasites if visible, improve hygiene.", "impact_score": 0.6},
+    "Healthy": {"treatment_info": "Larva appears healthy with no signs of disease.", "impact_score": 1.0},
+    "Nucleopolyhedrosis": {"treatment_info": "Highly contagious viral disease. Isolate and destroy infected larvae to prevent spread. Disinfect rearing areas.", "impact_score": 0.9},
+}
+larvaldiseases_names = list(larvaldiseases_info.keys())

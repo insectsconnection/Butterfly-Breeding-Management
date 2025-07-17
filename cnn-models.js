@@ -57,27 +57,158 @@ const CLASSIFICATION_LABELS = {
   ]
 };
 
-// Market prices for butterfly species (for profit calculations)
-const SPECIES_MARKET_PRICES = {
-  'Butterfly-Clippers': 18.00,
-  'Butterfly-Common Jay': 22.00,
-  'Butterfly-Common Lime': 20.00,
-  'Butterfly-Common Mime': 25.00,
-  'Butterfly-Common Mormon': 28.00,
-  'Butterfly-Emerald Swallowtail': 35.00,
-  'Butterfly-Golden Birdwing': 65.00,
-  'Butterfly-Gray Glassy Tiger': 30.00,
-  'Butterfly-Great Eggfly': 32.00,
-  'Butterfly-Great Yellow Mormon': 40.00,
-  'Butterfly-Paper Kite': 38.00,
-  'Butterfly-Plain Tiger': 24.00,
-  'Butterfly-Red Lacewing': 42.00,
-  'Butterfly-Scarlet Mormon': 36.00,
-  'Butterfly-Pink Rose': 44.00,
-  'Butterfly-Tailed Jay': 26.00,
-  'Moth-Atlas': 45.00,
-  'Moth-Giant Silk': 48.00
+// Comprehensive butterfly species information with scientific details
+const BUTTERFLY_SPECIES_INFO = {
+  'Butterfly-Clippers': {
+    scientific_name: 'Parthenos sylvia',
+    family: 'Nymphalidae',
+    discovered: 'Carl Peter Thunberg, Cramer',
+    year: '1776',
+    description: 'Forewing triangular; costa very slightly curved, apex rounded, exterior margin oblique and slightly scalloped, posterior margin short, angle convex',
+    value: 25
+  },
+  'Butterfly-Common Jay': {
+    scientific_name: 'Graphium doson',
+    family: 'Papilionidae',
+    discovered: 'C. & R. Felder',
+    year: '1864',
+    description: 'Distinctive swallowtail with prominent tail extensions',
+    value: 30
+  },
+  'Butterfly-Common Lime': {
+    scientific_name: 'Papilio demoleus',
+    family: 'Papilionidae',
+    discovered: 'Linnaeus',
+    year: '1758',
+    description: 'The butterfly is tailless and has a wingspan 80–100 mm, the butterfly has a large number of irregular spots on the wing',
+    value: 20
+  },
+  'Butterfly-Common Mime': {
+    scientific_name: 'Papilio clytia',
+    family: 'Papilionidae',
+    discovered: 'Linnaeus',
+    year: '1758',
+    description: 'It\'s a black-bodied swallowtail and a good example of Batesian mimicry, meaning it mimics the appearance of other distasteful butterflies',
+    value: 28
+  },
+  'Butterfly-Common Mormon': {
+    scientific_name: 'Papilio polytes',
+    family: 'Papilionidae',
+    discovered: 'Linnaeus',
+    year: '1758',
+    description: 'Polymorphic species with multiple forms, females often mimic other species',
+    value: 28
+  },
+  'Butterfly-Emerald Swallowtail': {
+    scientific_name: 'Papilio palinurus',
+    family: 'Papilionidae',
+    discovered: 'Fabricius',
+    year: '1787',
+    description: 'Stunning emerald green coloration with iridescent wings',
+    value: 50
+  },
+  'Butterfly-Golden Birdwing': {
+    scientific_name: 'Troides rhadamantus',
+    family: 'Papilionidae',
+    discovered: 'H. Lucas',
+    year: '1835',
+    description: 'Large, spectacular butterfly with golden patches on black wings',
+    value: 45
+  },
+  'Butterfly-Gray Glassy Tiger': {
+    scientific_name: 'Ideopsis juventa',
+    family: 'Nymphalidae',
+    discovered: 'Cramer',
+    year: '1777',
+    description: 'Semi-transparent wings with distinctive pattern',
+    value: 30
+  },
+  'Butterfly-Great Eggfly': {
+    scientific_name: 'Hypolimnas bolina',
+    family: 'Nymphalidae',
+    discovered: 'Linnaeus',
+    year: '1758',
+    description: 'Sexually dimorphic species with striking white spots',
+    value: 35
+  },
+  'Butterfly-Great Yellow Mormon': {
+    scientific_name: 'Papilio lowi',
+    family: 'Papilionidae',
+    discovered: 'Wallace',
+    year: '1865',
+    description: 'Large yellow and black swallowtail with distinctive markings',
+    value: 40
+  },
+  'Butterfly-Paper Kite': {
+    scientific_name: 'Idea leuconoe',
+    family: 'Nymphalidae',
+    discovered: 'Rothschild',
+    year: '1895',
+    description: 'White butterfly with black veining, resembles rice paper',
+    value: 35
+  },
+  'Butterfly-Pink Rose': {
+    scientific_name: 'Pachliopta kotzebuea',
+    family: 'Papilionidae',
+    discovered: 'Escholtz',
+    year: '1821',
+    description: 'Pink and black butterfly with distinctive rose-like coloration',
+    value: 32
+  },
+  'Butterfly-Plain Tiger': {
+    scientific_name: 'Danaus chrysippus',
+    family: 'Nymphalidae',
+    discovered: 'Hulstaert',
+    year: '1931',
+    description: 'Orange butterfly with black borders and white spots',
+    value: 25
+  },
+  'Butterfly-Red Lacewing': {
+    scientific_name: 'Cethosia biblis',
+    family: 'Nymphalidae',
+    discovered: 'Drury',
+    year: '1773',
+    description: 'Bright red wings with intricate black patterns',
+    value: 28
+  },
+  'Butterfly-Scarlet Mormon': {
+    scientific_name: 'Papilio rumanzovia',
+    family: 'Papilionidae',
+    discovered: 'Eschscholtz',
+    year: '1821',
+    description: 'Red and black swallowtail with distinctive scarlet patches',
+    value: 40
+  },
+  'Butterfly-Tailed Jay': {
+    scientific_name: 'Graphium agamemnon',
+    family: 'Papilionidae',
+    discovered: 'Linnaeus',
+    year: '1758',
+    description: 'Green and black swallowtail with prominent tail extensions',
+    value: 30
+  },
+  'Moth-Atlas': {
+    scientific_name: 'Attacus atlas',
+    family: 'Saturniidae',
+    discovered: 'Linnaeus',
+    year: '1758',
+    description: 'One of the largest moths in the world with distinctive wing patterns',
+    value: 45
+  },
+  'Moth-Giant Silk': {
+    scientific_name: 'Samia cynthia',
+    family: 'Saturniidae',
+    discovered: 'Hubner',
+    year: '1819',
+    description: 'Large silk moth with distinctive eye spots on wings',
+    value: 40
+  }
 };
+
+// Market prices for butterfly species (for profit calculations)
+const SPECIES_MARKET_PRICES = Object.fromEntries(
+  Object.entries(BUTTERFLY_SPECIES_INFO).map(([species, info]) => [species, info.value])
+);
 
 // Host plant requirements for each species
 const SPECIES_HOST_PLANTS = {
@@ -102,23 +233,79 @@ const SPECIES_HOST_PLANTS = {
 };
 
 
-// Disease severity impact on profit
-const DISEASE_IMPACT = {
-  'Anaphylaxis Infection': 0.3,
-  'Gnathostomiasis': 0.4,
-  'Healthy': 1.0,
-  'Nucleopolyhedrosis': 0.1
+// Enhanced larval disease information
+const LARVAL_DISEASES_INFO = {
+  'Anaphylaxis Infection': {
+    treatment_info: 'Seek entomologist advice; isolate infected larvae. No specific treatment for severe cases.',
+    impact_score: 0.3
+  },
+  'Gnathostomiasis': {
+    treatment_info: 'Parasitic infection. Isolate, remove parasites if visible, improve hygiene.',
+    impact_score: 0.4
+  },
+  'Healthy': {
+    treatment_info: 'Larva appears healthy with no signs of disease.',
+    impact_score: 1.0
+  },
+  'Nucleopolyhedrosis': {
+    treatment_info: 'Highly contagious viral disease. Isolate and destroy infected larvae to prevent spread. Disinfect rearing areas.',
+    impact_score: 0.1
+  }
 };
 
-// Defect severity impact on profit
-const DEFECT_IMPACT = {
-  'Antbites': 0.7,
-  'Deformed body': 0.4,
-  'Healthy': 1.0,
-  'Old Pupa': 0.6,
-  'Overbend': 0.5,
-  'Stretch abdomen': 0.6
+// Enhanced pupae defect information
+const PUPAE_DEFECTS_INFO = {
+  'Antbites': {
+    quality_info: 'Indicates ant damage, can lead to pupae death or malformation.',
+    impact_score: 0.3
+  },
+  'Deformed body': {
+    quality_info: 'Physical deformities, may indicate poor health or environmental stress.',
+    impact_score: 0.5
+  },
+  'Healthy': {
+    quality_info: 'No visible defects, good potential for adult emergence.',
+    impact_score: 1.0
+  },
+  'Old Pupa': {
+    quality_info: 'Pupae nearing emergence or past its prime, may be discolored or shriveled.',
+    impact_score: 0.4
+  },
+  'Overbend': {
+    quality_info: 'Abnormal curvature, can impede proper development.',
+    impact_score: 0.6
+  },
+  'Stretch abdomen': {
+    quality_info: 'Abdomen appears stretched or elongated, potentially due to stress or disease.',
+    impact_score: 0.7
+  }
 };
+
+// Lifecycle stage information
+const LIFESTAGES_INFO = {
+  'Butterfly': {
+    stages_info: 'Reproductive stage, winged insect capable of flight.'
+  },
+  'Egg': {
+    stages_info: 'Early developmental stage, typically laid on host plants.'
+  },
+  'Larva': {
+    stages_info: 'Caterpillar stage, primary feeding and growth phase.'
+  },
+  'Pupa': {
+    stages_info: 'Chrysalis (butterfly) or cocoon (moth) stage, metamorphosis occurs.'
+  }
+};
+
+// Disease severity impact on profit
+const DISEASE_IMPACT = Object.fromEntries(
+  Object.entries(LARVAL_DISEASES_INFO).map(([disease, info]) => [disease, info.impact_score])
+);
+
+// Defect severity impact on profit
+const DEFECT_IMPACT = Object.fromEntries(
+  Object.entries(PUPAE_DEFECTS_INFO).map(([defect, info]) => [defect, info.impact_score])
+);
 
 class CNNModelManager {
   constructor() {
@@ -553,6 +740,10 @@ module.exports = {
   CLASSIFICATION_LABELS,
   SPECIES_MARKET_PRICES,
   SPECIES_HOST_PLANTS,
+  BUTTERFLY_SPECIES_INFO,
+  LARVAL_DISEASES_INFO,
+  PUPAE_DEFECTS_INFO,
+  LIFESTAGES_INFO,
   DISEASE_IMPACT,
   DEFECT_IMPACT
 };

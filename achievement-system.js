@@ -269,6 +269,15 @@ class AchievementSystem {
     try {
       const data = await fs.readFile(this.progressPath, 'utf8');
       this.userProgress = JSON.parse(data);
+      
+      // Convert uniqueSpecies arrays back to Sets
+      Object.keys(this.userProgress).forEach(userId => {
+        if (this.userProgress[userId].stats && this.userProgress[userId].stats.uniqueSpecies) {
+          if (Array.isArray(this.userProgress[userId].stats.uniqueSpecies)) {
+            this.userProgress[userId].stats.uniqueSpecies = new Set(this.userProgress[userId].stats.uniqueSpecies);
+          }
+        }
+      });
     } catch (error) {
       this.userProgress = {};
     }
@@ -277,7 +286,16 @@ class AchievementSystem {
   async saveUserProgress() {
     try {
       await fs.mkdir(path.dirname(this.progressPath), { recursive: true });
-      await fs.writeFile(this.progressPath, JSON.stringify(this.userProgress, null, 2));
+      
+      // Convert Sets to arrays for JSON serialization
+      const serializable = JSON.parse(JSON.stringify(this.userProgress, (key, value) => {
+        if (value instanceof Set) {
+          return Array.from(value);
+        }
+        return value;
+      }));
+      
+      await fs.writeFile(this.progressPath, JSON.stringify(serializable, null, 2));
     } catch (error) {
       console.error('Error saving user progress:', error);
     }
@@ -309,6 +327,13 @@ class AchievementSystem {
         nextLevelPoints: 100
       };
     }
+    
+    // Ensure uniqueSpecies is a Set
+    if (this.userProgress[userId].stats && !this.userProgress[userId].stats.uniqueSpecies) {
+      this.userProgress[userId].stats.uniqueSpecies = new Set();
+    } else if (this.userProgress[userId].stats && Array.isArray(this.userProgress[userId].stats.uniqueSpecies)) {
+      this.userProgress[userId].stats.uniqueSpecies = new Set(this.userProgress[userId].stats.uniqueSpecies);
+    }
   }
 
   // Update user statistics
@@ -320,6 +345,9 @@ class AchievementSystem {
       case 'batchCreated':
         userStats.batchesCreated++;
         if (additionalData.species) {
+          if (!userStats.uniqueSpecies) {
+            userStats.uniqueSpecies = new Set();
+          }
           userStats.uniqueSpecies.add(additionalData.species);
           userStats.speciesCount = userStats.uniqueSpecies.size;
         }
