@@ -537,7 +537,7 @@
                 <i class="fas fa-chart-dashboard"></i> Dashboard
             </button>
             <button class="nav-tab" onclick="showTab('batches')">
-                <i class="fas fa-boxes"></i> Cage Management
+                <i class="fas fa-store"></i> List for Sale
             </button>
             <button class="nav-tab" onclick="showTab('classification')">
                 <i class="fas fa-brain"></i> AI Classification
@@ -592,10 +592,10 @@
             </div>
         </div>
 
-        <!-- Cage Management Tab -->
+        <!-- Breeder Management Tab -->
         <div id="batches" class="tab-content">
             <div class="card">
-                <h3><i class="fas fa-plus"></i> Create New Cage Batch</h3>
+                <h3><i class="fas fa-plus"></i> List Pupae for Sale</h3>
                 <form id="create-batch-form">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div class="form-group">
@@ -606,28 +606,28 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="total-count">Total Count *</label>
+                            <label for="total-count">Pupa Count *</label>
                             <input type="number" id="total-count" min="1" required>
                         </div>
                         <div class="form-group">
-                            <label for="phone-number">Phone Number *</label>
-                            <input type="tel" id="phone-number" placeholder="+1234567890" required>
+                            <label for="price">Price per Pupa ($) *</label>
+                            <input type="number" id="price" min="1" step="0.01" required>
                         </div>
                         <div class="form-group">
-                            <label for="notes">Notes</label>
-                            <textarea id="notes" rows="3"></textarea>
+                            <label for="notes">Description</label>
+                            <textarea id="notes" rows="3" placeholder="Quality details, breeding conditions, etc."></textarea>
                         </div>
                     </div>
                     <button type="submit" class="btn">
-                        <i class="fas fa-plus"></i> Create Batch
+                        <i class="fas fa-store"></i> List for Sale
                     </button>
                 </form>
             </div>
 
             <div class="card">
-                <h3><i class="fas fa-boxes"></i> Active Cage Batches</h3>
+                <h3><i class="fas fa-shopping-cart"></i> My Marketplace Listings</h3>
                 <div class="batch-grid" id="batch-grid">
-                    <!-- Batches will be populated by JavaScript -->
+                    <!-- Marketplace listings will be populated by JavaScript -->
                 </div>
             </div>
         </div>
@@ -672,8 +672,8 @@
         <!-- Marketplace Tab -->
         <div id="marketplace" class="tab-content">
             <div class="card">
-                <h3><i class="fas fa-shopping-cart"></i> Butterfly Marketplace</h3>
-                <p>Buy and sell butterfly specimens from verified breeders with secure GCash payments.</p>
+                <h3><i class="fas fa-shopping-cart"></i> Pupae Marketplace</h3>
+                <p>Purchase high-quality pupae from verified breeders. Use AI classification to verify quality before purchase.</p>
                 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <div>
@@ -683,13 +683,18 @@
                             <!-- Options will be populated dynamically -->
                         </select>
                     </div>
-                    <button onclick="loadMarketplace()" class="btn btn-secondary">
-                        <i class="fas fa-refresh"></i> Refresh Listings
-                    </button>
+                    <div>
+                        <button onclick="loadMarketplace()" class="btn btn-secondary">
+                            <i class="fas fa-refresh"></i> Refresh Listings
+                        </button>
+                        <button onclick="showTab('classification')" class="btn">
+                            <i class="fas fa-brain"></i> Verify Quality with AI
+                        </button>
+                    </div>
                 </div>
                 
                 <div id="marketplace-grid" class="batch-grid">
-                    <!-- Marketplace items will be populated by JavaScript -->
+                    <!-- Pupae listings will be populated by JavaScript -->
                 </div>
             </div>
             
@@ -1387,13 +1392,13 @@
             }
         }
 
-        // Create new batch
+        // Create new marketplace listing
         async function createBatch(event) {
             event.preventDefault();
             
             const speciesValue = document.getElementById('species').value;
-            const larvaCountValue = document.getElementById('larva-count').value;
-            const phoneNumberValue = document.getElementById('phone-number').value;
+            const countValue = document.getElementById('total-count').value;
+            const priceValue = document.getElementById('price').value;
             const notesValue = document.getElementById('notes').value;
             
             // Validate form data
@@ -1402,46 +1407,48 @@
                 return;
             }
             
-            if (!larvaCountValue || parseInt(larvaCountValue) <= 0) {
-                showNotification('Please enter a valid larva count', 'warning');
+            if (!countValue || parseInt(countValue) <= 0) {
+                showNotification('Please enter a valid pupa count', 'warning');
                 return;
             }
             
-            if (!phoneNumberValue) {
-                showNotification('Please enter a phone number', 'warning');
+            if (!priceValue || parseFloat(priceValue) <= 0) {
+                showNotification('Please enter a valid price', 'warning');
                 return;
             }
             
             const formData = {
                 species: speciesValue,
-                larvaCount: parseInt(larvaCountValue),
-                phoneNumber: phoneNumberValue,
-                notes: notesValue || ''
+                count: parseInt(countValue),
+                price: parseFloat(priceValue),
+                description: notesValue || '',
+                lifecycleStage: 'pupa',
+                type: 'marketplace_listing'
             };
             
-            console.log('Submitting batch data:', formData);
+            console.log('Creating marketplace listing:', formData);
             
             try {
-                const response = await makeAuthenticatedRequest('/api/batches', {
+                const response = await makeAuthenticatedRequest('/api/marketplace/list', {
                     method: 'POST',
                     body: JSON.stringify(formData)
                 });
                 
                 if (response && response.ok) {
-                    const batch = await response.json();
-                    showNotification('Batch created successfully!', 'success');
+                    const listing = await response.json();
+                    showNotification('Pupae listed for sale successfully!', 'success');
                     document.getElementById('create-batch-form').reset();
-                    loadBatches();
+                    loadMarketplace();
                 } else if (response) {
                     const error = await response.json();
-                    showNotification(error.error || 'Error creating batch', 'danger');
+                    showNotification(error.error || 'Error creating listing', 'danger');
                     console.error('Server error:', error);
                 } else {
                     showNotification('Network error - please try again', 'danger');
                 }
             } catch (error) {
-                console.error('Error creating batch:', error);
-                showNotification('Error creating batch: ' + error.message, 'danger');
+                console.error('Error creating listing:', error);
+                showNotification('Error creating listing: ' + error.message, 'danger');
             }
         }
 
@@ -2362,78 +2369,57 @@
             const items = filteredItems || marketplaceItems || [];
             
             if (items.length === 0) {
-                grid.innerHTML = '<p>No items available for purchase at the moment.</p>';
+                grid.innerHTML = '<p style="text-align: center; color: #718096; padding: 40px;">No pupae available for purchase at the moment. Check back later for new listings!</p>';
                 return;
             }
             
             grid.innerHTML = items.map(item => `
-                <div class="batch-card" style="cursor: pointer;">
-                    <div class="batch-header">
-                        <div class="batch-id">${item.species}</div>
-                        <span class="lifecycle-badge lifecycle-${item.lifecycleStage.toLowerCase()}">${item.lifecycleStage}</span>
+                <div class="batch-card" style="border: 2px solid #e2e8f0; border-radius: 15px; overflow: hidden;">
+                    <div class="batch-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px;">
+                        <div class="batch-id" style="font-weight: bold; font-size: 1.1rem;">${item.species}</div>
+                        <span class="lifecycle-badge" style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">
+                            ${item.lifecycleStage || 'Pupa'}
+                        </span>
                     </div>
                     
-                    <h4>₱${item.price.toFixed(2)} <span style="font-size: 0.8rem; color: #718096;">(₱${item.pricePerItem.toFixed(2)} each)</span></h4>
-                    <p><i class="fas fa-bug"></i> ${item.larvaCount} specimens</p>
-                    <p><i class="fas fa-leaf"></i> ${item.hostPlant}</p>
-                    <p><i class="fas fa-map-marker-alt"></i> ${item.sellerInfo.location}</p>
-                    
-                    <div style="margin: 15px 0;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>Quality Score</span>
-                            <span>${(item.qualityScore * 100).toFixed(1)}%</span>
+                    <div style="padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <div>
+                                <h4 style="margin: 0; color: #667eea;">$${(item.price || item.salePrice || 25).toFixed(2)}</h4>
+                                <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #718096;">
+                                    ${item.count || item.larvalCount || 1} pupae available
+                                </p>
+                            </div>
+                            <div style="text-align: right;">
+                                <p style="margin: 0; font-size: 0.8rem; color: #4a5568;">
+                                    <i class="fas fa-user"></i> ${item.sellerName || item.sellerUsername || 'Verified Breeder'}
+                                </p>
+                                <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #718096;">
+                                    Listed: ${new Date(item.createdAt || item.startDate).toLocaleDateString()}
+                                </p>
+                            </div>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${item.qualityScore * 100}%"></div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                            <span><strong>Seller:</strong> ${item.sellerInfo.sellerName}</span>
-                            <button onclick="viewProfile('${item.sellerInfo.sellerId}')" class="btn btn-small" style="background: #e2e8f0; color: #4a5568; padding: 4px 8px; font-size: 0.8rem;">
-                                <i class="fas fa-user"></i> View Profile
+                        
+                        ${item.description || item.notes ? `
+                            <p style="margin: 0 0 15px 0; color: #4a5568; font-size: 0.9rem; line-height: 1.4;">
+                                ${(item.description || item.notes).substring(0, 100)}${(item.description || item.notes).length > 100 ? '...' : ''}
+                            </p>
+                        ` : ''}
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button onclick="showPurchaseConfirmation('${item.cageId || item.id}', 'buy')" 
+                                    class="btn" style="flex: 1; background: #48bb78; border: none;">
+                                <i class="fas fa-shopping-cart"></i> Buy Now
+                            </button>
+                            <button onclick="showPurchaseConfirmation('${item.cageId || item.id}', 'reserve')" 
+                                    class="btn btn-secondary" style="flex: 1;">
+                                <i class="fas fa-bookmark"></i> Reserve
+                            </button>
+                            <button onclick="viewSellerProfile('${item.sellerId || item.createdBy}')" 
+                                    class="btn btn-secondary" style="padding: 10px;">
+                                <i class="fas fa-user"></i>
                             </button>
                         </div>
-                        <div style="font-size: 0.85rem; color: #718096; margin-bottom: 5px;">
-                            @${item.sellerInfo.sellerUsername} • ${item.sellerInfo.sellerRole}
-                        </div>
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                            <span style="font-size: 0.85rem;">Rating:</span>
-                            <div>
-                                ${Array.from({length: 5}, (_, i) => 
-                                    `<i class="fas fa-star" style="color: ${i < item.sellerInfo.rating ? '#ffd700' : '#e2e8f0'};"></i>`
-                                ).join('')}
-                            </div>
-                        </div>
-                        <div style="font-size: 0.85rem; color: #718096;">
-                            Total Sales: ${item.sellerInfo.totalSales} • Listed: ${new Date(item.listedAt).toLocaleDateString()} ${new Date(item.listedAt).toLocaleTimeString()}
-                        </div>
-                    </div>
-                    
-                    ${item.salesHistory && item.salesHistory.length > 0 ? `
-                        <div style="margin: 15px 0; padding: 10px; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #38a169;">
-                            <div style="font-size: 0.9rem; font-weight: bold; margin-bottom: 8px; color: #2d3748;">
-                                <i class="fas fa-history"></i> Recent Sales History
-                            </div>
-                            ${item.salesHistory.slice(-2).map(sale => `
-                                <div style="padding: 5px 0; border-bottom: 1px solid #cbd5e0; font-size: 0.8rem;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span><strong>${sale.purchaserName}</strong> (@${sale.purchaserUsername})</span>
-                                        <span style="color: #718096;">₱${sale.salePrice.toFixed(2)}</span>
-                                    </div>
-                                    <div style="color: #718096; font-size: 0.75rem; margin-top: 2px;">
-                                        ${new Date(sale.purchaseDate).toLocaleDateString()} at ${new Date(sale.purchaseDate).toLocaleTimeString()} • ${sale.paymentMethod}
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    <div style="margin-top: 15px;">
-                        <button onclick="showPurchaseModal('${item.batchId}')" class="btn btn-success btn-small" style="width: 100%;">
-                            <i class="fas fa-shopping-cart"></i> Purchase
-                        </button>
                     </div>
                 </div>
             `).join('');
@@ -2457,25 +2443,115 @@
             updateMarketplaceGrid(filteredItems);
         }
 
-        // Show purchase modal
-        function showPurchaseModal(batchId) {
-            const item = marketplaceItems.find(i => i.batchId === batchId);
-            if (!item) return;
+        // Show purchase confirmation modal
+        function showPurchaseConfirmation(itemId, action) {
+            const item = marketplaceItems.find(i => i.cageId === itemId || i.id === itemId);
+            if (!item) {
+                showNotification('Item not found', 'danger');
+                return;
+            }
             
-            const modal = document.getElementById('purchase-modal');
-            const content = document.getElementById('purchase-content');
+            const actionText = action === 'buy' ? 'Purchase' : 'Reserve';
+            const actionColor = action === 'buy' ? '#48bb78' : '#ed8936';
+            const actionIcon = action === 'buy' ? 'shopping-cart' : 'bookmark';
             
-            content.innerHTML = `
-                <div style="margin-bottom: 20px;">
-                    <h4>${item.species}</h4>
-                    <p><strong>Quantity:</strong> ${item.larvaCount} specimens</p>
-                    <p><strong>Price:</strong> ₱${item.price.toFixed(2)}</p>
-                    <p><strong>Quality Score:</strong> ${(item.qualityScore * 100).toFixed(1)}%</p>
-                    <p><strong>Seller:</strong> ${item.sellerInfo.location}</p>
+            const modalHtml = `
+                <div class="modal" id="purchase-confirmation-modal" style="display: block;">
+                    <div class="modal-content" style="max-width: 500px;">
+                        <span class="close" onclick="closePurchaseConfirmation()">&times;</span>
+                        <h3 style="color: ${actionColor};">
+                            <i class="fas fa-${actionIcon}"></i> ${actionText} Confirmation
+                        </h3>
+                        
+                        <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin: 20px 0;">
+                            <h4 style="margin: 0 0 15px 0; color: #667eea;">${item.species}</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.9rem;">
+                                <p><strong>Price:</strong> $${(item.price || item.salePrice || 25).toFixed(2)}</p>
+                                <p><strong>Quantity:</strong> ${item.count || item.larvalCount || 1} pupae</p>
+                                <p><strong>Seller:</strong> ${item.sellerName || item.sellerUsername || 'Verified Breeder'}</p>
+                                <p><strong>Listed:</strong> ${new Date(item.createdAt || item.startDate).toLocaleDateString()}</p>
+                            </div>
+                            ${item.description || item.notes ? `
+                                <p style="margin: 15px 0 0 0; color: #4a5568; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+                                    <strong>Description:</strong> ${item.description || item.notes}
+                                </p>
+                            ` : ''}
+                        </div>
+                        
+                        <div style="margin: 20px 0;">
+                            <p style="color: #718096; font-size: 0.9rem; text-align: center;">
+                                ${action === 'buy' ? 
+                                    'Confirm your purchase. Payment will be processed immediately.' : 
+                                    'Reserve this item for 24 hours. You can complete the purchase later.'
+                                }
+                            </p>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button onclick="closePurchaseConfirmation()" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <button onclick="confirmPurchase('${itemId}', '${action}')" 
+                                    class="btn" style="background: ${actionColor};">
+                                <i class="fas fa-${actionIcon}"></i> Confirm ${actionText}
+                            </button>
+                        </div>
+                    </div>
                 </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+        
+        // Close purchase confirmation modal
+        function closePurchaseConfirmation() {
+            const modal = document.getElementById('purchase-confirmation-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        // Confirm purchase or reservation
+        async function confirmPurchase(itemId, action) {
+            try {
+                const endpoint = action === 'buy' ? '/api/marketplace/purchase' : '/api/marketplace/reserve';
+                const response = await makeAuthenticatedRequest(endpoint, {
+                    method: 'POST',
+                    body: JSON.stringify({ itemId, action })
+                });
                 
-                <form id="purchase-form">
-                    <div class="form-group">
+                if (response && response.ok) {
+                    const result = await response.json();
+                    const successMsg = action === 'buy' ? 
+                        'Purchase completed successfully!' : 
+                        'Item reserved successfully for 24 hours!';
+                    showNotification(successMsg, 'success');
+                    closePurchaseConfirmation();
+                    loadMarketplace(); // Refresh marketplace
+                } else if (response) {
+                    const error = await response.json();
+                    showNotification(error.error || `Failed to ${action} item`, 'danger');
+                } else {
+                    showNotification('Network error - please try again', 'danger');
+                }
+            } catch (error) {
+                console.error(`Error ${action}ing item:`, error);
+                showNotification(`Error ${action}ing item: ${error.message}`, 'danger');
+            }
+        }
+        
+        // View seller profile
+        function viewSellerProfile(sellerId) {
+            if (sellerId) {
+                // Navigate to profile view or show profile modal
+                showNotification('Profile view feature coming soon!', 'info');
+            }
+        }
+
+        // Legacy purchase modal function (keeping for compatibility)
+        function showPurchaseModal(batchId) {
+            showPurchaseConfirmation(batchId, 'buy');
+        }
                         <label for="purchase-quantity">Quantity to Purchase *</label>
                         <input type="number" id="purchase-quantity" min="1" max="${item.larvaCount}" value="1" required>
                         <small>Price per item: ₱${item.pricePerItem.toFixed(2)}</small>

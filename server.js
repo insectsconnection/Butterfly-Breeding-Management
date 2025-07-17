@@ -918,16 +918,157 @@ app.get('/api/batches', auth.authenticateToken, auth.requirePermission('view_bat
   }
 });
 
-// Create new batch
+// Create marketplace listing
+app.post('/api/marketplace/list', auth.authenticateToken, async (req, res) => {
+  try {
+    const { species, count, price, description, lifecycleStage = 'pupa' } = req.body;
+    
+    if (!species || !count || !price) {
+      return res.status(400).json({ error: 'Missing required fields: species, count, and price' });
+    }
+    
+    // Create a marketplace listing without phone number dependency
+    const listing = {
+      cageId: uuidv4(),
+      species,
+      count: parseInt(count),
+      price: parseFloat(price),
+      description: description || '',
+      lifecycleStage,
+      sellerId: req.user.id,
+      sellerName: `${req.user.firstName} ${req.user.lastName}`,
+      sellerUsername: req.user.username,
+      sellerRole: req.user.role,
+      createdAt: new Date(),
+      status: 'available',
+      forSale: true,
+      listingType: 'marketplace'
+    };
+
+    // Save to database as a batch for marketplace
+    const savedListing = await Database.createBatch({
+      cageId: listing.cageId,
+      species: listing.species,
+      larvalCount: listing.count,
+      lifecycleStage: listing.lifecycleStage,
+      hostPlant: SPECIES_HOST_PLANTS[listing.species]?.plant || 'Unknown',
+      startDate: listing.createdAt,
+      phoneNumber: 'N/A', // No longer required
+      notes: listing.description,
+      createdBy: req.user.id,
+      forSale: true,
+      salePrice: listing.price
+    });
+
+    await logActivity(listing.cageId, 'Pupae listed for sale', listing.lifecycleStage, req.user.id);
+    
+    // Emit to connected clients
+    io.emit('marketplaceListing', savedListing);
+    
+    res.status(201).json({ success: true, listing: savedListing });
+  } catch (error) {
+    console.error('Error creating marketplace listing:', error);
+    res.status(500).json({ error: 'Failed to create marketplace listing' });
+  }
+});
+
+// Purchase from marketplace
+app.post('/api/marketplace/purchase', auth.authenticateToken, async (req, res) => {
+  try {
+    const { itemId } = req.body;
+    
+    const batch = await Database.getBatchByCageId(itemId);
+    if (!batch) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    
+    if (!batch.for_sale) {
+      return res.status(400).json({ error: 'Item is not available for purchase' });
+    }
+    
+    // Create order
+    const orderData = {
+      buyerId: req.user.id,
+      sellerId: batch.created_by,
+      batchId: batch.cage_id,
+      lifecycleStage: 'Pupa',
+      species: batch.species,
+      quantity: batch.larval_count,
+      pricePerUnit: batch.sale_price,
+      totalAmount: batch.sale_price * batch.larval_count
+    };
+    
+    const order = await Database.createOrder(orderData);
+    
+    // Mark batch as sold
+    await Database.updateBatch(itemId, { 
+      for_sale: false, 
+      status: 'sold',
+      sold_at: new Date()
+    });
+    
+    await logActivity(itemId, `Pupae purchased by ${req.user.username} for $${orderData.totalAmount}`, 'Pupa', req.user.id);
+    
+    // Emit to connected clients
+    io.emit('pupaePurchased', { orderId: order.order_id, buyerId: req.user.id, sellerId: batch.created_by });
+    
+    res.json({ success: true, order, message: 'Purchase completed successfully!' });
+  } catch (error) {
+    console.error('Error purchasing item:', error);
+    res.status(500).json({ error: 'Failed to complete purchase' });
+  }
+});
+
+// Reserve from marketplace
+app.post('/api/marketplace/reserve', auth.authenticateToken, async (req, res) => {
+  try {
+    const { itemId } = req.body;
+    
+    const batch = await Database.getBatchByCageId(itemId);
+    if (!batch) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    
+    if (!batch.for_sale) {
+      return res.status(400).json({ error: 'Item is not available for reservation' });
+    }
+    
+    // Create reservation (24 hour hold)
+    const reservationExpiry = new Date();
+    reservationExpiry.setHours(reservationExpiry.getHours() + 24);
+    
+    await Database.updateBatch(itemId, { 
+      reserved_by: req.user.id,
+      reserved_until: reservationExpiry,
+      status: 'reserved'
+    });
+    
+    await logActivity(itemId, `Pupae reserved by ${req.user.username} until ${reservationExpiry.toLocaleString()}`, 'Pupa', req.user.id);
+    
+    // Emit to connected clients
+    io.emit('pupaeReserved', { itemId, reservedBy: req.user.id, expiresAt: reservationExpiry });
+    
+    res.json({ 
+      success: true, 
+      message: 'Item reserved successfully for 24 hours!',
+      expiresAt: reservationExpiry
+    });
+  } catch (error) {
+    console.error('Error reserving item:', error);
+    res.status(500).json({ error: 'Failed to reserve item' });
+  }
+});
+
+// Legacy batch creation (keeping for compatibility)  
 app.post('/api/batches', auth.authenticateToken, auth.requirePermission('create_batches'), async (req, res) => {
   try {
     const { species, larvaCount, phoneNumber, notes } = req.body;
     
-    if (!species || !larvaCount || !phoneNumber) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!species || !larvaCount) {
+      return res.status(400).json({ error: 'Missing required fields: species and count' });
     }
     
-    const batch = new CageBatch(species, new Date(), larvaCount, phoneNumber);
+    const batch = new CageBatch(species, new Date(), larvaCount, phoneNumber || 'N/A');
     batch.notes = notes || '';
     batch.createdBy = req.user.id; // Track the user who created this batch
     
