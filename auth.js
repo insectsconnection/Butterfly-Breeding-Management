@@ -22,7 +22,7 @@ const ROLE_PERMISSIONS = {
   [USER_ROLES.ADMIN]: ['*'], // All permissions
   [USER_ROLES.BREEDER]: ['view_batches', 'create_batches', 'update_batches', 'view_analytics', 'manage_tasks', 'classify_images'],
   [USER_ROLES.ENTHUSIAST]: ['view_batches', 'create_batches', 'classify_images'],
-  [USER_ROLES.PURCHASER]: ['view_batches', 'view_analytics'],
+  [USER_ROLES.PURCHASER]: ['view_marketplace', 'classify_images', 'view_purchase_history'],
   [USER_ROLES.STUDENT]: ['view_batches', 'classify_images'],
   [USER_ROLES.FACULTY]: ['view_batches', 'create_batches', 'view_analytics', 'classify_images'],
   [USER_ROLES.OTHER]: ['view_batches']
