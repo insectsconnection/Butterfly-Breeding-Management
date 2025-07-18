@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦋 Purchaser Login - Butterfly Quality Assessment</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #4a5568;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #718096;
+            font-size: 1rem;
+        }
+
+        .role-selector {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .role-selector h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        .role-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .role-btn {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .role-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .role-btn:hover:not(.active) {
+            border-color: #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .register-link {
+            text-align: center;
+            color: #718096;
+        }
+
+        .register-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid #38a169;
+        }
+
+        .notification.danger {
+            border-left: 4px solid #e53e3e;
+        }
+
+        .purchaser-info {
+            background: linear-gradient(135deg, #38a169, #48bb78);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .feature-item i {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1><i class="fas fa-camera"></i> Pupae Quality Assessment</h1>
+            <p>AI-powered quality analysis for smart purchasing decisions</p>
+        </div>
+
+        <div class="purchaser-info">
+            <h3><i class="fas fa-microscope"></i> For Purchasers</h3>
+            <p>Use advanced AI to evaluate pupae quality before buying</p>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <i class="fas fa-camera"></i> Real-time Camera
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-brain"></i> AI Quality Analysis
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-chart-line"></i> Purchase History
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-shopping-cart"></i> Marketplace Access
+                </div>
+            </div>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+
+            <button type="submit" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i> Login as Purchaser
+            </button>
+        </form>
+
+        <div class="register-link">
+            Don't have an account? <a href="#" onclick="showRegister()">Register as Purchaser</a>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <a href="/login.html" style="color: #667eea; text-decoration: none;">
+                <i class="fas fa-users"></i> Login as Breeder/Admin
+            </a>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <div id="notification-content"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showNotification('Please enter username and password', 'danger');
+                return;
+            }
+            
+            try {
+                showNotification('Logging in...', 'info');
+                
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Check if user is a purchaser
+                    if (data.user.role !== 'purchaser') {
+                        showNotification('This login is for purchasers only. Use the main login for other roles.', 'danger');
+                        return;
+                    }
+                    
+                    // Store authentication
+                    localStorage.setItem('auth_token', data.token);
+                    localStorage.setItem('user_data', JSON.stringify(data.user));
+                    
+                    showNotification('Welcome! Redirecting to AI Classification...', 'success');
+                    
+                    // Redirect to main app
+                    setTimeout(() => {
+                        window.location.href = '/index.html#classification';
+                    }, 1500);
+                } else {
+                    const error = await response.json();
+                    showNotification(error.error || 'Login failed', 'danger');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showNotification('Network error during login', 'danger');
+            }
+        });
+
+        function showRegister() {
+            showNotification('Contact administrator to create purchaser account', 'info');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const content = document.getElementById('notification-content');
+            
+            content.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+
+        // Auto-fill test credentials
+        document.getElementById('username').value = 'purchaser';
+        document.getElementById('password').value = 'purchaser123';
+    </script>
+</body>
+</html>

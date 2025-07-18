@@ -100,8 +100,8 @@ async function checkAuthentication() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    username: 'purchaser',
-                    password: 'purchaser123'
+                    username: 'admin',
+                    password: 'admin123'
                 })
             });
             
@@ -168,10 +168,25 @@ function initializeSocket() {
         socket = io();
         socket.on('connect', () => {
             console.log('Socket.IO connected');
+            showNotification('🔗 Connected to server - AI Classification ready!', 'success');
+        });
+        
+        socket.on('disconnect', () => {
+            console.log('Socket.IO disconnected');
+            showNotification('⚠️ Disconnected from server - Reconnecting...', 'warning');
+        });
+        
+        socket.on('reconnect', () => {
+            console.log('Socket.IO reconnected');
+            showNotification('✅ Reconnected to server successfully!', 'success');
         });
         
         socket.on('notification', (data) => {
             showNotification(data.message, data.type);
+        });
+        
+        socket.on('classification_progress', (data) => {
+            showNotification(`🔍 ${data.message}`, 'info');
         });
     }
 }
@@ -268,7 +283,9 @@ function setupRoleBasedInterface() {
         showTabIfExists('analytics'); // For purchase history
         
         // Default to classification tab for purchasers
-        showTab('classification');
+        setTimeout(() => {
+            showTab('classification');
+        }, 500);
     }
 }
 
