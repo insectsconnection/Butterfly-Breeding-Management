@@ -324,13 +324,25 @@ async function loadSpeciesData() {
 async function loadMarketplace() { 
     console.log('Loading marketplace...'); 
     try {
-        const response = await makeAuthenticatedRequest('/api/marketplace');
-        if (response && response.ok) {
-            const marketplace = await response.json();
-            displayMarketplace(marketplace);
+        // Load marketplace items and species data
+        const [marketplaceResponse, speciesResponse] = await Promise.all([
+            makeAuthenticatedRequest('/api/marketplace'),
+            makeAuthenticatedRequest('/api/marketplace/species')
+        ]);
+        
+        if (marketplaceResponse && marketplaceResponse.ok) {
+            const marketplace = await marketplaceResponse.json();
+            let speciesData = [];
+            
+            if (speciesResponse && speciesResponse.ok) {
+                speciesData = await speciesResponse.json();
+            }
+            
+            displayMarketplace(marketplace, speciesData);
         }
     } catch (error) {
         console.error('Error loading marketplace:', error);
+        showNotification('Failed to load marketplace data', 'danger');
     }
 }
 
@@ -381,9 +393,233 @@ async function loadPurchaseHistory() {
     }
 }
 
-function displayMarketplace(marketplace) {
+function displayMarketplace(marketplace, speciesData = []) {
     console.log('Displaying marketplace with', marketplace.length, 'items');
-    // Implementation will be added
+    
+    const marketplaceContainer = document.getElementById('marketplace');
+    if (!marketplaceContainer) return;
+    
+    let html = `
+        <div class="card">
+            <h3><i class="fas fa-store"></i> Butterfly Marketplace</h3>
+            <p style="color: #666; margin-bottom: 20px;">Browse and purchase high-quality pupae from verified breeders</p>
+            
+            <!-- Species Filter -->
+            <div style="background: #f7fafc; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold;">Filter by Species:</label>
+                <select id="species-filter" onchange="filterMarketplace()" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                    <option value="">All Species (${marketplace.length} listings)</option>
+                    ${speciesData.map(species => `
+                        <option value="${species.species}">
+                            ${species.species} - ${species.sellers.length} seller(s), ${species.totalAvailable} available
+                        </option>
+                    `).join('')}
+                </select>
+            </div>
+        </div>
+    `;
+    
+    // Species Overview Cards
+    if (speciesData.length > 0) {
+        html += `
+            <div class="card">
+                <h3><i class="fas fa-butterfly"></i> Available Species</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+                    ${speciesData.map(species => `
+                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px; padding: 20px;">
+                            <h4 style="margin-bottom: 10px;">${species.species}</h4>
+                            <p style="font-style: italic; opacity: 0.9; margin-bottom: 15px;">${species.scientificName}</p>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 15px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div><strong>Available:</strong> ${species.totalAvailable}</div>
+                                    <div><strong>Avg Price:</strong> ₱${species.avgPrice.toFixed(2)}</div>
+                                    <div><strong>Sellers:</strong> ${species.sellers.length}</div>
+                                    <div><strong>Care Level:</strong> ${species.careLevel}</div>
+                                </div>
+                                <div style="margin-bottom: 10px;"><strong>Host Plants:</strong> ${species.hostPlants.join(', ')}</div>
+                                <button onclick="showSpeciesSellers('${species.species}')" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; cursor: pointer;">
+                                    View ${species.sellers.length} Seller(s)
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Individual Listings
+    if (marketplace.length > 0) {
+        html += `
+            <div class="card">
+                <h3><i class="fas fa-shopping-cart"></i> Individual Listings</h3>
+                <div id="marketplace-listings" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+                    ${marketplace.map(item => `
+                        <div class="marketplace-item" data-species="${item.species}" style="background: white; border: 1px solid #e2e8f0; border-radius: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                                <div>
+                                    <h4 style="color: #4a5568; margin-bottom: 5px;">${item.species}</h4>
+                                    <p style="color: #666; font-style: italic; font-size: 0.9rem;">${item.scientificName}</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="background: #667eea; color: white; padding: 5px 10px; border-radius: 20px; font-weight: bold;">
+                                        ₱${item.price.toFixed(2)}
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #666; margin-top: 2px;">per pupae</div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f7fafc; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div><strong>Quantity:</strong> ${item.count}</div>
+                                    <div><strong>Quality:</strong> ${(item.qualityScore * 100).toFixed(0)}%</div>
+                                    <div><strong>Stage:</strong> ${item.lifecycleStage}</div>
+                                    <div><strong>Care Level:</strong> ${item.careLevel}</div>
+                                </div>
+                                <div style="margin-bottom: 10px;"><strong>Emergence:</strong> ${item.emergenceTime}</div>
+                                <div><strong>Host Plants:</strong> ${item.hostPlants.join(', ')}</div>
+                            </div>
+                            
+                            <div style="background: #e6fffa; border: 1px solid #38a169; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                                <h5 style="color: #38a169; margin-bottom: 10px;"><i class="fas fa-user"></i> Seller Information</h5>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.9rem;">
+                                    <div><strong>Name:</strong> ${item.sellerContact.name}</div>
+                                    <div><strong>Rating:</strong> ⭐ ${item.sellerContact.rating.toFixed(1)}</div>
+                                    <div><strong>Phone:</strong> ${item.sellerPhone || 'Not provided'}</div>
+                                    <div><strong>Joined:</strong> ${item.sellerContact.joinDate}</div>
+                                </div>
+                                ${item.sellerContact.email ? `<div style="margin-top: 8px;"><strong>Email:</strong> ${item.sellerContact.email}</div>` : ''}
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <button onclick="contactSeller('${item.sellerId}', '${item.species}')" style="padding: 10px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                    <i class="fas fa-phone"></i> Contact Seller
+                                </button>
+                                <button onclick="purchaseItem('${item.id}', '${item.species}', ${item.price})" style="padding: 10px; background: #38a169; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                    <i class="fas fa-shopping-cart"></i> Purchase
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="card" style="text-align: center; padding: 40px;">
+                <i class="fas fa-store" style="font-size: 3rem; color: #cbd5e0; margin-bottom: 20px;"></i>
+                <h3 style="color: #4a5568;">No items available</h3>
+                <p style="color: #666;">Check back later for new pupae listings from breeders.</p>
+            </div>
+        `;
+    }
+    
+    marketplaceContainer.innerHTML = html;
+    
+    // Store data globally for filtering
+    window.marketplaceData = marketplace;
+    window.speciesData = speciesData;
+}
+
+// Marketplace interaction functions
+function filterMarketplace() {
+    const selectedSpecies = document.getElementById('species-filter').value;
+    const listings = document.querySelectorAll('.marketplace-item');
+    
+    listings.forEach(listing => {
+        const itemSpecies = listing.getAttribute('data-species');
+        if (!selectedSpecies || itemSpecies === selectedSpecies) {
+            listing.style.display = 'block';
+        } else {
+            listing.style.display = 'none';
+        }
+    });
+}
+
+function showSpeciesSellers(species) {
+    const speciesInfo = window.speciesData.find(s => s.species === species);
+    if (!speciesInfo) return;
+    
+    let html = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;" onclick="closeModal()">
+            <div style="background: white; border-radius: 15px; padding: 30px; max-width: 800px; max-height: 80vh; overflow-y: auto; width: 90%;" onclick="event.stopPropagation()">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3><i class="fas fa-butterfly"></i> ${species} Sellers</h3>
+                    <button onclick="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+                </div>
+                
+                <div style="background: #f7fafc; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <p><strong>Scientific Name:</strong> ${speciesInfo.scientificName}</p>
+                    <p><strong>Total Available:</strong> ${speciesInfo.totalAvailable} pupae</p>
+                    <p><strong>Average Price:</strong> ₱${speciesInfo.avgPrice.toFixed(2)} per pupae</p>
+                    <p><strong>Host Plants:</strong> ${speciesInfo.hostPlants.join(', ')}</p>
+                </div>
+                
+                <div style="display: grid; gap: 15px;">
+                    ${speciesInfo.sellers.map(seller => `
+                        <div style="background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                                <div>
+                                    <h4 style="margin: 0 0 5px 0; color: #4a5568;">${seller.name}</h4>
+                                    <p style="margin: 0; color: #666; font-size: 0.9rem;">⭐ ${seller.rating.toFixed(1)} rating • Joined ${seller.joinDate}</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: #667eea;">₱${seller.pricePerPupae.toFixed(2)}</div>
+                                    <div style="font-size: 0.8rem; color: #666;">per pupae</div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div><strong>Available:</strong> ${seller.availableCount}</div>
+                                <div><strong>Quality:</strong> ${(seller.qualityScore * 100).toFixed(0)}%</div>
+                                <div><strong>Location:</strong> ${seller.location}</div>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <div><strong>Contact:</strong></div>
+                                <div style="font-size: 0.9rem; color: #666;">
+                                    ${seller.email ? `📧 ${seller.email}<br>` : ''}
+                                    ${seller.phone ? `📞 ${seller.phone}<br>` : ''}
+                                    📅 Last active: ${seller.lastActive}
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <button onclick="contactSeller('${seller.id}', '${species}')" style="padding: 10px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                    <i class="fas fa-phone"></i> Contact
+                                </button>
+                                <button onclick="purchaseFromSeller('${seller.id}', '${species}', ${seller.pricePerPupae})" style="padding: 10px; background: #38a169; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                    <i class="fas fa-shopping-cart"></i> Purchase
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeModal() {
+    const modals = document.querySelectorAll('div[style*="position: fixed"]');
+    modals.forEach(modal => modal.remove());
+}
+
+function contactSeller(sellerId, species) {
+    showNotification(`Contact feature will open seller's contact information for ${species}`, 'info');
+    // Implementation for contact functionality
+}
+
+function purchaseItem(itemId, species, price) {
+    showNotification(`Purchase functionality for ${species} (₱${price}) will be implemented`, 'info');
+    // Implementation for purchase functionality
+}
+
+function purchaseFromSeller(sellerId, species, price) {
+    showNotification(`Purchase from seller for ${species} (₱${price.toFixed(2)}) will be implemented`, 'info');
+    closeModal();
 }
 
 function displayPurchaseHistory(purchases) {

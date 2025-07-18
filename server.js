@@ -1553,44 +1553,52 @@ app.post('/api/test-sms', async (req, res) => {
 // Get marketplace listings (available batches for purchase)
 app.get('/api/marketplace', auth.authenticateToken, async (req, res) => {
   try {
-    const batches = await loadBatches();
-    const users = await auth.getAllUsers();
+    const batches = await Database.getAllBatches();
+    const users = await Database.getAllUsers();
     
-    // Filter for batches available for sale
+    // Create user lookup map
+    const userMap = {};
+    users.forEach(user => {
+      userMap[user.id] = user;
+    });
+    
+    // Filter for batches available for sale (using PostgreSQL column names)
     const marketplaceItems = batches
-      .filter(batch => batch.active && batch.forSale)
+      .filter(batch => batch.lifecycle_stage === 'Pupa')
       .map(batch => {
-        const cageBatch = new CageBatch();
-        Object.assign(cageBatch, batch);
-        const profitData = cageBatch.calculateProfitProjection();
-        
-        // Get seller details
-        const seller = users.find(u => u.id === batch.createdBy);
+        const seller = userMap[batch.created_by];
+        const speciesInfo = require('./cnn-models').BUTTERFLY_SPECIES_INFO[batch.species];
+        const marketPrice = SPECIES_MARKET_PRICES[batch.species] || 25.00;
+        const qualityScore = batch.quality_score || 1.0;
         
         return {
-          batchId: batch.cageId,
+          id: batch.cage_id,
           species: batch.species,
-          lifecycleStage: batch.lifecycleStage,
-          larvaCount: batch.larvaCount,
-          qualityScore: batch.qualityScore,
-          price: profitData.revenue,
-          pricePerItem: profitData.revenue / batch.larvaCount,
-          hostPlant: batch.hostPlant,
-          sellerInfo: {
-            sellerId: batch.createdBy || 'unknown',
-            sellerName: seller ? `${seller.firstName} ${seller.lastName}` : 'Unknown Seller',
-            sellerUsername: seller ? seller.username : 'unknown',
-            sellerRole: seller ? seller.role : 'unknown',
-            location: batch.sellerLocation || 'Not specified',
-            rating: batch.sellerRating || 5.0,
-            totalSales: batch.sellerTotalSales || 0
+          scientificName: speciesInfo?.scientific_name || 'Unknown',
+          family: speciesInfo?.family || 'Unknown',
+          lifecycleStage: batch.lifecycle_stage,
+          count: batch.larval_count,
+          price: marketPrice * qualityScore,
+          qualityScore: qualityScore,
+          description: `High-quality ${batch.species} pupae ready for emergence. ${speciesInfo?.description || ''}`,
+          sellerId: batch.created_by,
+          sellerName: seller ? seller.username : 'Unknown Seller',
+          sellerEmail: seller ? seller.email : null,
+          sellerPhone: batch.phone_number,
+          sellerContact: {
+            name: seller ? seller.username : 'Unknown',
+            email: seller ? seller.email : null,
+            phone: batch.phone_number,
+            joinDate: seller ? new Date(seller.created_at).toLocaleDateString() : null,
+            rating: seller ? (seller.seller_rating || 4.5) : 4.0
           },
+          listedDate: batch.start_date,
+          hostPlants: SPECIES_HOST_PLANTS[batch.species]?.plant || [],
+          careLevel: speciesInfo?.care_level || 'Medium',
+          emergenceTime: speciesInfo?.pupae_duration || '10-14 days',
           images: batch.images || [],
-          description: batch.notes,
-          availableDate: batch.availableDate || new Date().toISOString(),
-          createdAt: batch.startDate,
-          listedAt: batch.listedForSaleAt || new Date().toISOString(),
-          salesHistory: batch.salesHistory || []
+          location: seller ? (seller.location || 'Philippines') : 'Philippines',
+          availability: 'Available'
         };
       });
     
@@ -1598,6 +1606,83 @@ app.get('/api/marketplace', auth.authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error loading marketplace:', error);
     res.status(500).json({ error: 'Failed to load marketplace' });
+  }
+});
+
+// Get available species with marketplace data
+app.get('/api/marketplace/species', auth.authenticateToken, async (req, res) => {
+  try {
+    console.log('Loading marketplace species data...');
+    
+    const batches = await Database.getAllBatches();
+    const users = await Database.getAllUsers();
+    
+    // Create user lookup map
+    const userMap = {};
+    users.forEach(user => {
+      userMap[user.id] = user;
+    });
+    
+    // Group by species with seller information
+    const speciesData = {};
+    
+    batches
+      .filter(batch => batch.lifecycle_stage === 'Pupa')
+      .forEach(batch => {
+        const seller = userMap[batch.created_by];
+        const species = batch.species;
+        
+        if (!speciesData[species]) {
+          const speciesInfo = require('./cnn-models').BUTTERFLY_SPECIES_INFO[species];
+          speciesData[species] = {
+            species: species,
+            scientificName: speciesInfo?.scientific_name || 'Unknown',
+            family: speciesInfo?.family || 'Unknown',
+            description: speciesInfo?.description || 'High-quality butterfly species',
+            marketPrice: SPECIES_MARKET_PRICES[species] || 25.00,
+            hostPlants: SPECIES_HOST_PLANTS[species]?.plant || [],
+            careLevel: speciesInfo?.care_level || 'Medium',
+            emergenceTime: speciesInfo?.pupae_duration || '10-14 days',
+            sellers: [],
+            totalAvailable: 0,
+            avgPrice: 0
+          };
+        }
+        
+        // Add seller info if not already added
+        const existingSeller = speciesData[species].sellers.find(s => s.id === batch.created_by);
+        if (!existingSeller && seller) {
+          speciesData[species].sellers.push({
+            id: seller.id,
+            name: seller.username,
+            email: seller.email,
+            phone: batch.phone_number,
+            rating: seller.seller_rating || 4.5,
+            joinDate: new Date(seller.created_at).toLocaleDateString(),
+            availableCount: batch.larval_count,
+            pricePerPupae: (SPECIES_MARKET_PRICES[species] || 25.00) * (batch.quality_score || 1.0),
+            qualityScore: batch.quality_score || 1.0,
+            location: seller.location || 'Philippines',
+            lastActive: new Date(seller.updated_at || seller.created_at).toLocaleDateString()
+          });
+        }
+        
+        speciesData[species].totalAvailable += batch.larval_count;
+      });
+    
+    // Calculate average prices
+    Object.keys(speciesData).forEach(species => {
+      const sellers = speciesData[species].sellers;
+      if (sellers.length > 0) {
+        const totalPrice = sellers.reduce((sum, seller) => sum + seller.pricePerPupae, 0);
+        speciesData[species].avgPrice = totalPrice / sellers.length;
+      }
+    });
+    
+    res.json(Object.values(speciesData));
+  } catch (error) {
+    console.error('Error loading species data:', error);
+    res.status(500).json({ error: 'Failed to load species data' });
   }
 });
 
