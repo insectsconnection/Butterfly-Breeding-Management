@@ -4,6 +4,8 @@
 
 This is a comprehensive JavaScript-based web application designed for advanced butterfly breeding operations. The system features CNN-powered species classification, automated cage batch tracking, profit optimization, and real-time SMS notifications. Built for professional butterfly breeders who need sophisticated monitoring and management capabilities.
 
+**Migration Status:** Successfully migrated from Replit Agent to standard Replit environment on July 18, 2025. All core functionality is operational with PostgreSQL database integration.
+
 ## System Architecture
 
 ### Frontend Architecture
