@@ -58,7 +58,7 @@ const CLASSIFICATION_LABELS = {
 };
 
 // Comprehensive butterfly species information with scientific details
-const butterfly_species_names_INFO = {
+const BUTTERFLY_SPECIES_INFO = {
   'Butterfly-Clippers': {
     scientific_name: 'Parthenos sylvia',
     family: 'Nymphalidae',
@@ -207,7 +207,7 @@ const butterfly_species_names_INFO = {
 
 // Market prices for butterfly species (for profit calculations)
 const SPECIES_MARKET_PRICES = Object.fromEntries(
-  Object.entries(butterfly_species_names_INFO).map(([species, info]) => [species, info.value])
+  Object.entries(BUTTERFLY_SPECIES_INFO).map(([species, info]) => [species, info.value])
 );
 
 // Host plant requirements for each species
@@ -746,7 +746,7 @@ module.exports = {
   CLASSIFICATION_LABELS,
   SPECIES_MARKET_PRICES,
   SPECIES_HOST_PLANTS,
-  butterfly_species_names_INFO,
+  BUTTERFLY_SPECIES_INFO,
   larvaldiseases_names_INFO,
   pupaedefects_names_INFO,
   LIFESTAGES_INFO,

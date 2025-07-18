@@ -1567,7 +1567,8 @@ app.get('/api/marketplace', auth.authenticateToken, async (req, res) => {
       .filter(batch => batch.lifecycle_stage === 'Pupa')
       .map(batch => {
         const seller = userMap[batch.created_by];
-        const speciesInfo = require('./cnn-models').BUTTERFLY_SPECIES_INFO[batch.species];
+        const cnnModels = require('./cnn-models');
+        const speciesInfo = cnnModels.BUTTERFLY_SPECIES_INFO ? cnnModels.BUTTERFLY_SPECIES_INFO[batch.species] : null;
         const marketPrice = SPECIES_MARKET_PRICES[batch.species] || 25.00;
         const qualityScore = batch.quality_score || 1.0;
         
@@ -1633,7 +1634,8 @@ app.get('/api/marketplace/species', auth.authenticateToken, async (req, res) => 
         const species = batch.species;
         
         if (!speciesData[species]) {
-          const speciesInfo = require('./cnn-models').BUTTERFLY_SPECIES_INFO[species];
+          const cnnModels = require('./cnn-models');
+          const speciesInfo = cnnModels.BUTTERFLY_SPECIES_INFO ? cnnModels.BUTTERFLY_SPECIES_INFO[species] : null;
           speciesData[species] = {
             species: species,
             scientificName: speciesInfo?.scientific_name || 'Unknown',
