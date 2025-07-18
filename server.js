@@ -1901,6 +1901,185 @@ async function createRecurringTask(completedTask) {
   }
 }
 
+// Get profit analytics
+app.get('/api/analytics/profit', auth.authenticateToken, async (req, res) => {
+  try {
+    const batches = await Database.getAllBatches();
+    
+    let totalRevenue = 0;
+    let totalCosts = 0;
+    let totalProfit = 0;
+    let activeBatches = 0;
+    const speciesBreakdown = {};
+    
+    batches.forEach(batch => {
+      if (batch.lifecycle_stage && batch.lifecycle_stage !== 'completed') {
+        activeBatches++;
+        
+        // Calculate basic profit data
+        const marketPrice = SPECIES_MARKET_PRICES[batch.species] || 25.00;
+        const qualityScore = batch.quality_score || 1.0;
+        const revenue = marketPrice * qualityScore * batch.larval_count;
+        const productionCost = batch.larval_count * 5; // Basic cost estimation
+        const profit = revenue - productionCost;
+        
+        totalRevenue += revenue;
+        totalCosts += productionCost;
+        totalProfit += profit;
+        
+        if (!speciesBreakdown[batch.species]) {
+          speciesBreakdown[batch.species] = {
+            count: 0,
+            revenue: 0,
+            profit: 0,
+            averageQuality: 0,
+            totalBatches: 0
+          };
+        }
+        
+        speciesBreakdown[batch.species].count += batch.larval_count;
+        speciesBreakdown[batch.species].revenue += revenue;
+        speciesBreakdown[batch.species].profit += profit;
+        speciesBreakdown[batch.species].averageQuality += qualityScore;
+        speciesBreakdown[batch.species].totalBatches++;
+      }
+    });
+    
+    // Calculate averages for species breakdown
+    Object.keys(speciesBreakdown).forEach(species => {
+      const data = speciesBreakdown[species];
+      data.averageQuality = data.averageQuality / data.totalBatches;
+    });
+    
+    const analytics = {
+      summary: {
+        totalRevenue: Math.round(totalRevenue * 100) / 100,
+        totalCosts: Math.round(totalCosts * 100) / 100,
+        totalProfit: Math.round(totalProfit * 100) / 100,
+        profitMargin: totalRevenue > 0 ? Math.round((totalProfit / totalRevenue) * 100) : 0,
+        activeBatches
+      },
+      speciesBreakdown,
+      trends: {
+        topPerformingSpecies: Object.entries(speciesBreakdown)
+          .sort(([,a], [,b]) => b.profit - a.profit)
+          .slice(0, 5)
+          .map(([species, data]) => ({ species, ...data })),
+        qualityDistribution: Object.entries(speciesBreakdown)
+          .map(([species, data]) => ({ 
+            species, 
+            averageQuality: Math.round(data.averageQuality * 100) / 100 
+          }))
+      }
+    };
+    
+    res.json(analytics);
+  } catch (error) {
+    console.error('Error calculating analytics:', error);
+    res.status(500).json({ error: 'Failed to calculate analytics' });
+  }
+});
+
+// List pupae for sale
+app.post('/api/marketplace/sell-pupae', auth.authenticateToken, async (req, res) => {
+  try {
+    const { cageId, species, count, price, description, availableDate } = req.body;
+    
+    if (!cageId || !species || !count || !price) {
+      return res.status(400).json({ error: 'Cage ID, species, count, and price are required' });
+    }
+    
+    // Find the batch
+    const batches = await Database.getAllBatches();
+    const batch = batches.find(b => b.cage_id === cageId);
+    
+    if (!batch) {
+      return res.status(404).json({ error: 'Batch not found' });
+    }
+    
+    if (batch.created_by !== req.user.id) {
+      return res.status(403).json({ error: 'Not authorized to list this batch' });
+    }
+    
+    // Update batch for marketplace
+    await Database.pool.query(
+      `UPDATE batches SET 
+       notes = COALESCE($1, notes),
+       updated_at = CURRENT_TIMESTAMP
+       WHERE cage_id = $2`,
+      [`Listed for sale: ${description || 'High-quality pupae'}. Price: ₱${price} per pupae.`, cageId]
+    );
+    
+    // Create marketplace listing
+    const listingResult = await Database.pool.query(
+      `INSERT INTO pupae_sales (batch_id, species, quantity, price_per_pupae, total_price, description, seller_id, listed_date, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [cageId, species, count, price, price * count, description || 'High-quality pupae ready for emergence', req.user.id, availableDate || new Date(), 'available']
+    );
+    
+    // Emit real-time update
+    io.emit('pupaeListed', {
+      batchId: cageId,
+      species: species,
+      count: count,
+      price: price,
+      sellerId: req.user.id
+    });
+    
+    res.json({ 
+      message: 'Pupae listed for sale successfully', 
+      listing: listingResult.rows[0] 
+    });
+  } catch (error) {
+    console.error('Error listing pupae for sale:', error);
+    res.status(500).json({ error: 'Failed to list pupae for sale' });
+  }
+});
+
+// Get species list for dropdown
+app.get('/api/species', auth.authenticateToken, async (req, res) => {
+  try {
+    const BUTTERFLY_SPECIES = [
+      'Butterfly-Clippers',
+      'Butterfly-Common Jay',
+      'Butterfly-Common Lime',
+      'Butterfly-Common Mime',
+      'Butterfly-Common Mormon',
+      'Butterfly-Emerald Swallowtail',
+      'Butterfly-Golden Birdwing',
+      'Butterfly-Gray Glassy Tiger',
+      'Butterfly-Great Eggfly',
+      'Butterfly-Great Yellow Mormon',
+      'Butterfly-Paper Kite',
+      'Butterfly-Plain Tiger',
+      'Butterfly-Red Lacewing',
+      'Butterfly-Scarlet Mormon',
+      'Butterfly-Pink Rose',
+      'Butterfly-Tailed Jay',
+      'Moth-Atlas',
+      'Moth-Giant Silk'
+    ];
+    
+    // Get species info from CNN models
+    const speciesWithInfo = BUTTERFLY_SPECIES.map(species => {
+      const speciesInfo = require('./cnn-models').BUTTERFLY_SPECIES_INFO[species];
+      return {
+        name: species,
+        scientificName: speciesInfo?.scientific_name || 'Unknown',
+        family: speciesInfo?.family || 'Unknown',
+        marketPrice: SPECIES_MARKET_PRICES[species] || 25.00,
+        hostPlants: SPECIES_HOST_PLANTS[species]?.plant || [],
+        careLevel: speciesInfo?.care_level || 'Medium'
+      };
+    });
+    
+    res.json(speciesWithInfo);
+  } catch (error) {
+    console.error('Error getting species list:', error);
+    res.status(500).json({ error: 'Failed to get species list' });
+  }
+});
+
 // Create new order
 app.post('/api/orders', auth.authenticateToken, auth.requirePermission('view_batches'), async (req, res) => {
   try {

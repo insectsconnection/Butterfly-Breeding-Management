@@ -318,7 +318,32 @@ async function loadBatches() {
 
 async function loadSpeciesData() { 
     console.log('Loading species data...'); 
-    // Will implement full functionality
+    try {
+        const response = await makeAuthenticatedRequest('/api/species');
+        if (response && response.ok) {
+            const species = await response.json();
+            populateSpeciesDropdown(species);
+            return species;
+        }
+    } catch (error) {
+        console.error('Error loading species data:', error);
+        showNotification('Failed to load species data', 'danger');
+    }
+    return [];
+}
+
+function populateSpeciesDropdown(species) {
+    const speciesSelect = document.getElementById('species');
+    if (!speciesSelect) return;
+    
+    speciesSelect.innerHTML = '<option value="">Select Species</option>';
+    
+    species.forEach(s => {
+        const option = document.createElement('option');
+        option.value = s.name;
+        option.textContent = `${s.name} - ₱${s.marketPrice} (${s.scientificName})`;
+        speciesSelect.appendChild(option);
+    });
 }
 
 async function loadMarketplace() { 
@@ -362,6 +387,137 @@ async function loadTasks() {
         console.error('Error loading tasks:', error);
         showNotification('Failed to load tasks', 'danger');
     }
+}
+
+async function loadAnalytics() {
+    if (currentUser && currentUser.role === 'purchaser') {
+        console.log('Analytics not available for purchaser role');
+        return;
+    }
+    console.log('Loading profit analytics...');
+    try {
+        const response = await makeAuthenticatedRequest('/api/analytics/profit');
+        if (response && response.ok) {
+            const analytics = await response.json();
+            displayAnalytics(analytics);
+        }
+    } catch (error) {
+        console.error('Error loading analytics:', error);
+        showNotification('Failed to load analytics', 'danger');
+    }
+}
+
+function displayAnalytics(analytics) {
+    const analyticsContainer = document.getElementById('analytics');
+    if (!analyticsContainer) return;
+    
+    const { summary, speciesBreakdown, trends } = analytics;
+    
+    let html = `
+        <div class="card">
+            <h3><i class="fas fa-chart-line"></i> Profit Analytics Overview</h3>
+            
+            <!-- Summary Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div style="background: linear-gradient(135deg, #38a169, #2f855a); color: white; padding: 25px; border-radius: 15px; text-align: center;">
+                    <h4 style="font-size: 2rem; margin: 0;">₱${summary.totalRevenue.toFixed(2)}</h4>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Total Revenue</p>
+                </div>
+                <div style="background: linear-gradient(135deg, #e53e3e, #c53030); color: white; padding: 25px; border-radius: 15px; text-align: center;">
+                    <h4 style="font-size: 2rem; margin: 0;">₱${summary.totalCosts.toFixed(2)}</h4>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Total Costs</p>
+                </div>
+                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 15px; text-align: center;">
+                    <h4 style="font-size: 2rem; margin: 0;">₱${summary.totalProfit.toFixed(2)}</h4>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Total Profit</p>
+                </div>
+                <div style="background: linear-gradient(135deg, #4299e1, #3182ce); color: white; padding: 25px; border-radius: 15px; text-align: center;">
+                    <h4 style="font-size: 2rem; margin: 0;">${summary.profitMargin}%</h4>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Profit Margin</p>
+                </div>
+                <div style="background: linear-gradient(135deg, #f6ad55, #ed8936); color: white; padding: 25px; border-radius: 15px; text-align: center;">
+                    <h4 style="font-size: 2rem; margin: 0;">${summary.activeBatches}</h4>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Active Batches</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3><i class="fas fa-bug"></i> Species Performance Breakdown</h3>
+            <div style="display: grid; gap: 20px;">
+                ${Object.entries(speciesBreakdown).map(([species, data]) => `
+                    <div style="background: #f7fafc; border-radius: 10px; padding: 20px; border-left: 4px solid #667eea;">
+                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 15px; align-items: center;">
+                            <div>
+                                <h4 style="margin: 0 0 5px 0; color: #4a5568;">${species}</h4>
+                                <p style="margin: 0; color: #666; font-size: 0.9rem;">${data.totalBatches} batches • ${data.count} pupae</p>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.2rem; font-weight: bold; color: #38a169;">₱${data.revenue.toFixed(2)}</div>
+                                <div style="font-size: 0.8rem; color: #666;">Revenue</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.2rem; font-weight: bold; color: #667eea;">₱${data.profit.toFixed(2)}</div>
+                                <div style="font-size: 0.8rem; color: #666;">Profit</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.2rem; font-weight: bold; color: #f6ad55;">${data.averageQuality.toFixed(2)}</div>
+                                <div style="font-size: 0.8rem; color: #666;">Avg Quality</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.2rem; font-weight: bold; color: #4299e1;">${((data.profit / data.revenue) * 100).toFixed(1)}%</div>
+                                <div style="font-size: 0.8rem; color: #666;">Margin</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="card">
+                <h3><i class="fas fa-trophy"></i> Top Performing Species</h3>
+                <div style="display: grid; gap: 15px;">
+                    ${trends.topPerformingSpecies.slice(0, 5).map((species, index) => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f7fafc; border-radius: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="background: #667eea; color: white; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">
+                                    ${index + 1}
+                                </div>
+                                <div>
+                                    <div style="font-weight: bold; color: #4a5568;">${species.species}</div>
+                                    <div style="font-size: 0.8rem; color: #666;">${species.totalBatches} batches</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: bold; color: #38a169;">₱${species.profit.toFixed(2)}</div>
+                                <div style="font-size: 0.8rem; color: #666;">profit</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3><i class="fas fa-star"></i> Quality Distribution</h3>
+                <div style="display: grid; gap: 15px;">
+                    ${trends.qualityDistribution.sort((a, b) => b.averageQuality - a.averageQuality).slice(0, 5).map(species => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f7fafc; border-radius: 8px;">
+                            <div style="font-weight: bold; color: #4a5568;">${species.species}</div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="background: #f6ad55; height: 8px; border-radius: 4px; width: 100px; position: relative;">
+                                    <div style="background: #ed8936; height: 100%; border-radius: 4px; width: ${(species.averageQuality * 100)}%;"></div>
+                                </div>
+                                <span style="font-weight: bold; color: #ed8936;">${species.averageQuality.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    analyticsContainer.innerHTML = html;
 }
 
 async function loadAchievements() { 
@@ -861,6 +1017,64 @@ async function deleteTask(taskId) {
         showNotification('Error deleting task', 'danger');
     }
 }
+
+// Create pupae listing functionality
+async function createPupaeListing(event) {
+    event.preventDefault();
+    
+    const species = document.getElementById('species').value;
+    const count = parseInt(document.getElementById('total-count').value);
+    const price = parseFloat(document.getElementById('price').value);
+    const description = document.getElementById('notes').value;
+    
+    if (!species || !count || !price) {
+        showNotification('Please fill in all required fields', 'danger');
+        return;
+    }
+    
+    try {
+        const response = await makeAuthenticatedRequest('/api/marketplace/sell-pupae', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                cageId: `CAGE-${Date.now()}`, // Generate unique cage ID
+                species: species,
+                count: count,
+                price: price,
+                description: description,
+                availableDate: new Date().toISOString()
+            })
+        });
+        
+        if (response && response.ok) {
+            const result = await response.json();
+            showNotification('Pupae listed for sale successfully!', 'success');
+            
+            // Reset form
+            document.getElementById('create-batch-form').reset();
+            
+            // Reload marketplace
+            loadMarketplace();
+        } else {
+            const error = await response.json();
+            showNotification(error.error || 'Failed to list pupae for sale', 'danger');
+        }
+    } catch (error) {
+        console.error('Error listing pupae:', error);
+        showNotification('Error listing pupae for sale', 'danger');
+    }
+}
+
+// Initialize form handlers when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Add form event listener after DOM is loaded
+    setTimeout(() => {
+        const form = document.getElementById('create-batch-form');
+        if (form) {
+            form.addEventListener('submit', createPupaeListing);
+        }
+    }, 1000);
+});
 
 function displayPurchaseHistory(purchases) {
     console.log('Displaying purchase history with', purchases.length, 'purchases');

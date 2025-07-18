@@ -1,0 +1,117 @@
+ const batch = batches[batchIndex];
+    
+    // Update batch for marketplace
+    batch.forSale = true;
+    batch.salePrice = price;
+    batch.saleDescription = description;
+    batch.availableDate = availableDate || new Date().toISOString();
+    batch.listedForSaleAt = new Date().toISOString();
+    batch.sellerLocation = sellerLocation;
+    batch.sellerRating = 5.0; // Default rating
+    batch.sellerTotalSales = batch.sellerTotalSales || 0;
+    batch.salesHistory = batch.salesHistory || [];
+    
+    batches[batchIndex] = batch;
+    await saveBatches(batches);
+    
+    await logActivity(req.user.id, `Batch listed for sale: ${cageId}`, batch.lifecycleStage);
+    
+    // Emit to connected clients
+    io.emit('batchListedForSale', batch);
+    
+    res.json({ message: 'Batch listed for sale successfully', batch });
+  } catch (error) {
+    console.error('Error listing batch for sale:', error);
+    res.status(500).json({ error: 'Failed to list batch for sale' });
+  }
+});
+
+// Get pupae sales history with seller/purchaser details
+app.get('/api/marketplace/pupae-sales', auth.authenticateToken, async (req, res) => {
+  try {
+    const batches = await loadBatches();
+    const users = await auth.getAllUsers();
+    
+    // Filter for pupae that have been sold
+    const pupaeSales = batches
+      .filter(batch => batch.lifecycleStage === 'Pupa' && batch.sold && batch.salesHistory)
+      .map(batch => {
+        const seller = users.find(u => u.id === batch.createdBy);
+        const salesHistory = batch.salesHistory.map(sale => {
+          const purchaser = users.find(u => u.id === sale.purchaserId);
+          return {
+            ...sale,
+            purchaserDetails: purchaser ? {
+              id: purchaser.id,
+              name: `${purchaser.firstName} ${purchaser.lastName}`,
+              username: purchaser.username,
+              role: purchaser.role,
+              email: purchaser.email
+            } : null,
+            batchInfo: {
+              batchId: batch.cageId,
+              species: batch.species,
+              larvaCount: batch.larvaCount,
+              qualityScore: batch.qualityScore,
+              hostPlant: batch.hostPlant
+            }
+          };
+        });
+        
+        return {
+          batchId: batch.cageId,
+          species: batch.species,
+          larvaCount: batch.larvaCount,
+          qualityScore: batch.qualityScore,
+          hostPlant: batch.hostPlant,
+          sellerInfo: {
+            id: batch.createdBy,
+            name: seller ? `${seller.firstName} ${seller.lastName}` : 'Unknown',
+            username: seller ? seller.username : 'unknown',
+            role: seller ? seller.role : 'unknown'
+          },
+          salesHistory: salesHistory,
+          soldAt: batch.soldAt,
+          finalSalePrice: batch.finalSalePrice
+        };
+      });
+    
+    res.json(pupaeSales);
+  } catch (error) {
+    console.error('Error getting pupae sales:', error);
+    res.status(500).json({ error: 'Failed to get pupae sales' });
+  }
+});
+
+// Remove batch from sale
+app.post('/api/batches/:cageId/remove-from-sale', auth.authenticateToken, auth.requirePermission('update_batches'), async (req, res) => {
+  try {
+    const { cageId } = req.params;
+    
+    const batches = await loadBatches();
+    const batchIndex = batches.findIndex(b => b.cageId === cageId);
+    
+    if (batchIndex === -1) {
+      return res.status(404).json({ error: 'Batch not found' });
+    }
+    
+    const batch = batches[batchIndex];
+    
+    // Remove from marketplace
+    batch.forSale = false;
+    delete batch.salePrice;
+    delete batch.saleDescription;
+    delete batch.availableDate;
+    
+    batches[batchIndex] = batch;
+    await saveBatches(batches);
+    
+    await logActivity(req.user.id, `Batch removed from sale: ${cageId}`, batch.lifecycleStage);
+    
+    res.json({ message: 'Batch removed from sale successfully' });
+  } catch (error) {
+    console.error('Error removing batch from sale:', error);
+    res.status(500).json({ error: 'Failed to remove batch from sale' });
+  }
+});
+
