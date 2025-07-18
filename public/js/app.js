@@ -352,6 +352,16 @@ async function loadTasks() {
         return;
     }
     console.log('Loading tasks...'); 
+    try {
+        const response = await makeAuthenticatedRequest('/api/tasks');
+        if (response && response.ok) {
+            const tasks = await response.json();
+            displayTasks(tasks);
+        }
+    } catch (error) {
+        console.error('Error loading tasks:', error);
+        showNotification('Failed to load tasks', 'danger');
+    }
 }
 
 async function loadAchievements() { 
@@ -620,6 +630,236 @@ function purchaseItem(itemId, species, price) {
 function purchaseFromSeller(sellerId, species, price) {
     showNotification(`Purchase from seller for ${species} (₱${price.toFixed(2)}) will be implemented`, 'info');
     closeModal();
+}
+
+// Task Management Functions
+function displayTasks(tasks) {
+    const tasksContainer = document.getElementById('tasks');
+    if (!tasksContainer) return;
+    
+    // Group tasks by status
+    const tasksByStatus = {
+        pending: tasks.filter(t => t.status === 'pending'),
+        in_progress: tasks.filter(t => t.status === 'in_progress'),
+        overdue: tasks.filter(t => t.status === 'overdue'),
+        completed: tasks.filter(t => t.status === 'completed')
+    };
+    
+    let html = `
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3><i class="fas fa-tasks"></i> Task Management</h3>
+                <button onclick="showCreateTaskModal()" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-plus"></i> New Task
+                </button>
+            </div>
+            
+            <!-- Task Stats -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                <div style="background: linear-gradient(135deg, #f6ad55, #ed8936); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                    <h4 style="font-size: 2rem; margin: 0;">${tasksByStatus.pending.length}</h4>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Pending Tasks</p>
+                </div>
+                <div style="background: linear-gradient(135deg, #4299e1, #3182ce); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                    <h4 style="font-size: 2rem; margin: 0;">${tasksByStatus.in_progress.length}</h4>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">In Progress</p>
+                </div>
+                <div style="background: linear-gradient(135deg, #e53e3e, #c53030); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                    <h4 style="font-size: 2rem; margin: 0;">${tasksByStatus.overdue.length}</h4>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Overdue</p>
+                </div>
+                <div style="background: linear-gradient(135deg, #38a169, #2f855a); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                    <h4 style="font-size: 2rem; margin: 0;">${tasksByStatus.completed.length}</h4>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Completed</p>
+                </div>
+            </div>
+            
+            <!-- Task Filters -->
+            <div style="background: #f7fafc; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <select id="status-filter" onchange="filterTasks()" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="overdue">Overdue</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    <select id="priority-filter" onchange="filterTasks()" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <option value="">All Priorities</option>
+                        <option value="urgent">Urgent</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                    <select id="type-filter" onchange="filterTasks()" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <option value="">All Types</option>
+                        <option value="feeding">Feeding</option>
+                        <option value="monitoring">Monitoring</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="breeding">Breeding</option>
+                        <option value="harvest">Harvest</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Task Lists by Status
+    ['overdue', 'pending', 'in_progress', 'completed'].forEach(status => {
+        const statusTasks = tasksByStatus[status];
+        const statusColors = {
+            overdue: '#e53e3e',
+            pending: '#f6ad55', 
+            in_progress: '#4299e1',
+            completed: '#38a169'
+        };
+        
+        html += `
+            <div class="card">
+                <h3 style="color: ${statusColors[status]}; text-transform: capitalize;">
+                    <i class="fas fa-${status === 'overdue' ? 'exclamation-triangle' : status === 'pending' ? 'clock' : status === 'in_progress' ? 'spinner' : 'check-circle'}"></i>
+                    ${status.replace('_', ' ')} Tasks (${statusTasks.length})
+                </h3>
+                <div id="tasks-${status}" style="display: grid; gap: 15px;">
+                    ${statusTasks.map(task => `
+                        <div class="task-item" data-status="${task.status}" data-priority="${task.priority}" data-type="${task.task_type}" 
+                             style="background: white; border: 1px solid #e2e8f0; border-left: 4px solid ${statusColors[status]}; border-radius: 10px; padding: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                                <div style="flex: 1;">
+                                    <h4 style="margin: 0 0 5px 0; color: #4a5568;">${task.title}</h4>
+                                    <p style="margin: 0 0 10px 0; color: #666; font-size: 0.9rem;">${task.description || 'No description'}</p>
+                                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                        <span style="background: ${getPriorityColor(task.priority)}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; text-transform: uppercase;">
+                                            ${task.priority}
+                                        </span>
+                                        <span style="background: #e2e8f0; color: #4a5568; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem;">
+                                            ${task.task_type}
+                                        </span>
+                                        ${task.species ? `<span style="background: #667eea; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem;">${task.species}</span>` : ''}
+                                        ${task.cage_id ? `<span style="background: #38a169; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem;">${task.cage_id}</span>` : ''}
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 5px;">
+                                    <button onclick="editTask(${task.id})" style="padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteTask(${task.id})" style="padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; font-size: 0.9rem; color: #666;">
+                                <div><strong>Due:</strong> ${task.due_date ? new Date(task.due_date).toLocaleString() : 'No due date'}</div>
+                                <div><strong>Assigned:</strong> ${task.assigned_username || 'Unassigned'}</div>
+                                ${task.recurring ? `<div><strong>Recurring:</strong> ${task.recurrence_pattern}</div>` : ''}
+                                ${task.completed_at ? `<div><strong>Completed:</strong> ${new Date(task.completed_at).toLocaleString()}</div>` : ''}
+                            </div>
+                            
+                            ${task.status !== 'completed' ? `
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
+                                    ${task.status === 'pending' ? `<button onclick="updateTaskStatus(${task.id}, 'in_progress')" style="padding: 8px; background: #4299e1; color: white; border: none; border-radius: 5px; cursor: pointer;">Start Task</button>` : ''}
+                                    ${task.status === 'in_progress' ? `<button onclick="updateTaskStatus(${task.id}, 'completed')" style="padding: 8px; background: #38a169; color: white; border: none; border-radius: 5px; cursor: pointer;">Complete</button>` : ''}
+                                    ${task.status === 'overdue' ? `<button onclick="updateTaskStatus(${task.id}, 'in_progress')" style="padding: 8px; background: #4299e1; color: white; border: none; border-radius: 5px; cursor: pointer;">Resume</button>` : ''}
+                                </div>
+                            ` : ''}
+                            
+                            ${task.notes ? `<div style="background: #f7fafc; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 0.9rem;"><strong>Notes:</strong> ${task.notes}</div>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    });
+    
+    tasksContainer.innerHTML = html;
+    
+    // Store tasks globally for filtering
+    window.tasksData = tasks;
+}
+
+function getPriorityColor(priority) {
+    const colors = {
+        urgent: '#e53e3e',
+        high: '#ed8936',
+        medium: '#4299e1',
+        low: '#38a169'
+    };
+    return colors[priority] || '#4299e1';
+}
+
+function filterTasks() {
+    const statusFilter = document.getElementById('status-filter').value;
+    const priorityFilter = document.getElementById('priority-filter').value;
+    const typeFilter = document.getElementById('type-filter').value;
+    
+    const taskItems = document.querySelectorAll('.task-item');
+    
+    taskItems.forEach(item => {
+        const status = item.getAttribute('data-status');
+        const priority = item.getAttribute('data-priority');
+        const type = item.getAttribute('data-type');
+        
+        const statusMatch = !statusFilter || status === statusFilter;
+        const priorityMatch = !priorityFilter || priority === priorityFilter;
+        const typeMatch = !typeFilter || type === typeFilter;
+        
+        if (statusMatch && priorityMatch && typeMatch) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+async function updateTaskStatus(taskId, newStatus) {
+    try {
+        const response = await makeAuthenticatedRequest(`/api/tasks/${taskId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+        
+        if (response && response.ok) {
+            showNotification(`Task ${newStatus.replace('_', ' ')}!`, 'success');
+            loadTasks(); // Reload tasks
+        } else {
+            showNotification('Failed to update task', 'danger');
+        }
+    } catch (error) {
+        console.error('Error updating task:', error);
+        showNotification('Error updating task', 'danger');
+    }
+}
+
+function showCreateTaskModal() {
+    // Implementation for create task modal
+    showNotification('Create task modal will be implemented', 'info');
+}
+
+function editTask(taskId) {
+    // Implementation for edit task
+    showNotification(`Edit task ${taskId} will be implemented`, 'info');
+}
+
+async function deleteTask(taskId) {
+    if (!confirm('Are you sure you want to delete this task?')) return;
+    
+    try {
+        const response = await makeAuthenticatedRequest(`/api/tasks/${taskId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response && response.ok) {
+            showNotification('Task deleted successfully', 'success');
+            loadTasks(); // Reload tasks
+        } else {
+            showNotification('Failed to delete task', 'danger');
+        }
+    } catch (error) {
+        console.error('Error deleting task:', error);
+        showNotification('Error deleting task', 'danger');
+    }
 }
 
 function displayPurchaseHistory(purchases) {

@@ -1688,6 +1688,219 @@ app.get('/api/marketplace/species', auth.authenticateToken, async (req, res) => 
   }
 });
 
+// Task Management Routes
+
+// Get all tasks
+app.get('/api/tasks', auth.authenticateToken, async (req, res) => {
+  try {
+    const { status, priority, task_type, assigned_to } = req.query;
+    
+    let query = 'SELECT t.*, u1.username as assigned_username, u2.username as created_by_username FROM tasks t LEFT JOIN users u1 ON t.assigned_to = u1.id LEFT JOIN users u2 ON t.created_by = u2.id WHERE 1=1';
+    const params = [];
+    let paramCount = 1;
+    
+    if (status) {
+      query += ` AND t.status = $${paramCount}`;
+      params.push(status);
+      paramCount++;
+    }
+    
+    if (priority) {
+      query += ` AND t.priority = $${paramCount}`;
+      params.push(priority);
+      paramCount++;
+    }
+    
+    if (task_type) {
+      query += ` AND t.task_type = $${paramCount}`;
+      params.push(task_type);
+      paramCount++;
+    }
+    
+    if (assigned_to) {
+      query += ` AND t.assigned_to = $${paramCount}`;
+      params.push(assigned_to);
+      paramCount++;
+    }
+    
+    query += ' ORDER BY t.due_date ASC, t.priority DESC, t.created_at DESC';
+    
+    const result = await Database.pool.query(query, params);
+    
+    // Update overdue tasks
+    const now = new Date();
+    for (const task of result.rows) {
+      if (task.due_date && new Date(task.due_date) < now && task.status === 'pending') {
+        await Database.pool.query('UPDATE tasks SET status = $1 WHERE id = $2', ['overdue', task.id]);
+        task.status = 'overdue';
+      }
+    }
+    
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error loading tasks:', error);
+    res.status(500).json({ error: 'Failed to load tasks' });
+  }
+});
+
+// Create new task
+app.post('/api/tasks', auth.authenticateToken, async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      task_type,
+      priority = 'medium',
+      assigned_to,
+      cage_id,
+      species,
+      due_date,
+      recurring = false,
+      recurrence_pattern
+    } = req.body;
+    
+    if (!title || !task_type) {
+      return res.status(400).json({ error: 'Title and task type are required' });
+    }
+    
+    const result = await Database.pool.query(
+      `INSERT INTO tasks (title, description, task_type, priority, assigned_to, cage_id, species, due_date, recurring, recurrence_pattern, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+      [title, description, task_type, priority, assigned_to, cage_id, species, due_date, recurring, recurrence_pattern, req.user.id]
+    );
+    
+    // Emit real-time update
+    io.emit('taskCreated', result.rows[0]);
+    
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error creating task:', error);
+    res.status(500).json({ error: 'Failed to create task' });
+  }
+});
+
+// Update task
+app.put('/api/tasks/:id', auth.authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      description,
+      task_type,
+      priority,
+      status,
+      assigned_to,
+      cage_id,
+      species,
+      due_date,
+      notes,
+      recurring,
+      recurrence_pattern
+    } = req.body;
+    
+    const completed_at = status === 'completed' ? new Date() : null;
+    
+    const result = await Database.pool.query(
+      `UPDATE tasks SET 
+       title = COALESCE($1, title),
+       description = COALESCE($2, description),
+       task_type = COALESCE($3, task_type),
+       priority = COALESCE($4, priority),
+       status = COALESCE($5, status),
+       assigned_to = COALESCE($6, assigned_to),
+       cage_id = COALESCE($7, cage_id),
+       species = COALESCE($8, species),
+       due_date = COALESCE($9, due_date),
+       notes = COALESCE($10, notes),
+       recurring = COALESCE($11, recurring),
+       recurrence_pattern = COALESCE($12, recurrence_pattern),
+       completed_at = COALESCE($13, completed_at),
+       updated_at = CURRENT_TIMESTAMP
+       WHERE id = $14 RETURNING *`,
+      [title, description, task_type, priority, status, assigned_to, cage_id, species, due_date, notes, recurring, recurrence_pattern, completed_at, id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    
+    // Create recurring task if needed
+    if (status === 'completed' && recurring && recurrence_pattern) {
+      await createRecurringTask(result.rows[0]);
+    }
+    
+    // Emit real-time update
+    io.emit('taskUpdated', result.rows[0]);
+    
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error updating task:', error);
+    res.status(500).json({ error: 'Failed to update task' });
+  }
+});
+
+// Delete task
+app.delete('/api/tasks/:id', auth.authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const result = await Database.pool.query('DELETE FROM tasks WHERE id = $1 RETURNING *', [id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    
+    // Emit real-time update
+    io.emit('taskDeleted', { id });
+    
+    res.json({ message: 'Task deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting task:', error);
+    res.status(500).json({ error: 'Failed to delete task' });
+  }
+});
+
+// Helper function to create recurring tasks
+async function createRecurringTask(completedTask) {
+  try {
+    let nextDueDate = new Date(completedTask.due_date);
+    
+    switch (completedTask.recurrence_pattern) {
+      case 'daily':
+        nextDueDate.setDate(nextDueDate.getDate() + 1);
+        break;
+      case 'weekly':
+        nextDueDate.setDate(nextDueDate.getDate() + 7);
+        break;
+      case 'monthly':
+        nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+        break;
+      default:
+        return;
+    }
+    
+    await Database.pool.query(
+      `INSERT INTO tasks (title, description, task_type, priority, assigned_to, cage_id, species, due_date, recurring, recurrence_pattern, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+      [
+        completedTask.title,
+        completedTask.description,
+        completedTask.task_type,
+        completedTask.priority,
+        completedTask.assigned_to,
+        completedTask.cage_id,
+        completedTask.species,
+        nextDueDate,
+        completedTask.recurring,
+        completedTask.recurrence_pattern,
+        completedTask.created_by
+      ]
+    );
+  } catch (error) {
+    console.error('Error creating recurring task:', error);
+  }
+}
+
 // Create new order
 app.post('/api/orders', auth.authenticateToken, auth.requirePermission('view_batches'), async (req, res) => {
   try {
