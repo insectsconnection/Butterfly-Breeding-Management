@@ -18,10 +18,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Butterfly Breeding System"
+args = "Node.js Server"
 
 [[workflows.workflow]]
-name = "Butterfly Breeding System"
+name = "Node.js Server"
 author = "agent"
 
 [[workflows.workflow.tasks]]
